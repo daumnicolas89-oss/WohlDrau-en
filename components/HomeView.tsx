@@ -14,6 +14,8 @@ import { useStatuses } from "@/hooks/useStatuses";
 import { useWeather } from "@/hooks/useWeather";
 import { SCORE_ERKLAERUNG } from "@/lib/wording";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
+import { useManualLocation } from "@/store/useLocation";
+import { LocationSheet } from "./LocationSheet";
 import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
 import { MapControls } from "./map/MapControls";
@@ -32,7 +34,23 @@ const Map = dynamic(() => import("./map/Map"), {
 
 export function HomeView() {
   const filters = useFilters();
-  const { coords, status: geoStatus, locate } = useGeolocation();
+  const geo = useGeolocation();
+  const { manual, setManual } = useManualLocation();
+  const geoStatus = geo.status;
+  // Ein manuell gewählter Ort überstimmt GPS – so funktioniert die Suche und
+  // der „Reise"-Blick, und ein blockierter Standort ist kein Sackgasse mehr.
+  const coords = useMemo(
+    () =>
+      manual
+        ? {
+            lat: manual.lat,
+            lng: manual.lng,
+            accuracyM: null,
+            source: "manual" as const,
+          }
+        : geo.coords,
+    [manual, geo.coords],
+  );
   // Derselbe Radius wandert in die Detail-Links: die Detailseite trifft damit
   // exakt den Cache-Eintrag, den diese Liste schon geladen hat.
   const radius = radiusForDistance(filters.maxDistanceM);
@@ -45,6 +63,7 @@ export function HomeView() {
   const online = useOnline();
 
   const [filterOpen, setFilterOpen] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   const [reportPickerOpen, setReportPickerOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState<{ id: string; name: string } | null>(
     null,
@@ -104,8 +123,11 @@ export function HomeView() {
   );
 
   const filterCount = activeFilterChips(filters).length;
-  const locationLabel =
-    coords.source === "gps" ? "Orte in deiner Nähe" : FALLBACK_LABEL;
+  const locationLabel = manual
+    ? manual.label
+    : coords.source === "gps"
+      ? "Orte in deiner Nähe"
+      : FALLBACK_LABEL;
   // Ohne Wetter lässt sich kein Schatten bewerten – dann muss ein Fehler
   // sichtbar werden statt eines Ladezustands, der nie endet.
   const loading = places.loading || wetter.loading;
@@ -128,7 +150,8 @@ export function HomeView() {
         at={at}
         locationLabel={locationLabel}
         geoStatus={geoStatus}
-        onLocate={locate}
+        manualActive={!!manual}
+        onOpenLocation={() => setLocationOpen(true)}
       />
 
       <MapControls />
@@ -288,6 +311,15 @@ export function HomeView() {
         open={filterOpen}
         counts={matchCounts}
         onClose={() => setFilterOpen(false)}
+      />
+
+      <LocationSheet
+        open={locationOpen}
+        onClose={() => setLocationOpen(false)}
+        geoStatus={geoStatus}
+        onUseGps={geo.locate}
+        manual={manual}
+        onSetManual={setManual}
       />
 
       <Sheet

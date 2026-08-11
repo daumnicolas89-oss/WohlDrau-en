@@ -34,13 +34,16 @@ export function WeatherHeader({
   at,
   locationLabel,
   geoStatus,
-  onLocate,
+  manualActive = false,
+  onOpenLocation,
 }: {
   weather: Weather | null;
   at: Date;
   locationLabel: string;
   geoStatus: GeoStatus;
-  onLocate: () => void;
+  /** Ein Ort wurde manuell gewählt – dann sind die GPS-Hinweise unpassend. */
+  manualActive?: boolean;
+  onOpenLocation: () => void;
 }) {
   const values = weather ? weatherAt(weather, at) : null;
   const uv = values ? uvWording(values.uvIndex) : null;
@@ -59,8 +62,8 @@ export function WeatherHeader({
         </div>
         <button
           type="button"
-          onClick={onLocate}
-          aria-label="Standort neu bestimmen"
+          onClick={onOpenLocation}
+          aria-label="Standort ändern"
           className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/60 backdrop-blur transition active:scale-95 ${
             geoStatus === "locating" ? "animate-pulse text-primary-dark" : "text-dark"
           }`}
@@ -111,14 +114,14 @@ export function WeatherHeader({
         </div>
       )}
 
-      {geoStatus === "denied" && (
+      {geoStatus === "denied" && !manualActive && (
         <p className="mt-3 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          Ohne Standortfreigabe zeigen wir eine Beispielstadt. Freigabe im
-          Browser erlauben und erneut auf das Fadenkreuz tippen.
+          Ohne Standortfreigabe zeigen wir eine Beispielstadt. Tippe oben auf das
+          Standort-Symbol, um deinen Standort freizugeben oder einen Ort zu suchen.
         </p>
       )}
 
-      {geoStatus === "unavailable" && (
+      {geoStatus === "unavailable" && !manualActive && (
         <p className="mt-3 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           Der Standort lässt sich gerade nicht bestimmen – im Gebäude oder ohne
           GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte

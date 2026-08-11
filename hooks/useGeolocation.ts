@@ -6,7 +6,7 @@ export interface Coords {
   lat: number;
   lng: number;
   accuracyM: number | null;
-  source: "gps" | "fallback" | "last-known";
+  source: "gps" | "fallback" | "last-known" | "manual";
 }
 
 /** Startstadt, solange kein Standort freigegeben ist. */
