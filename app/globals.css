@@ -18,21 +18,32 @@
   --color-warning-soft: #fbe7e1;
   --color-warning-ink: #b4452a;
 
-  --color-dark: #264653;
-  --color-background: #f8f9fa;
+  --color-dark: #1c3540;
+  --color-background: #f4f6f5;
   --color-card: #ffffff;
-  --color-body: #1a1a1a;
+  --color-body: #1a2529;
   --color-muted: #5c6b73;
-  --color-line: #e5e9eb;
+  --color-line: #e6eae9;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), var(--font-inter), ui-sans-serif, sans-serif;
 
-  --radius-card: 20px;
-  --radius-sheet: 28px;
+  --radius-card: 22px;
+  --radius-sheet: 30px;
 
-  --shadow-card: 0 1px 2px rgb(38 70 83 / 0.04), 0 6px 20px -8px rgb(38 70 83 / 0.14);
-  --shadow-float: 0 4px 12px rgb(38 70 83 / 0.1), 0 18px 40px -12px rgb(38 70 83 / 0.28);
+  /* Weicher, tiefer gestaffelt: Karten schweben ruhig über dem Papier,
+     statt mit einer harten Kante aufzuliegen. */
+  --shadow-card: 0 1px 2px rgb(28 53 64 / 0.04), 0 10px 30px -14px rgb(28 53 64 / 0.16);
+  --shadow-float: 0 4px 12px rgb(28 53 64 / 0.1), 0 20px 44px -16px rgb(28 53 64 / 0.3);
+}
+
+/* Der Himmel-Kopf: die eine mutige Fläche der App. Ein warmer Sonnen-Schimmer
+   oben rechts über einem kühlen Himmel-Verlauf, der unten ins Papier übergeht.
+   Bewusst blass – dunkle Schrift bleibt auch bei praller Sonne klar lesbar. */
+@utility sky-hero {
+  background:
+    radial-gradient(115% 75% at 88% -12%, rgb(233 196 106 / 0.22), transparent 58%),
+    linear-gradient(178deg, #e6f2f0 0%, #eef4f2 46%, var(--color-background) 100%);
 }
 
 :root {

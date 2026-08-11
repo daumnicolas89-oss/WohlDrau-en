@@ -167,7 +167,7 @@ export function HomeView() {
         )}
 
         {!loading && !error && filters.viewMode === "list" && (
-          <div className="space-y-3 p-4 pb-32">
+          <div className="space-y-4 p-4 pb-32">
             <FilterChips />
 
             {visible.length > 0 ? (

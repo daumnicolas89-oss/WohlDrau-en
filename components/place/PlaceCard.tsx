@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ChevronRight } from "lucide-react";
+import { AlertTriangle, ChevronRight, Sparkles } from "lucide-react";
 import { factChips, mainDriver, scoreWording, statusSentence } from "@/lib/wording";
 import type { Place } from "@/types";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
@@ -41,24 +41,25 @@ export function PlaceCard({
   return (
     <Link
       href={href}
-      className={`block rounded-card bg-card shadow-card transition active:scale-[0.99] ${
-        beste ? "ring-2 ring-primary-dark/25" : ""
+      className={`group block overflow-hidden rounded-card bg-card shadow-card transition active:scale-[0.99] ${
+        beste ? "ring-1 ring-primary-dark/20" : ""
       }`}
     >
       {beste && (
-        <p className="rounded-t-card bg-primary-soft px-4 py-1.5 text-xs font-semibold tracking-wide text-primary-dark uppercase">
+        <p className="flex items-center gap-1.5 bg-primary-soft px-5 py-2 text-[11px] font-semibold tracking-[0.14em] text-primary-dark uppercase">
+          <Sparkles size={13} aria-hidden />
           Beste Wahl gerade
         </p>
       )}
 
-      <div className="p-4">
+      <div className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-display text-[19px] leading-tight font-semibold text-dark">
+            <h3 className="font-display text-[19px] leading-snug font-semibold text-dark [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
               {place.name}
             </h3>
             <p
-              className={`mt-1 font-display text-[17px] leading-tight font-bold ${TONE_TEXT[bewertung.tone]}`}
+              className={`mt-1 text-[15px] leading-tight font-semibold ${TONE_TEXT[bewertung.tone]}`}
             >
               {bewertung.label}
             </p>
@@ -80,9 +81,9 @@ export function PlaceCard({
           />
         </div>
 
-        <p className="mt-3 text-[15px] leading-snug text-dark">{grund.text}</p>
+        <p className="mt-3.5 text-[15px] leading-relaxed text-dark">{grund.text}</p>
 
-        <ul className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+        <ul className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
           {chips.map((chip, index) => (
             <li key={chip.text} className="flex items-center gap-2">
               {index > 0 && (
@@ -99,7 +100,7 @@ export function PlaceCard({
 
         {meldung && (
           <p
-            className={`mt-3 flex items-start gap-1.5 border-t border-line pt-3 text-sm font-medium ${
+            className={`mt-4 flex items-start gap-1.5 border-t border-line pt-3.5 text-sm font-medium ${
               meldung.tone === "bad" ? "text-warning-ink" : "text-primary-dark"
             }`}
           >
@@ -111,20 +112,23 @@ export function PlaceCard({
         )}
 
         {!meldung && place.warnings.length > 0 && (
-          <p className="mt-3 flex items-start gap-1.5 border-t border-line pt-3 text-sm font-medium text-warning-ink">
+          <p className="mt-4 flex items-start gap-1.5 border-t border-line pt-3.5 text-sm font-medium text-warning-ink">
             <AlertTriangle size={15} aria-hidden className="mt-0.5 shrink-0" />
             {place.warnings[0]}
           </p>
         )}
-      </div>
 
-      <span
-        aria-hidden
-        className="flex items-center justify-end gap-0.5 px-4 pb-3 text-sm font-semibold text-primary-dark"
-      >
-        Details
-        <ChevronRight size={16} />
-      </span>
+        <span
+          aria-hidden
+          className="mt-4 flex items-center justify-end gap-0.5 text-[13px] font-semibold text-primary-dark"
+        >
+          Details ansehen
+          <ChevronRight
+            size={15}
+            className="transition-transform group-active:translate-x-0.5"
+          />
+        </span>
+      </div>
     </Link>
   );
 }
