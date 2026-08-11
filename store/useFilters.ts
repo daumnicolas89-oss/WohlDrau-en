@@ -7,6 +7,7 @@ import type { PlaceType } from "@/types";
 export type ShadeRequirement = "any" | "partial" | "shady";
 export type TimeOffset = 0 | 30 | 60;
 export type ViewMode = "list" | "map";
+export type MapStyle = "map" | "satellite";
 
 export interface FilterState {
   timeOffsetMin: TimeOffset;
@@ -35,6 +36,8 @@ export const DEFAULT_FILTERS: FilterState = {
 interface FilterStore extends FilterState {
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
+  mapStyle: MapStyle;
+  setMapStyle: (style: MapStyle) => void;
   set: <K extends keyof FilterState>(key: K, value: FilterState[K]) => void;
   toggleType: (type: PlaceType) => void;
   reset: () => void;
@@ -46,6 +49,8 @@ export const useFilters = create<FilterStore>()(
       ...DEFAULT_FILTERS,
       viewMode: "list",
       setViewMode: (viewMode) => set({ viewMode }),
+      mapStyle: "map",
+      setMapStyle: (mapStyle) => set({ mapStyle }),
       set: (key, value) => set({ [key]: value } as Partial<FilterState>),
       toggleType: (type) =>
         set((state) => {
@@ -70,6 +75,7 @@ export const useFilters = create<FilterStore>()(
         types: state.types,
         hideReportedProblems: state.hideReportedProblems,
         viewMode: state.viewMode,
+        mapStyle: state.mapStyle,
       }),
     },
   ),

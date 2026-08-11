@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { Megaphone, SlidersHorizontal } from "lucide-react";
+import { Layers, Megaphone, SlidersHorizontal } from "lucide-react";
 import { selectPlaces } from "@/lib/select";
 import { formatDistance, haversine } from "@/lib/utils";
 import type { PlaceStatusType } from "@/types";
@@ -184,8 +184,28 @@ export function HomeView() {
         {loading && <PlacesLoading />}
 
         {!loading && !error && filters.viewMode === "map" && (
-          <div className="h-[calc(100dvh-16rem)] min-h-[22rem] w-full overflow-hidden">
-            <Map places={visible} origin={coords} radius={radius} />
+          <div className="relative h-[calc(100dvh-16rem)] min-h-[22rem] w-full overflow-hidden">
+            <Map
+              places={visible}
+              origin={coords}
+              radius={radius}
+              style={filters.mapStyle}
+            />
+            <button
+              type="button"
+              onClick={() =>
+                filters.setMapStyle(filters.mapStyle === "map" ? "satellite" : "map")
+              }
+              aria-label={
+                filters.mapStyle === "map"
+                  ? "Zur Satellitenansicht wechseln"
+                  : "Zur Kartenansicht wechseln"
+              }
+              className="absolute top-3 right-3 z-[905] flex items-center gap-1.5 rounded-full bg-card/95 px-3.5 py-2 text-sm font-semibold text-dark shadow-card backdrop-blur transition active:scale-95"
+            >
+              <Layers size={16} aria-hidden />
+              {filters.mapStyle === "map" ? "Satellit" : "Karte"}
+            </button>
           </div>
         )}
 
