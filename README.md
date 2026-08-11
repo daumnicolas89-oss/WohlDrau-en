@@ -26,6 +26,7 @@ Servers (siehe [Community-Meldungen](#community-meldungen)).
 | `npm run typecheck` | TypeScript ohne Emit |
 | `npm run lint` | ESLint |
 | `npm run icons` | PWA-Icons neu erzeugen |
+| `npm run tokens` | Design-Tokens für Penpot & Co. exportieren |
 
 ## Projektstruktur
 
@@ -208,6 +209,14 @@ Die Palette ist auf Lesbarkeit in praller Sonne geprüft. `primary` (#2A9D8F)
 trägt weiße Schrift nur mit 3.3:1 und ist deshalb Akzent-, keine Flächenfarbe;
 Buttons nutzen `primary-dark` (4.6:1). Alle Text-/Hintergrundpaare erreichen
 WCAG AA, Touch-Targets sind mindestens 44 × 44 px.
+
+## Design-Tokens
+
+`npm run tokens` erzeugt `design/tokens.json` im W3C-DTCG-Format – importierbar
+in Penpot (Design Tokens) und andere Designtools. Quelle ist der `@theme`-Block
+in `app/globals.css`, nicht eine gepflegte Kopie: Die Datei kann also nicht vom
+Code abweichen. Wer umgekehrt in Penpot designt, exportiert dort die Tokens und
+gleicht die Werte in `globals.css` ab.
 
 ## Bekannte Grenzen
 
