@@ -286,6 +286,28 @@ function withStreet(base: string, street: string): string {
   return `${base} ${street}`;
 }
 
+/**
+ * Name der benannten Grünfläche, in der ein Ort liegt – für Spielplätze mitten
+ * im Park, die keine Straße in der Nähe haben. Die kleinste passende Fläche
+ * gewinnt (spezifischer: „Alter Botanischer Garten" statt „Innenstadt").
+ */
+function namedGreenAt(
+  greens: OverpassElement[],
+  lat: number,
+  lng: number,
+): string | null {
+  let best: { name: string; area: number } | null = null;
+  for (const g of greens) {
+    const name = g.tags?.name;
+    if (!name || !g.bounds) continue;
+    const { minlat, minlon, maxlat, maxlon } = g.bounds;
+    if (lat < minlat || lat > maxlat || lng < minlon || lng > maxlon) continue;
+    const area = (maxlat - minlat) * (maxlon - minlon);
+    if (!best || area < best.area) best = { name, area };
+  }
+  return best ? best.name : null;
+}
+
 /** Name der nächstgelegenen benannten Straße – oder null, wenn keine nah genug ist. */
 function nearestStreetName(
   grid: Grid<Point & { name: string }>,
@@ -499,15 +521,20 @@ export async function fetchPlaces(
 
   const deduped = dedupe(relevant);
 
-  // Namenlose Orte über die nächste Straße unterscheidbar machen:
-  // „Spielplatz" dreimal hilft niemandem, „Spielplatz an der Lindenstraße" schon.
-  if (streetPoints.length > 0) {
-    const streetGrid = new Grid(streetPoints);
-    for (const place of deduped) {
-      if (!DEFAULT_NAMES.has(place.name)) continue;
-      const street = nearestStreetName(streetGrid, place.lat, place.lng);
-      if (street) place.name = withStreet(place.name, street);
+  // Namenlose Orte unterscheidbar machen: erst über die nächste Straße, sonst
+  // über den Namen der Grünfläche, in der sie liegen (Park-Spielplätze).
+  const streetGrid = streetPoints.length > 0 ? new Grid(streetPoints) : null;
+  for (const place of deduped) {
+    if (!DEFAULT_NAMES.has(place.name)) continue;
+    const street = streetGrid
+      ? nearestStreetName(streetGrid, place.lat, place.lng)
+      : null;
+    if (street) {
+      place.name = withStreet(place.name, street);
+      continue;
     }
+    const green = namedGreenAt(greens, place.lat, place.lng);
+    if (green) place.name = `${place.name} ${green}`;
   }
 
   return { places: deduped, treeDataQuality };
