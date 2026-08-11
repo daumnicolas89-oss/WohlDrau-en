@@ -269,7 +269,7 @@ function nearestStreetName(
   grid: Grid<Point & { name: string }>,
   lat: number,
   lng: number,
-  radiusM = 140,
+  radiusM = 200,
 ): string | null {
   const near = grid.near(lat, lng, radiusM);
   if (near.length === 0) return null;

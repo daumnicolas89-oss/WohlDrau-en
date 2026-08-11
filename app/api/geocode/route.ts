@@ -2,20 +2,52 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+interface NominatimAddress {
+  city?: string;
+  town?: string;
+  village?: string;
+  municipality?: string;
+  county?: string;
+  state?: string;
+  postcode?: string;
+}
+
 interface NominatimResult {
   lat: string;
   lon: string;
   name?: string;
   display_name: string;
+  addresstype?: string;
+  address?: NominatimAddress;
 }
 
-/** Aus dem langen Nominatim-Namen eine kurze, lesbare Bezeichnung machen. */
+/**
+ * Aus dem langen Nominatim-Namen eine kurze, lesbare Bezeichnung machen.
+ * - Postleitzahl: „35037 Marburg" statt eines einzelnen Stadtteils.
+ * - Sonst: Name plus die erste übergeordnete Ebene, die sich vom Namen
+ *   unterscheidet (Stadt/Kreis/Land), damit gleichnamige Orte unterscheidbar
+ *   bleiben („Rosengarten, Landkreis Harburg").
+ */
 function shortLabel(r: NominatimResult): string {
-  const parts = r.display_name.split(",").map((s) => s.trim());
-  const first = r.name && r.name.length > 0 ? r.name : parts[0];
-  // Name plus eine Ebene Kontext (Stadt/Kreis) – reicht zum Unterscheiden.
-  const context = parts.find((p) => p && p !== first);
-  return context ? `${first}, ${context}` : first;
+  const a = r.address ?? {};
+
+  if (r.addresstype === "postcode") {
+    const plz = a.postcode || r.name || "";
+    const stadt = a.city || a.town || a.village || a.municipality || a.county;
+    return stadt ? `${plz} ${stadt}`.trim() : plz || r.display_name;
+  }
+
+  const name =
+    r.name && r.name.length > 0 ? r.name : r.display_name.split(",")[0].trim();
+  const kontext = [
+    a.city,
+    a.town,
+    a.village,
+    a.municipality,
+    a.county,
+    a.state,
+  ].find((value) => value && value !== name);
+  return kontext ? `${name}, ${kontext}` : name;
 }
 
 export async function GET(request: Request) {
@@ -29,7 +61,7 @@ export async function GET(request: Request) {
         q,
         format: "jsonv2",
         limit: "6",
-        addressdetails: "0",
+        addressdetails: "1",
         "accept-language": "de",
         countrycodes: "de,at,ch",
       });
