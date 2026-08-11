@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Megaphone } from "lucide-react";
+import { ArrowLeft, ExternalLink, Megaphone, Navigation } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
 import { formatAge, statusOption } from "@/lib/status";
 import { computeShade } from "@/lib/sun";
@@ -357,15 +357,25 @@ export function PlaceDetail({
             </a>
           </section>
 
-          <div className="safe-bottom fixed inset-x-0 bottom-0 z-[901] mx-auto max-w-lg px-4">
+          <div className="safe-bottom fixed inset-x-0 bottom-0 z-[901] mx-auto flex max-w-lg gap-3 px-4">
             <button
               type="button"
               onClick={() => setReportOpen(true)}
-              className="flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float"
+              aria-label="Rückmeldung zu diesem Ort geben"
+              className="flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float transition active:scale-95"
             >
               <Megaphone size={18} aria-hidden />
-              Wie ist es hier gerade?
+              Melden
             </button>
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=walking`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex min-h-13 flex-1 items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float transition active:bg-[#175c54]"
+            >
+              <Navigation size={18} aria-hidden />
+              Route dorthin
+            </a>
           </div>
 
           {reportOpen && (

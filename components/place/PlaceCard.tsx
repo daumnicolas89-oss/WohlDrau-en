@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, ChevronRight, Sparkles } from "lucide-react";
-import { factChips, mainDriver, scoreWording, statusSentence } from "@/lib/wording";
+import { formatDistance, haversine } from "@/lib/utils";
+import { factChips, mainDriver, scoreWording, shadeWording, statusSentence } from "@/lib/wording";
 import type { Place } from "@/types";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { ShadeMeter } from "./ShadeMeter";
@@ -37,6 +38,34 @@ export function PlaceCard({
   const meldung = statusSentence(place.lastStatuses, now);
   const chips = factChips(place);
   const beste = rank === 0;
+
+  // Ab Platz 2 eine schlanke Zeile: ein klarer Favorit oben, darunter eine
+  // ruhige, scanbare Liste – das bricht den „Einheitsbrei" ohne mehr Farbe.
+  if (!beste) {
+    const distance = haversine(origin.lat, origin.lng, place.lat, place.lng);
+    return (
+      <Link
+        href={href}
+        className="flex items-center gap-3.5 rounded-card bg-card p-4 shadow-card transition active:scale-[0.99]"
+      >
+        <ScoreRing
+          score={place.pleasantScore}
+          tone={bewertung.tone}
+          size={46}
+          label={`Angenehm jetzt: ${place.pleasantScore} von 100 – ${bewertung.label}`}
+        />
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate font-display text-[16px] leading-tight font-semibold text-dark">
+            {place.name}
+          </h3>
+          <p className="mt-1 truncate text-sm text-muted">
+            {shadeWording(place.shade.state).label} · {formatDistance(distance)}
+          </p>
+        </div>
+        <ChevronRight size={18} aria-hidden className="shrink-0 text-muted" />
+      </Link>
+    );
+  }
 
   return (
     <Link
