@@ -24,6 +24,7 @@ import { Button } from "./ui/Button";
 import { InfoButton } from "./ui/InfoButton";
 import { Sheet } from "./ui/Sheet";
 import { WeatherHeader } from "./WeatherHeader";
+import { WelcomeCard } from "./WelcomeCard";
 
 const Map = dynamic(() => import("./map/Map"), {
   ssr: false,
@@ -123,6 +124,8 @@ export function HomeView() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col bg-background">
+      <WelcomeCard />
+
       <WeatherHeader
         weather={weather}
         at={at}
