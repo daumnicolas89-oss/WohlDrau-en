@@ -104,15 +104,17 @@ export function PlaceDetail({
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg bg-background pb-28">
-      <div className="sticky top-0 z-[900] flex items-center gap-2 bg-background/95 px-3 py-2 backdrop-blur">
-        <Link
-          href="/"
-          aria-label="Zurück zur Übersicht"
-          className="flex size-11 items-center justify-center rounded-full bg-card text-dark shadow-card"
-        >
-          <ArrowLeft size={20} />
-        </Link>
-      </div>
+      {!(place && bewertung && weather) && (
+        <div className="px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1">
+          <Link
+            href="/"
+            aria-label="Zurück zur Übersicht"
+            className="flex size-11 items-center justify-center rounded-full bg-card text-dark shadow-card"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+        </div>
+      )}
 
       {loading && <PlacesLoading rows={2} />}
 
@@ -158,62 +160,68 @@ export function PlaceDetail({
 
       {place && bewertung && weather && (
         <>
-          <section className="space-y-3 px-4">
-            <div>
-              <h1 className="font-display text-2xl leading-tight font-bold text-dark">
-                {place.name}
-              </h1>
-              <p className="mt-1 text-sm text-muted">
-                {distanceSentence(place.distance ?? 0)} ·{" "}
-                {place.type === "park" ? "Grünfläche" : "Spielplatz"}
-              </p>
-            </div>
+          <header className="sky-hero relative px-5 pt-[max(4rem,calc(env(safe-area-inset-top)+3.5rem))] pb-6">
+            <Link
+              href="/"
+              aria-label="Zurück zur Übersicht"
+              className="absolute left-4 top-[max(1rem,env(safe-area-inset-top))] flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition active:scale-95"
+            >
+              <ArrowLeft size={20} />
+            </Link>
+
+            <h1 className="font-display text-[26px] leading-tight font-bold text-dark">
+              {place.name}
+            </h1>
+            <p className="mt-1.5 text-sm text-muted">
+              {distanceSentence(place.distance ?? 0)} ·{" "}
+              {place.type === "park" ? "Grünfläche" : "Spielplatz"}
+            </p>
 
             {/* Die Antwort auf „soll ich hin?“ – groß, in Worten, mit Zahl. */}
-            <div className="rounded-card bg-card p-5 shadow-card">
-              <div className="flex items-center gap-4">
-                <ScoreRing
-                  score={place.pleasantScore}
-                  tone={bewertung.tone}
-                  size={92}
-                  label={`Angenehm jetzt: ${place.pleasantScore} von 100`}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-1">
-                    <p className="text-xs font-semibold tracking-wide text-muted uppercase">
-                      Angenehm jetzt
-                    </p>
-                    <InfoButton
-                      title="Woher kommt dieser Wert?"
-                      ariaLabel="Erklärung zum Wert „Angenehm jetzt“"
-                    >
-                      <p>{SCORE_ERKLAERUNG}</p>
-                      <p>
-                        Die Bewertung gilt für genau diesen Moment. Steht die
-                        Sonne in einer Stunde anders, ändert sie sich mit.
-                      </p>
-                    </InfoButton>
-                  </div>
-                  <p
-                    className={`font-display text-2xl leading-tight font-bold ${TONE_TEXT[bewertung.tone]}`}
+            <div className="mt-5 flex items-center gap-4">
+              <ScoreRing
+                score={place.pleasantScore}
+                tone={bewertung.tone}
+                size={92}
+                label={`Angenehm jetzt: ${place.pleasantScore} von 100`}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-1">
+                  <p className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+                    Angenehm jetzt
+                  </p>
+                  <InfoButton
+                    title="Woher kommt dieser Wert?"
+                    ariaLabel="Erklärung zum Wert „Angenehm jetzt“"
                   >
-                    {bewertung.label}
-                  </p>
-                  <p className="mt-1 text-sm text-muted">
-                    {place.pleasantScore} von 100
-                  </p>
+                    <p>{SCORE_ERKLAERUNG}</p>
+                    <p>
+                      Die Bewertung gilt für genau diesen Moment. Steht die
+                      Sonne in einer Stunde anders, ändert sie sich mit.
+                    </p>
+                  </InfoButton>
                 </div>
+                <p
+                  className={`font-display text-2xl leading-tight font-bold ${TONE_TEXT[bewertung.tone]}`}
+                >
+                  {bewertung.label}
+                </p>
+                <p className="mt-0.5 text-sm text-muted">
+                  {place.pleasantScore} von 100
+                </p>
               </div>
-
-              {/* Der Grund gehört direkt an den Wert – sonst bleibt „70“ eine
-                  Behauptung. */}
-              <p className="mt-4 border-t border-line pt-3 text-[15px] leading-relaxed text-dark">
-                {mainDriver(place).text}
-              </p>
             </div>
 
+            {/* Der Grund gehört direkt an den Wert – sonst bleibt „70“ eine
+                Behauptung. */}
+            <p className="mt-4 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 text-[15px] leading-relaxed text-dark backdrop-blur">
+              {mainDriver(place).text}
+            </p>
+          </header>
+
+          <section className="space-y-4 px-4 pt-4">
             {/* Schatten: Aussage, Balken, Begründung, Ausblick. */}
-            <div className="rounded-card bg-card p-4 shadow-card">
+            <div className="rounded-card bg-card p-5 shadow-card">
               <h2 className="mb-3 font-display font-semibold text-dark">
                 Sonne und Schatten
               </h2>
@@ -231,7 +239,7 @@ export function PlaceDetail({
               </p>
             </div>
 
-            <div className="rounded-card bg-card p-4 shadow-card">
+            <div className="rounded-card bg-card p-5 shadow-card">
               <h2 className="mb-1 font-display font-semibold text-dark">
                 Wie lange hält der Schatten?
               </h2>
@@ -248,7 +256,7 @@ export function PlaceDetail({
               now={now.getTime()}
             />
 
-            <div className="rounded-card bg-card p-4 shadow-card">
+            <div className="rounded-card bg-card p-5 shadow-card">
               <div className="mb-1 flex items-start justify-between gap-2">
                 <h2 className="font-display font-semibold text-dark">Ausstattung</h2>
                 <InfoButton title="Woher kommen diese Angaben?">
@@ -292,7 +300,7 @@ export function PlaceDetail({
               )}
             </div>
 
-            <div className="rounded-card bg-card p-4 shadow-card">
+            <div className="rounded-card bg-card p-5 shadow-card">
               <h2 className="mb-1 font-display font-semibold text-dark">
                 Was andere Eltern melden
               </h2>
