@@ -20,12 +20,15 @@ export function ShadeMeter({
   shadeIndex,
   size = "sm",
   reason,
+  estimateHint = false,
 }: {
   state: ShadeState;
   /** 0..1 */
   shadeIndex: number;
   size?: "sm" | "lg";
   reason?: string;
+  /** Kennzeichnet den Wert als Schätzung – auf der Karte, wo der Platz fehlt. */
+  estimateHint?: boolean;
 }) {
   const wording = shadeWording(state);
   const Icon = ICONS[state];
@@ -46,6 +49,9 @@ export function ShadeMeter({
         >
           {wording.label}
         </span>
+        {estimateHint && (
+          <span className="ml-auto text-xs text-muted">geschätzt</span>
+        )}
       </div>
 
       <div
@@ -61,7 +67,8 @@ export function ShadeMeter({
 
       {size === "lg" && (
         <p className="mt-1.5 text-xs text-muted">
-          Geschätzt {prozent} % der Fläche liegen im Schatten
+          Geschätzt {prozent} % der Fläche liegen im Schatten – berechnet aus
+          Sonnenstand, erfassten Bäumen und Gebäuden, keine Messung vor Ort.
         </p>
       )}
 

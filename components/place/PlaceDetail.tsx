@@ -11,6 +11,7 @@ import { weatherAt } from "@/lib/weather";
 import {
   SCORE_ERKLAERUNG,
   distanceSentence,
+  mainDriver,
   scoreWording,
   shadeOutlook,
   shadeReason,
@@ -18,6 +19,7 @@ import {
 import type { PlaceStatusType } from "@/types";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
+import { useOnline } from "@/hooks/useOnline";
 import { radiusForDistance, usePlaces } from "@/hooks/usePlaces";
 import { useStatuses } from "@/hooks/useStatuses";
 import { useWeather } from "@/hooks/useWeather";
@@ -68,6 +70,7 @@ export function PlaceDetail({
   const weather = wetter.weather;
   const { statuses, report } = useStatuses(useMemo(() => [placeId], [placeId]));
   const now = useNow();
+  const online = useOnline();
   const [reportOpen, setReportOpen] = useState(false);
 
   const osmPlace = places.places.find((p) => p.id === placeId) ?? null;
@@ -114,15 +117,21 @@ export function PlaceDetail({
       {loading && <PlacesLoading rows={2} />}
 
       {!loading && error && (
-        <div className="m-4 rounded-card bg-warning-soft p-4">
-          <p className="text-sm font-medium text-warning-ink">{error}</p>
+        <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
+          <p className="font-display text-lg font-semibold text-dark">
+            {online ? "Der Ort lässt sich gerade nicht laden" : "Keine Verbindung"}
+          </p>
+          <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
+            {online
+              ? error
+              : "Ohne Netz kommen wir an die Daten für diesen Ort nicht heran. Sobald du wieder Empfang hast, geht es weiter."}
+          </p>
           <Button
-            variant="secondary"
             onClick={() => {
               places.reload();
               wetter.reload();
             }}
-            className="mt-3 min-h-11"
+            className="mx-auto mt-5"
           >
             Erneut versuchen
           </Button>
@@ -131,9 +140,12 @@ export function PlaceDetail({
 
       {!loading && !error && !place && (
         <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
-          <p className="font-display font-semibold text-dark">Ort nicht gefunden</p>
-          <p className="mt-1 text-sm text-muted">
-            Vielleicht liegt er außerhalb des geladenen Bereichs.
+          <p className="font-display text-lg font-semibold text-dark">
+            Diesen Ort finden wir nicht
+          </p>
+          <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
+            Vielleicht liegt er außerhalb des geladenen Umkreises oder er wurde
+            aus OpenStreetMap entfernt.
           </p>
           <Link
             href="/"
@@ -192,6 +204,12 @@ export function PlaceDetail({
                   </p>
                 </div>
               </div>
+
+              {/* Der Grund gehört direkt an den Wert – sonst bleibt „70“ eine
+                  Behauptung. */}
+              <p className="mt-4 border-t border-line pt-3 text-[15px] leading-relaxed text-dark">
+                {mainDriver(place).text}
+              </p>
             </div>
 
             {/* Schatten: Aussage, Balken, Begründung, Ausblick. */}

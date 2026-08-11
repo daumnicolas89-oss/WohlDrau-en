@@ -191,6 +191,114 @@ export function distanceSentence(meters: number): string {
   return `${minuten} Minuten zu Fuß – schon ein Stück`;
 }
 
+/* -------------------------------------------------------- Wichtigster Grund */
+
+export interface Driver {
+  text: string;
+  tone: Tone;
+}
+
+/**
+ * Warum steht dieser Ort da, wo er steht? Gesucht ist der Bestandteil, der am
+ * stärksten vom Mittelmaß abweicht – gewichtet, denn Schatten zählt 45 % und
+ * Entfernung nur 10 %. Das beantwortet die eigentliche Frage: „Wieso der?“
+ */
+export function mainDriver(place: Place): Driver {
+  const b = place.breakdown;
+  const beitraege = [
+    { key: "shade", delta: (b.shadeScore - 50) * 0.45 },
+    { key: "amenity", delta: (b.amenityScore - 50) * 0.25 },
+    { key: "status", delta: (b.statusScore - 50) * 0.2 },
+    { key: "distance", delta: (b.distanceScore - 50) * 0.1 },
+  ].sort((a, z) => Math.abs(z.delta) - Math.abs(a.delta));
+
+  const staerkster = beitraege[0];
+  const positiv = staerkster.delta > 0;
+
+  if (Math.abs(staerkster.delta) < 4) {
+    return { text: "Alles im Mittelfeld – nichts sticht heraus.", tone: "neutral" };
+  }
+
+  switch (staerkster.key) {
+    case "shade":
+      return positiv
+        ? {
+            text:
+              place.shade.state === "no-sun"
+                ? "Vor allem, weil die Sonne hier keine Rolle mehr spielt."
+                : "Vor allem, weil es hier gerade viel Schatten gibt.",
+            tone: "good",
+          }
+        : { text: "Bremst vor allem: kaum Schatten bei dieser Sonne.", tone: "bad" };
+    case "amenity":
+      return positiv
+        ? { text: `Punktet vor allem mit: ${vorhandeneAusstattung(place)}.`, tone: "good" }
+        : {
+            text: "Bremst vor allem: zur Ausstattung ist wenig eingetragen.",
+            tone: "bad",
+          };
+    case "status": {
+      const meldung = statusSentence(place.lastStatuses);
+      if (!meldung) return { text: "Alles im Mittelfeld.", tone: "neutral" };
+      return {
+        text: positiv
+          ? `Andere Eltern haben ${meldung.text}.`
+          : `Bremst vor allem eine Meldung: ${meldung.text}.`,
+        tone: positiv ? "good" : "bad",
+      };
+    }
+    default:
+      return positiv
+        ? { text: "Vor allem, weil es gleich um die Ecke liegt.", tone: "good" }
+        : { text: "Bremst vor allem der weite Weg.", tone: "bad" };
+  }
+}
+
+function vorhandeneAusstattung(place: Place): string {
+  const teile: string[] = [];
+  if (place.tags.toilet === true) teile.push("Toilette");
+  if (place.tags.fenced === true) teile.push("Zaun");
+  if (place.tags.changing_table === true) teile.push("Wickeltisch");
+  if (place.tags.drinking_water === true) teile.push("Wasser");
+  return teile.length ? listeMitUnd(teile) : "der Ausstattung";
+}
+
+/* -------------------------------------------------------- Fakten in Kurzform */
+
+/**
+ * Die Zeile unter der Karte. Bewusst inklusive der Lücken: Wer nur auflistet,
+ * was da ist, suggeriert, der Rest sei geprüft und nicht vorhanden.
+ */
+export function factChips(place: Place): { text: string; unknown: boolean }[] {
+  const chips: { text: string; unknown: boolean }[] = [
+    { text: distanceSentence(place.distance ?? 0).replace("Nur ", ""), unknown: false },
+  ];
+
+  if (place.tags.toilet === true) {
+    chips.push({
+      text:
+        place.toiletDistance !== null && place.toiletDistance > 25
+          ? `Toilette ${formatDistance(place.toiletDistance)}`
+          : "Toilette",
+      unknown: false,
+    });
+  } else if (place.tags.toilet === undefined) {
+    chips.push({ text: "Toilette unbekannt", unknown: true });
+  }
+
+  if (place.tags.fenced === true) chips.push({ text: "Eingezäunt", unknown: false });
+  else if (place.tags.fenced === undefined) {
+    chips.push({ text: "Zaun unbekannt", unknown: true });
+  }
+
+  if (place.tags.changing_table === true) {
+    chips.push({ text: "Wickeltisch", unknown: false });
+  }
+  if (place.tags.drinking_water === true) chips.push({ text: "Wasser", unknown: false });
+
+  return chips;
+}
+
 /* ---------------------------------------------------------------- Aufteilung */
 
 export interface BreakdownRow {

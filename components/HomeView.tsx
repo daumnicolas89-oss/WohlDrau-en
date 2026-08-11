@@ -8,6 +8,7 @@ import { formatDistance, haversine } from "@/lib/utils";
 import type { PlaceStatusType } from "@/types";
 import { FALLBACK_LABEL, useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
+import { useOnline } from "@/hooks/useOnline";
 import { radiusForDistance, usePlaces } from "@/hooks/usePlaces";
 import { useStatuses } from "@/hooks/useStatuses";
 import { useWeather } from "@/hooks/useWeather";
@@ -41,6 +42,7 @@ export function HomeView() {
   const placeIds = useMemo(() => places.places.map((p) => p.id), [places.places]);
   const { statuses, report } = useStatuses(placeIds);
   const now = useNow();
+  const online = useOnline();
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [reportPickerOpen, setReportPickerOpen] = useState(false);
@@ -131,11 +133,26 @@ export function HomeView() {
 
       <MapControls />
 
+      {!online && (
+        <p className="mx-4 mt-3 rounded-2xl bg-accent-soft px-4 py-3 text-sm leading-relaxed text-accent-ink">
+          <span className="font-semibold">Du bist offline.</span> Wir zeigen die
+          zuletzt geladenen Orte. Schatten und Sonnenstand stimmen weiterhin,
+          neue Meldungen anderer Eltern fehlen.
+        </p>
+      )}
+
       <main className="relative flex-1">
         {!loading && error && (
-          <div className="m-4 rounded-card bg-warning-soft p-4">
-            <p className="text-sm font-medium text-warning-ink">{error}</p>
-            <Button variant="secondary" onClick={reload} className="mt-2 min-h-11">
+          <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
+            <p className="font-display text-lg font-semibold text-dark">
+              {online ? "Die Orte kommen gerade nicht durch" : "Keine Verbindung"}
+            </p>
+            <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
+              {online
+                ? error
+                : "Ohne Netz können wir für diese Gegend nichts laden. Sobald du wieder Empfang hast, geht es weiter."}
+            </p>
+            <Button onClick={reload} className="mx-auto mt-5">
               Erneut versuchen
             </Button>
           </div>
@@ -180,20 +197,20 @@ export function HomeView() {
                     place={place}
                     origin={coords}
                     radius={radius}
-                    highlight={index === 0}
+                    rank={index}
                     now={now.getTime()}
                   />
                 ))}
               </>
             ) : (
               <div className="rounded-card bg-card p-6 text-center shadow-card">
-                <p className="font-display font-semibold text-dark">
-                  Keine Orte gefunden
+                <p className="font-display text-lg font-semibold text-dark">
+                  {filteredOut > 0 ? "Nichts passt zu deinen Filtern" : "Hier ist nichts erfasst"}
                 </p>
-                <p className="mt-1 text-sm text-muted">
+                <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
                   {filteredOut > 0
-                    ? `${filteredOut} Orte in der Nähe passen nicht zu deinen Filtern – Filter lockern?`
-                    : "In diesem Umkreis ist nichts erfasst. Größere Entfernung versuchen?"}
+                    ? `In der Nähe liegen ${filteredOut} Orte, die deine Filter gerade aussortieren. Ein Kriterium weniger bringt sie zurück.`
+                    : "In diesem Umkreis kennt OpenStreetMap keinen Spielplatz und keine Grünfläche. Mit größerer Entfernung findet sich meist etwas."}
                 </p>
                 {/* Ohne aussortierte Orte hilft Zurücksetzen nicht – dann muss
                     der Umkreis größer werden. */}
@@ -210,10 +227,34 @@ export function HomeView() {
             )}
 
             {places.treeDataQuality === "low" && visible.length > 0 && (
-              <p className="px-1 text-xs leading-relaxed text-muted">
+              <p className="rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
                 In dieser Gegend sind nur wenige Bäume in OpenStreetMap erfasst.
-                Die Schattenangabe ist deshalb eine gröbere Schätzung.
+                Die Schattenangaben sind hier gröber geschätzt als anderswo.
               </p>
+            )}
+
+            {visible.length > 0 && (
+              <div className="flex items-center justify-between gap-2 px-1 pt-2">
+                <p className="text-xs leading-relaxed text-muted">
+                  Orte und Ausstattung von OpenStreetMap, Wetter von Open-Meteo.
+                </p>
+                <InfoButton title="Woher kommen die Daten?">
+                  <p>
+                    Orte, Toiletten und Ausstattung stammen aus OpenStreetMap –
+                    einer freien Karte, die Freiwillige pflegen. Sie ist gut,
+                    aber lückenhaft: Zäune etwa sind kaum eingetragen.
+                  </p>
+                  <p>
+                    Der Schatten ist <strong>gerechnet, nicht gemessen</strong>:
+                    aus dem Sonnenstand, den erfassten Bäumen und den Gebäuden
+                    ringsum. Er ist eine gute Schätzung, keine Garantie.
+                  </p>
+                  <p>
+                    Wetter kommt von Open-Meteo. Meldungen stammen von anderen
+                    Eltern und gelten drei Stunden.
+                  </p>
+                </InfoButton>
+              </div>
             )}
           </div>
         )}
