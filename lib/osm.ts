@@ -308,6 +308,19 @@ function namedGreenAt(
   return best ? best.name : null;
 }
 
+/**
+ * Grobe Himmelsrichtung eines Punkts relativ zum Mittelpunkt einer Gruppe –
+ * um gleichnamige Orte (zwei Spielplätze an derselben Straße) zu unterscheiden.
+ * Längengrad wird mit cos(Breite) skaliert, damit Ost/West stimmt.
+ */
+function compassLabel(dLatDeg: number, dLngDeg: number, atLatDeg: number): string {
+  const dy = dLatDeg;
+  const dx = dLngDeg * Math.cos((atLatDeg * Math.PI) / 180);
+  const angle = (Math.atan2(dx, dy) * 180) / Math.PI;
+  const dirs = ["Nord", "Nordost", "Ost", "Südost", "Süd", "Südwest", "West", "Nordwest"];
+  return dirs[Math.round((((angle % 360) + 360) % 360) / 45) % 8];
+}
+
 /** Name der nächstgelegenen benannten Straße – oder null, wenn keine nah genug ist. */
 function nearestStreetName(
   grid: Grid<Point & { name: string }>,
@@ -535,6 +548,32 @@ export async function fetchPlaces(
     }
     const green = namedGreenAt(greens, place.lat, place.lng);
     if (green) place.name = `${place.name} ${green}`;
+  }
+
+  // Bleiben Namen doppelt (zwei Spielplätze an derselben Straße), eine grobe
+  // Himmelsrichtung dazusetzen, damit sie unterscheidbar werden.
+  const byName = new Map<string, OsmPlace[]>();
+  for (const place of deduped) {
+    const bucket = byName.get(place.name);
+    if (bucket) bucket.push(place);
+    else byName.set(place.name, [place]);
+  }
+  for (const group of byName.values()) {
+    if (group.length < 2) continue;
+    const clat = group.reduce((sum, p) => sum + p.lat, 0) / group.length;
+    const clng = group.reduce((sum, p) => sum + p.lng, 0) / group.length;
+    for (const place of group) {
+      place.name = `${place.name} (${compassLabel(place.lat - clat, place.lng - clng, clat)})`;
+    }
+  }
+
+  // Letzte Sicherung: sollte ein Name trotz Himmelsrichtung noch doppelt sein
+  // (drei Orte, gleiche Richtung), durchnummerieren – garantiert eindeutig.
+  const used = new Map<string, number>();
+  for (const place of deduped) {
+    const count = (used.get(place.name) ?? 0) + 1;
+    used.set(place.name, count);
+    if (count > 1) place.name = `${place.name} ${count}`;
   }
 
   return { places: deduped, treeDataQuality };
