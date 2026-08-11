@@ -2,18 +2,19 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Building2,
-  CloudSun,
-  ExternalLink,
-  Footprints,
-  Megaphone,
-  TreePine,
-} from "lucide-react";
+import { ArrowLeft, ExternalLink, Megaphone } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
 import { formatAge, statusOption } from "@/lib/status";
-import { formatDistance, haversine, walkingMinutes } from "@/lib/utils";
+import { computeShade } from "@/lib/sun";
+import { haversine } from "@/lib/utils";
+import { weatherAt } from "@/lib/weather";
+import {
+  SCORE_ERKLAERUNG,
+  distanceSentence,
+  scoreWording,
+  shadeOutlook,
+  shadeReason,
+} from "@/lib/wording";
 import type { PlaceStatusType } from "@/types";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
@@ -22,15 +23,18 @@ import { useStatuses } from "@/hooks/useStatuses";
 import { useWeather } from "@/hooks/useWeather";
 import { ReportStatusModal } from "@/components/status/ReportStatusModal";
 import { Button } from "@/components/ui/Button";
-import { AttributeChips } from "./AttributeChips";
-import { ShadeBadge } from "./StatusBadge";
+import { InfoButton } from "@/components/ui/InfoButton";
+import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
+import { AttributeList } from "./AttributeList";
 import { PlacesLoading } from "./PlacesLoading";
+import { ScoreBreakdown } from "./ScoreBreakdown";
+import { ShadeMeter } from "./ShadeMeter";
 import { ShadeTimeline } from "./ShadeTimeline";
 
-const CONFIDENCE_LABEL = {
-  high: "gute Datenlage",
-  medium: "mittlere Datenlage",
-  low: "grobe Schätzung",
+const VERLAESSLICHKEIT = {
+  high: "Für diese Gegend sind viele Bäume und Gebäude erfasst – die Einschätzung ist ziemlich verlässlich.",
+  medium: "Die Einschätzung stützt sich auf teilweise erfasste Bäume und Gebäude.",
+  low: "In dieser Gegend sind kaum Bäume erfasst – der Schattenwert ist nur eine grobe Schätzung.",
 } as const;
 
 export function PlaceDetail({
@@ -58,9 +62,7 @@ export function PlaceDetail({
     : placeHint
       ? { ...geo.coords, ...placeHint }
       : viewer;
-  const searchRadius = fromList
-    ? radius
-    : radiusForDistance(placeHint ? 500 : 4000);
+  const searchRadius = fromList ? radius : radiusForDistance(placeHint ? 500 : 4000);
   const places = usePlaces(searchOrigin, searchRadius);
   const wetter = useWeather(searchOrigin);
   const weather = wetter.weather;
@@ -81,19 +83,28 @@ export function PlaceDetail({
     });
   }, [osmPlace, weather, statuses, placeId, now, viewer.lat, viewer.lng]);
 
+  /** Wie sieht es in einer Stunde aus? Beantwortet „lohnt es sich später eher?“ */
+  const ausblick = useMemo(() => {
+    if (!place || !weather) return null;
+    const spaeter = new Date(now.getTime() + 60 * 60_000);
+    const dann = computeShade(place, spaeter, weatherAt(weather, spaeter).cloudCover);
+    return shadeOutlook(place.shade.index, dann.index);
+  }, [place, weather, now]);
+
   async function submitReport(type: PlaceStatusType, message: string) {
     await report(placeId, type, message);
   }
 
   const loading = places.loading || wetter.loading;
   const error = places.error ?? wetter.error;
+  const bewertung = place ? scoreWording(place.pleasantScore) : null;
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg bg-background pb-28">
       <div className="sticky top-0 z-[900] flex items-center gap-2 bg-background/95 px-3 py-2 backdrop-blur">
         <Link
           href="/"
-          aria-label="Zurück"
+          aria-label="Zurück zur Übersicht"
           className="flex size-11 items-center justify-center rounded-full bg-card text-dark shadow-card"
         >
           <ArrowLeft size={20} />
@@ -133,116 +144,168 @@ export function PlaceDetail({
         </div>
       )}
 
-      {place && weather && (
+      {place && bewertung && weather && (
         <>
-          <section className="px-4">
-            <h1 className="font-display text-2xl leading-tight font-bold text-dark">
-              {place.name}
-            </h1>
-            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
-              <Footprints size={15} aria-hidden />
-              {formatDistance(place.distance ?? 0)} ·{" "}
-              {walkingMinutes(place.distance ?? 0)} Min zu Fuß
-              <span aria-hidden>·</span>
-              {place.type === "park" ? "Grünfläche" : "Spielplatz"}
-            </p>
-
-            <div className="mt-4 rounded-card bg-card p-4 shadow-card">
-              <div className="flex items-center justify-between gap-3">
-                <ShadeBadge state={place.shade.state} size="lg" />
-                <span className="text-sm text-muted">
-                  {place.currentShadeScore} % Schatten
-                </span>
-              </div>
-
-              <ul className="mt-4 space-y-1.5 text-sm text-muted">
-                <li className="flex items-center gap-2">
-                  <TreePine size={15} aria-hidden className="text-primary" />
-                  Bäume: {Math.round(place.shade.fromCanopy * 100)} %
-                  {place.shadeInputs.treeCount > 0 &&
-                    ` (${place.shadeInputs.treeCount} erfasst)`}
-                </li>
-                <li className="flex items-center gap-2">
-                  <Building2 size={15} aria-hidden className="text-dark" />
-                  Gebäudeschatten: {Math.round(place.shade.fromBuildings * 100)} %
-                </li>
-                <li className="flex items-center gap-2">
-                  <CloudSun size={15} aria-hidden className="text-accent" />
-                  Bewölkung: {Math.round(place.shade.fromClouds * 100)} %
-                </li>
-              </ul>
-
-              <p className="mt-3 text-xs text-muted">
-                Sonnenstand {Math.round(place.shade.sunAltitudeDeg)}° ·{" "}
-                {CONFIDENCE_LABEL[place.shadeInputs.confidence]} · Angenehm-Wert{" "}
-                {place.pleasantScore}/100
+          <section className="space-y-3 px-4">
+            <div>
+              <h1 className="font-display text-2xl leading-tight font-bold text-dark">
+                {place.name}
+              </h1>
+              <p className="mt-1 text-sm text-muted">
+                {distanceSentence(place.distance ?? 0)} ·{" "}
+                {place.type === "park" ? "Grünfläche" : "Spielplatz"}
               </p>
             </div>
 
-            <div className="mt-3 rounded-card bg-card p-4 shadow-card">
+            {/* Die Antwort auf „soll ich hin?“ – groß, in Worten, mit Zahl. */}
+            <div className="rounded-card bg-card p-5 shadow-card">
+              <div className="flex items-center gap-4">
+                <ScoreRing
+                  score={place.pleasantScore}
+                  tone={bewertung.tone}
+                  size={92}
+                  label={`Angenehm jetzt: ${place.pleasantScore} von 100`}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-1">
+                    <p className="text-xs font-semibold tracking-wide text-muted uppercase">
+                      Angenehm jetzt
+                    </p>
+                    <InfoButton
+                      title="Woher kommt dieser Wert?"
+                      ariaLabel="Erklärung zum Wert „Angenehm jetzt“"
+                    >
+                      <p>{SCORE_ERKLAERUNG}</p>
+                      <p>
+                        Die Bewertung gilt für genau diesen Moment. Steht die
+                        Sonne in einer Stunde anders, ändert sie sich mit.
+                      </p>
+                    </InfoButton>
+                  </div>
+                  <p
+                    className={`font-display text-2xl leading-tight font-bold ${TONE_TEXT[bewertung.tone]}`}
+                  >
+                    {bewertung.label}
+                  </p>
+                  <p className="mt-1 text-sm text-muted">
+                    {place.pleasantScore} von 100
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Schatten: Aussage, Balken, Begründung, Ausblick. */}
+            <div className="rounded-card bg-card p-4 shadow-card">
               <h2 className="mb-3 font-display font-semibold text-dark">
-                Schatten im Tagesverlauf
+                Sonne und Schatten
               </h2>
+              <ShadeMeter
+                state={place.shade.state}
+                shadeIndex={place.shade.index}
+                size="lg"
+                reason={shadeReason(place, now)}
+              />
+              {ausblick && (
+                <p className="mt-2 text-sm font-medium text-primary-dark">{ausblick}</p>
+              )}
+              <p className="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
+                {VERLAESSLICHKEIT[place.shadeInputs.confidence]}
+              </p>
+            </div>
+
+            <div className="rounded-card bg-card p-4 shadow-card">
+              <h2 className="mb-1 font-display font-semibold text-dark">
+                Wie lange hält der Schatten?
+              </h2>
+              <p className="mb-3 text-sm text-muted">
+                Geschätzt für die nächsten Stunden.
+              </p>
               <ShadeTimeline place={place} weather={weather} from={now} />
             </div>
 
-            <div className="mt-3 rounded-card bg-card p-4 shadow-card">
-              <h2 className="mb-3 font-display font-semibold text-dark">Ausstattung</h2>
-              <AttributeChips tags={place.tags} showUnknown />
-              <dl className="mt-3 space-y-1 text-sm text-muted">
-                {place.toiletDistance !== null && (
-                  <div className="flex gap-2">
-                    <dt>Toilette:</dt>
-                    <dd>{formatDistance(place.toiletDistance)} entfernt</dd>
-                  </div>
-                )}
-                {place.tags.age_group && (
-                  <div className="flex gap-2">
-                    <dt>Alter:</dt>
-                    <dd>{place.tags.age_group}</dd>
-                  </div>
-                )}
-                {place.tags.surface && (
-                  <div className="flex gap-2">
-                    <dt>Untergrund:</dt>
-                    <dd>{place.tags.surface}</dd>
-                  </div>
-                )}
-                {place.shadeInputs.areaM2 && (
-                  <div className="flex gap-2">
-                    <dt>Fläche:</dt>
-                    <dd>ca. {place.shadeInputs.areaM2.toLocaleString("de-DE")} m²</dd>
-                  </div>
-                )}
-              </dl>
+            <ScoreBreakdown
+              place={place}
+              weather={weather}
+              at={now}
+              now={now.getTime()}
+            />
+
+            <div className="rounded-card bg-card p-4 shadow-card">
+              <div className="mb-1 flex items-start justify-between gap-2">
+                <h2 className="font-display font-semibold text-dark">Ausstattung</h2>
+                <InfoButton title="Woher kommen diese Angaben?">
+                  <p>
+                    Die Ausstattung stammt aus OpenStreetMap, einer freien Karte,
+                    die Freiwillige pflegen. Vieles ist dort schlicht nicht
+                    eingetragen – Zäune besonders selten.
+                  </p>
+                  <p>
+                    Deshalb steht bei fehlenden Angaben „Keine Information“ und
+                    nicht „nicht vorhanden“. Im Zweifel lohnt der Blick vor Ort.
+                  </p>
+                </InfoButton>
+              </div>
+              <AttributeList place={place} />
+              {(place.tags.age_group ||
+                place.tags.surface ||
+                place.shadeInputs.areaM2) && (
+                <dl className="mt-3 space-y-1 border-t border-line pt-3 text-sm text-muted">
+                  {place.tags.age_group && (
+                    <div className="flex gap-2">
+                      <dt>Für Kinder von:</dt>
+                      <dd className="text-dark">{place.tags.age_group}</dd>
+                    </div>
+                  )}
+                  {place.tags.surface && (
+                    <div className="flex gap-2">
+                      <dt>Untergrund:</dt>
+                      <dd className="text-dark">{place.tags.surface}</dd>
+                    </div>
+                  )}
+                  {place.shadeInputs.areaM2 && (
+                    <div className="flex gap-2">
+                      <dt>Größe:</dt>
+                      <dd className="text-dark">
+                        etwa {place.shadeInputs.areaM2.toLocaleString("de-DE")} m²
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              )}
             </div>
 
-            <div className="mt-3 rounded-card bg-card p-4 shadow-card">
-              <h2 className="mb-3 font-display font-semibold text-dark">
-                Aktuelle Meldungen
+            <div className="rounded-card bg-card p-4 shadow-card">
+              <h2 className="mb-1 font-display font-semibold text-dark">
+                Was andere Eltern melden
               </h2>
+              <p className="mb-3 text-sm text-muted">
+                Meldungen der letzten drei Stunden.
+              </p>
               {place.lastStatuses.length > 0 ? (
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {place.lastStatuses.map((status) => {
                     const option = statusOption(status.type);
                     return (
-                      <li key={status.id} className="flex items-start gap-2">
+                      <li key={status.id} className="flex items-start gap-2.5">
                         <span
-                          className={`mt-1.5 size-2 shrink-0 rounded-full ${
+                          className={`mt-1.5 size-2.5 shrink-0 rounded-full ${
                             option.tone === "good"
-                              ? "bg-primary"
+                              ? "bg-primary-dark"
                               : option.tone === "bad"
-                                ? "bg-warning"
+                                ? "bg-warning-ink"
                                 : "bg-muted"
                           }`}
                         />
-                        <span className="text-sm">
-                          <span className="font-medium text-dark">{option.label}</span>{" "}
+                        <span className="text-[15px]">
+                          <span className="font-medium text-dark">{option.label}</span>
                           <span className="text-muted">
-                            · {formatAge(status.createdAt, now.getTime())}
+                            {" · "}
+                            {formatAge(status.createdAt, now.getTime())}
                           </span>
                           {status.message && (
-                            <span className="block text-muted">{status.message}</span>
+                            <span className="mt-0.5 block text-sm text-muted">
+                              „{status.message}“
+                            </span>
                           )}
                         </span>
                       </li>
@@ -250,8 +313,9 @@ export function PlaceDetail({
                   })}
                 </ul>
               ) : (
-                <p className="text-sm text-muted">
-                  Noch keine Meldungen in den letzten Stunden.
+                <p className="text-[15px] text-muted">
+                  Noch nichts gemeldet. Wenn du dort bist, hilft eine kurze
+                  Rückmeldung den nächsten Eltern.
                 </p>
               )}
             </div>
@@ -260,7 +324,7 @@ export function PlaceDetail({
               href={`https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lng}#map=18/${place.lat}/${place.lng}`}
               target="_blank"
               rel="noreferrer"
-              className="mt-3 flex min-h-12 items-center justify-center gap-2 rounded-card bg-card text-sm font-semibold text-muted shadow-card"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-card text-sm font-semibold text-muted shadow-card"
             >
               Auf der Karte ansehen
               <ExternalLink size={15} aria-hidden />
@@ -274,7 +338,7 @@ export function PlaceDetail({
               className="flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float"
             >
               <Megaphone size={18} aria-hidden />
-              Status melden
+              Wie ist es hier gerade?
             </button>
           </div>
 

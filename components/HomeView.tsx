@@ -11,6 +11,7 @@ import { useNow } from "@/hooks/useNow";
 import { radiusForDistance, usePlaces } from "@/hooks/usePlaces";
 import { useStatuses } from "@/hooks/useStatuses";
 import { useWeather } from "@/hooks/useWeather";
+import { SCORE_ERKLAERUNG } from "@/lib/wording";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
 import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
@@ -19,6 +20,7 @@ import { PlaceCard } from "./place/PlaceCard";
 import { PlacesLoading } from "./place/PlacesLoading";
 import { ReportStatusModal } from "./status/ReportStatusModal";
 import { Button } from "./ui/Button";
+import { InfoButton } from "./ui/InfoButton";
 import { Sheet } from "./ui/Sheet";
 import { WeatherHeader } from "./WeatherHeader";
 
@@ -153,12 +155,25 @@ export function HomeView() {
 
             {visible.length > 0 ? (
               <>
-                <p className="text-sm text-muted">
-                  {visible.length} passende Orte ·{" "}
-                  {filters.timeOffsetMin === 0
-                    ? "jetzt"
-                    : `in ${filters.timeOffsetMin} Minuten`}
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm text-muted">
+                    {visible.length} Orte in der Nähe – oben steht, wo es{" "}
+                    {filters.timeOffsetMin === 0
+                      ? "gerade"
+                      : `in ${filters.timeOffsetMin} Minuten`}{" "}
+                    am angenehmsten ist.
+                  </p>
+                  <InfoButton
+                    title="Wie wird sortiert?"
+                    ariaLabel="Erklärung zur Sortierung"
+                  >
+                    <p>{SCORE_ERKLAERUNG}</p>
+                    <p>
+                      Der Wert steht als Ring auf jeder Karte. Je voller der
+                      Ring, desto besser passt der Ort zu diesem Moment.
+                    </p>
+                  </InfoButton>
+                </div>
                 {visible.map((place, index) => (
                   <PlaceCard
                     key={place.id}
@@ -166,6 +181,7 @@ export function HomeView() {
                     origin={coords}
                     radius={radius}
                     highlight={index === 0}
+                    now={now.getTime()}
                   />
                 ))}
               </>
@@ -210,7 +226,7 @@ export function HomeView() {
           className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float"
         >
           <Megaphone size={18} aria-hidden />
-          Status melden
+          Rückmeldung geben
         </button>
         <button
           type="button"
@@ -235,7 +251,7 @@ export function HomeView() {
 
       <Sheet
         open={reportPickerOpen}
-        title="Wo bist du gerade?"
+        title="An welchem Ort bist du?"
         onOpenChange={setReportPickerOpen}
       >
         <ul className="space-y-2">

@@ -11,8 +11,8 @@ import { Sheet } from "@/components/ui/Sheet";
 
 const SHADE_CHOICES: { value: ShadeRequirement; label: string }[] = [
   { value: "any", label: "Egal" },
-  { value: "partial", label: "Mind. teils" },
-  { value: "shady", label: "Nur schattig" },
+  { value: "partial", label: "Etwas Schatten" },
+  { value: "shady", label: "Viel Schatten" },
 ];
 
 const TIME_CHOICES: { value: TimeOffset; label: string }[] = [
@@ -139,7 +139,7 @@ export function FilterSheet({
       footer={
         <div className="flex gap-3 pb-1">
           <Button variant="secondary" onClick={filters.reset} className="flex-1">
-            Zurücksetzen
+            Alles zurücksetzen
           </Button>
           <Button onClick={onClose} className="flex-[2]">
             Orte anzeigen
@@ -149,28 +149,28 @@ export function FilterSheet({
     >
       <div className="space-y-6">
         <SegmentedControl
-          label="Wann?"
+          label="Wann willst du los?"
           value={filters.timeOffsetMin}
           choices={TIME_CHOICES}
           onChange={(value) => filters.set("timeOffsetMin", value)}
         />
 
         <SegmentedControl
-          label="Schatten"
+          label="Wie viel Schatten soll es geben?"
           value={filters.shade}
           choices={SHADE_CHOICES}
           onChange={(value) => filters.set("shade", value)}
         />
 
         <SegmentedControl
-          label="Höchstens entfernt"
+          label="Wie weit darf es sein?"
           value={filters.maxDistanceM}
           choices={DISTANCES.map((d) => ({ value: d, label: formatDistance(d) }))}
           onChange={(value) => filters.set("maxDistanceM", value)}
         />
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-dark">Art</legend>
+          <legend className="mb-2 text-sm font-semibold text-dark">Was suchst du?</legend>
           <div className="flex gap-2">
             {(
               [
@@ -199,10 +199,13 @@ export function FilterSheet({
         </fieldset>
 
         <div>
-          <h3 className="mb-1 text-sm font-semibold text-dark">Muss vorhanden sein</h3>
+          <h3 className="text-sm font-semibold text-dark">Das muss vorhanden sein</h3>
+          <p className="mb-1 text-xs leading-relaxed text-muted">
+            Zeigt nur Orte, bei denen das ausdrücklich eingetragen ist.
+          </p>
           <ToggleRow
             label="Toilette"
-            hint="Am Ort oder bis 150 m entfernt"
+            hint="Am Ort oder bis 150 Meter entfernt"
             checked={filters.requireToilet}
             match={{ hits: counts.toilet, total: counts.total }}
             onChange={(value) => filters.set("requireToilet", value)}
@@ -220,17 +223,17 @@ export function FilterSheet({
             onChange={(value) => filters.set("requireFenced", value)}
           />
           <ToggleRow
-            label="Ohne Problemmeldungen"
-            hint="Blendet Orte mit frischen Warnungen aus"
+            label="Orte mit Warnungen ausblenden"
+            hint="Zum Beispiel „zu sonnig“ oder „sehr voll“"
             checked={filters.hideReportedProblems}
             onChange={(value) => filters.set("hideReportedProblems", value)}
           />
         </div>
 
         <p className="rounded-2xl bg-background p-3 text-xs leading-relaxed text-muted">
-          Die Ausstattung stammt aus OpenStreetMap und ist oft unvollständig –
-          Zäune sind kaum erfasst. Diese Filter zeigen nur, was dort wirklich
-          eingetragen ist; viele passende Orte fallen dadurch mit heraus.
+          Die Angaben stammen aus OpenStreetMap, das Freiwillige pflegen. Vieles
+          ist dort nicht eingetragen – Zäune besonders selten. Ein strenger
+          Filter blendet deshalb auch Orte aus, die eigentlich passen würden.
         </p>
       </div>
     </Sheet>

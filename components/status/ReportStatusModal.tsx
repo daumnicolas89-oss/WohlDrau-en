@@ -49,8 +49,8 @@ export function ReportStatusModal({
   return (
     <Sheet
       open
-      title="Wie ist es gerade?"
-      description={`Für ${placeName}. Deine Meldung ist etwa 3 Stunden sichtbar – anonym, ohne Anmeldung.`}
+      title="Wie ist es dort gerade?"
+      description={`Für ${placeName}. Deine Rückmeldung hilft anderen Eltern und ist etwa drei Stunden sichtbar – anonym, ohne Anmeldung.`}
       onOpenChange={(next) => {
         if (!next) onClose();
       }}
@@ -58,7 +58,7 @@ export function ReportStatusModal({
         <div className="pb-1">
           {error && <p className="mb-2 text-sm text-warning-ink">{error}</p>}
           <Button disabled={!type || busy} onClick={submit} className="w-full">
-            {busy ? "Wird gesendet …" : "Melden"}
+            {busy ? "Wird gesendet …" : "Absenden"}
           </Button>
         </div>
       }
@@ -86,7 +86,7 @@ export function ReportStatusModal({
 
       <label className="mt-4 block">
         <span className="mb-1 block text-sm font-semibold text-dark">
-          Kurze Ergänzung <span className="font-normal text-muted">(optional)</span>
+          Noch etwas dazu? <span className="font-normal text-muted">(freiwillig)</span>
         </span>
         <textarea
           value={message}

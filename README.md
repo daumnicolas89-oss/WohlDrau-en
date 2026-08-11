@@ -42,9 +42,10 @@ app/
 components/
   map/                  Map, PlaceMarker, MapControls
   filters/              FilterSheet, FilterChips
-  place/                PlaceCard, PlaceDetail, StatusBadge, ShadeTimeline, AttributeChips
+  place/                PlaceCard, PlaceDetail, ShadeMeter, ScoreBreakdown,
+                        ShadeTimeline, AttributeList, PlacesLoading
   status/               ReportStatusModal
-  ui/                   Sheet (Vaul), Button
+  ui/                   Sheet (Vaul), Button, ScoreRing, InfoButton
 lib/
   osm.ts                Overpass-Queries + Normalisierung + Dedup
   sun.ts                Sonnenstand & Schattenberechnung
@@ -53,6 +54,7 @@ lib/
   weather.ts            Open-Meteo-Client
   status.ts             Meldungstypen, Gültigkeit, Frische
   supabase.ts           Persistenz der Meldungen (mit In-Memory-Fallback)
+  wording.ts            Zahlen → Sätze (die einzige Quelle für Formulierungen)
   utils.ts              Geo, Formatierung, anonyme ID
 types/index.ts          Datenmodell
 hooks/                  useGeolocation, usePlaces, useWeather, useStatuses, useNow
@@ -202,6 +204,30 @@ zurückhaltend: App-Shell und Kartenkacheln kommen aus dem Cache, **API-Daten
 immer aus dem Netz**. Ein veralteter Schattenwert wäre schlimmer als gar keiner
 – nur wenn das Netz ausfällt, greift die gespeicherte Kopie. Registriert wird er
 ausschließlich im Produktions-Build.
+
+## Verständlichkeit
+
+Ein gestresster Elternteil soll in wenigen Sekunden erfassen, warum ein Ort
+oben steht. Dafür gilt: **keine nackte Zahl ohne Satz daneben.**
+
+`lib/wording.ts` ist die einzige Stelle, an der aus Werten Sprache wird –
+`scoreWording`, `shadeReason`, `amenityBreakdownSentence`, `uvWording` und so
+weiter. Wer eine Formulierung ändern will, ändert sie dort, und sie ist
+überall gleich.
+
+Konkret heißt das in der Oberfläche:
+
+- Der „Angenehm jetzt“-Wert steht als Ring mit Zahl **und** als Wort
+  („Besonders angenehm“, „Geht so“, „Eher unangenehm“). Ein „?“ erklärt, was
+  hineinfließt.
+- Schatten erscheint als Balken mit Farbe, als Aussage („Aktuell viel
+  Schatten“) und mit Begründung („Viele Bäume ringsum halten die Sonne ab“).
+- Die Aufschlüsselung ist eingeklappt. Aufgeklappt steht neben jeder Zahl ihr
+  Gewicht und ein Satz: „Ausstattung, zählt 25 %, 30 – Wasser; zu Toilette und
+  Zaun fehlt die Angabe.“
+- Fehlende OSM-Angaben stehen als „Keine Angabe“ da, nie als stilles Nein.
+- Im Wetterkopf trägt jeder Wert seine Bezeichnung: „Regenrisiko 0 %“ statt
+  „0 %“, Sonnenstärke zusätzlich als Wort („mittel“).
 
 ## Barrierefreiheit
 

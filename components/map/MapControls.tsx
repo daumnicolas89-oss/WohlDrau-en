@@ -5,8 +5,8 @@ import { useFilters, type TimeOffset } from "@/store/useFilters";
 
 const TIME_CHOICES: { value: TimeOffset; label: string }[] = [
   { value: 0, label: "Jetzt" },
-  { value: 30, label: "+30 Min" },
-  { value: 60, label: "+1 Std" },
+  { value: 30, label: "In 30 Min" },
+  { value: 60, label: "In 1 Std" },
 ];
 
 /**
