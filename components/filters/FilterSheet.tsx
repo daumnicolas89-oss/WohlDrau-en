@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 
 const SHADE_CHOICES: { value: ShadeRequirement; label: string }[] = [
+  // Die Frage steht in der Überschrift – die Antworten dürfen kurz sein und
+  // passen so ohne Umbruch in eine Zeile.
   { value: "any", label: "Egal" },
-  { value: "partial", label: "Etwas Schatten" },
-  { value: "shady", label: "Viel Schatten" },
+  { value: "partial", label: "Etwas" },
+  { value: "shady", label: "Viel" },
 ];
 
 const TIME_CHOICES: { value: TimeOffset; label: string }[] = [
@@ -139,7 +141,7 @@ export function FilterSheet({
       footer={
         <div className="flex gap-3 pb-1">
           <Button variant="secondary" onClick={filters.reset} className="flex-1">
-            Alles zurücksetzen
+            Zurücksetzen
           </Button>
           <Button onClick={onClose} className="flex-[2]">
             Orte anzeigen
