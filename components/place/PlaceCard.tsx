@@ -120,11 +120,11 @@ export function PlaceCard({
 
         <span
           aria-hidden
-          className="mt-4 flex items-center justify-end gap-0.5 text-[13px] font-semibold text-primary-dark"
+          className="mt-4 flex items-center justify-center gap-1 rounded-xl bg-primary-soft py-2.5 text-sm font-semibold text-primary-dark"
         >
           Details ansehen
           <ChevronRight
-            size={15}
+            size={16}
             className="transition-transform group-active:translate-x-0.5"
           />
         </span>

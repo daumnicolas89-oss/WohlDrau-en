@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git ls-remote *)",
+      "Bash(echo \"---EXIT: $?---\")",
+      "Bash(git clone *)",
+      "Bash(echo \"---CLONED---\")",
+      "Bash(ls -la /private/tmp/claude-501/-Users-nicolasdaum-Documents-Claude-Projekte-WohlDraussen/9935fe2e-3fc8-406c-ac86-bca896f4d9c9/scratchpad/wd-clone)"
+    ]
+  }
+}
