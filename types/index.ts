@@ -57,6 +57,8 @@ export interface OsmPlace {
   shadeInputs: ShadeInputs;
   /** Entfernung zur nächsten Toilette in Metern, falls eine gefunden wurde. */
   toiletDistance: number | null;
+  /** Echtes Foto aus OSM (Tag `image` oder `wikimedia_commons`), falls vorhanden. */
+  imageUrl?: string;
 }
 
 export type ShadeState = "no-sun" | "shady" | "partial" | "sunny";

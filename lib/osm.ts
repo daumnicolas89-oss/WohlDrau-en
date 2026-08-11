@@ -161,6 +161,28 @@ function fencedFrom(tags: Record<string, string>): boolean | undefined {
   return undefined;
 }
 
+/**
+ * Ein echtes Foto, falls OSM eines kennt. `wikimedia_commons` ist die
+ * verlässliche Quelle (Special:FilePath liefert das Bild direkt); ein `image`-
+ * Tag nur, wenn es sicher über https lädt – sonst blockiert es der Browser.
+ */
+function imageUrlFrom(tags: Record<string, string>): string | undefined {
+  const commons = tags.wikimedia_commons;
+  // Nur einzelne Dateien liefern ein Bild – „Category:…" verweist auf eine
+  // Sammlung ohne direktes Foto und würde ins Leere laufen.
+  if (commons && !/^Category:/i.test(commons.trim())) {
+    const file = commons.replace(/^File:/i, "").trim();
+    if (file) {
+      return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
+        file,
+      )}?width=800`;
+    }
+  }
+  const direct = tags.image;
+  if (direct && /^https:\/\//.test(direct)) return direct;
+  return undefined;
+}
+
 function ageGroupFrom(tags: Record<string, string>): string | undefined {
   const min = Number.parseInt(tags.min_age ?? "", 10);
   const max = Number.parseInt(tags.max_age ?? "", 10);
@@ -466,6 +488,7 @@ export async function fetchPlaces(
         confidence,
       },
       toiletDistance: nearestToilet ? Math.round(nearestToilet.d) : null,
+      imageUrl: imageUrlFrom(osmTags),
     });
   }
 

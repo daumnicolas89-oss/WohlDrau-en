@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Megaphone, Navigation } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
@@ -29,15 +28,11 @@ import { Button } from "@/components/ui/Button";
 import { InfoButton } from "@/components/ui/InfoButton";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { AttributeList } from "./AttributeList";
+import { PlacePhoto } from "./PlacePhoto";
 import { PlacesLoading } from "./PlacesLoading";
 import { ScoreBreakdown } from "./ScoreBreakdown";
 import { ShadeMeter } from "./ShadeMeter";
 import { ShadeTimeline } from "./ShadeTimeline";
-
-const AerialThumb = dynamic(() => import("./AerialThumb"), {
-  ssr: false,
-  loading: () => <div className="size-full animate-pulse bg-[#eef1f2]" />,
-});
 
 const VERLAESSLICHKEIT = {
   high: "Für diese Gegend sind viele Bäume und Gebäude erfasst – die Einschätzung ist ziemlich verlässlich.",
@@ -226,13 +221,13 @@ export function PlaceDetail({
           </header>
 
           <section className="space-y-4 px-4 pt-4">
-            {/* Luftbild von genau diesem Ort – für jeden Ort verfügbar. */}
-            <div className="relative h-44 overflow-hidden rounded-card bg-[#eef1f2] shadow-card">
-              <AerialThumb lat={place.lat} lng={place.lng} />
-              <span className="pointer-events-none absolute right-2 bottom-1.5 rounded bg-dark/40 px-1.5 py-0.5 text-[10px] font-medium text-white/90">
-                Luftbild · Esri
-              </span>
-            </div>
+            {/* Echtes Foto, wo OSM eines hat – sonst Luftbild von oben. */}
+            <PlacePhoto
+              imageUrl={place.imageUrl}
+              lat={place.lat}
+              lng={place.lng}
+              name={place.name}
+            />
 
             {/* Schatten: Aussage, Balken, Begründung, Ausblick. */}
             <div className="rounded-card bg-card p-5 shadow-card">
