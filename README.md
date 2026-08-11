@@ -1,1 +1,203 @@
-# WohlDrau-en
+# WohlDraußen
+
+Zeigt in Echtzeit, wo es sich gerade lohnt, rauszugehen.
+
+**Kernjob:** „Zeig mir jetzt den besten Ort, an den ich mit meinem Kind gehen
+kann, ohne dass es in 15 Minuten schiefgeht.“ Zielgruppe sind Eltern mit
+Kindern von etwa 1–8 Jahren. Jede Design- und Feature-Entscheidung richtet sich
+danach aus.
+
+## Schnellstart
+
+```bash
+npm install
+npm run dev          # http://localhost:3000
+```
+
+Es sind keine API-Schlüssel nötig – OpenStreetMap und Open-Meteo laufen ohne
+Registrierung. Ohne Datenbank landen Community-Meldungen im Arbeitsspeicher des
+Servers (siehe [Community-Meldungen](#community-meldungen)).
+
+| Befehl | Zweck |
+| --- | --- |
+| `npm run dev` | Entwicklungsserver |
+| `npm run build` / `npm start` | Produktions-Build |
+| `npm test` | Unit-Tests für Schatten-, Score- und Dedup-Logik |
+| `npm run typecheck` | TypeScript ohne Emit |
+| `npm run lint` | ESLint |
+| `npm run icons` | PWA-Icons neu erzeugen |
+
+## Projektstruktur
+
+```
+app/
+  layout.tsx            Fonts, PWA-Metadaten, Service-Worker-Registrierung
+  page.tsx              Home / Entdecken
+  ort/[...id]/page.tsx  Detailseite (Catch-all, weil OSM-IDs "way/123" heißen)
+  api/places/route.ts   Overpass-Abfrage, Normalisierung, Cache
+  api/weather/route.ts  Open-Meteo
+  api/status/route.ts   Community-Meldungen (GET/POST, Rate-Limit)
+  manifest.ts           PWA-Manifest
+components/
+  map/                  Map, PlaceMarker, MapControls
+  filters/              FilterSheet, FilterChips
+  place/                PlaceCard, PlaceDetail, StatusBadge, ShadeTimeline, AttributeChips
+  status/               ReportStatusModal
+  ui/                   Sheet (Vaul), Button
+lib/
+  osm.ts                Overpass-Queries + Normalisierung + Dedup
+  sun.ts                Sonnenstand & Schattenberechnung
+  scoring.ts            „Angenehm jetzt“-Score
+  select.ts             Filter + Sortierung
+  weather.ts            Open-Meteo-Client
+  status.ts             Meldungstypen, Gültigkeit, Frische
+  supabase.ts           Persistenz der Meldungen (mit In-Memory-Fallback)
+  utils.ts              Geo, Formatierung, anonyme ID
+types/index.ts          Datenmodell
+hooks/                  useGeolocation, usePlaces, useWeather, useStatuses, useNow
+store/useFilters.ts     Filterzustand (Zustand, in localStorage gesichert)
+tests/                  Unit-Tests der Fachlogik
+public/sw.js            Service Worker
+```
+
+## Kern-Logik: „Angenehm jetzt“
+
+### 1. Schatten (`lib/sun.ts`)
+
+Kein statischer Wert, sondern eine Berechnung aus dem tatsächlichen
+Sonnenstand:
+
+- **Sonnenstand** über [SunCalc](https://github.com/mourner/suncalc).
+  Achtung: SunCalc 2.x liefert **Grad** und misst das Azimut **im
+  Uhrzeigersinn ab Norden** – anders als 1.x.
+- **Baumkronen**: Anzahl der in OSM erfassten Bäume im Umkreis, umgerechnet auf
+  den Kronendeckungsgrad. Kronen schirmen am besten bei hoher Sonne ab.
+- **Gebäudeschatten**: geometrisch. Jedes Gebäude in der Nähe wirft einen
+  Schatten der Länge `Höhe / tan(Sonnenhöhe)` von der Sonne weg; getroffen wird
+  der Ort, wenn er in diesem Streifen liegt. Auf großen Flächen wird der Effekt
+  gedämpft – ein Haus verdunkelt keinen ganzen Park.
+- **Bewölkung** aus dem Wetter-Feed.
+
+Die Anteile werden multiplikativ zu `currentShadeScore` (0–100) kombiniert und
+zu `schattig / teils / volle Sonne / keine direkte Sonne` verdichtet.
+
+Da OSM keine Gebäudehöhen garantiert, wird mit ~11 m (≈ 3,5 Geschosse)
+gerechnet. Die App weist die Verlässlichkeit pro Ort aus („gute Datenlage“ …
+„grobe Schätzung“), statt Genauigkeit vorzutäuschen.
+
+### 2. Score (`lib/scoring.ts`)
+
+```
+pleasantScore = shadeScore   * 0.45
+              + amenityScore * 0.25
+              + statusScore  * 0.20
+              + distanceScore* 0.10
+```
+
+Alle vier Komponenten laufen von 0 bis 100 und werden als `breakdown` am Ort
+mitgeliefert – der Score bleibt damit nachvollziehbar.
+
+- **shadeScore** – `desiredShade()` bestimmt aus gefühlter Temperatur und
+  UV-Index, wie viel Schatten gerade erwünscht ist. Bei 31 °C und UV 8 fast
+  alles, bei 9 °C nahezu nichts – dort ist zu viel Schatten sogar ein Malus.
+- **amenityScore** – Toilette, Zaun und Wickeltisch dominieren, Wasser und
+  Überdachung geben kleine Zuschläge.
+- **statusScore** – 50 ist neutral; frische Meldungen heben oder senken den
+  Wert, gewichtet nach Restgültigkeit.
+- **distanceScore** – exponentieller Abfall, spürbar aber nie dominant.
+
+Zusätzlich dämpft ein **Wetterfaktor** (Regenwahrscheinlichkeit, starker Wind)
+das Gesamtergebnis. Er verschiebt die Gewichte nicht, sondern wirkt als
+Multiplikator auf alle Orte gleich – Regen macht keinen Ort besser als den
+anderen, aber jeden Ausflug schlechter.
+
+### 3. Filter (`lib/select.ts`)
+
+Harte Kriterien (Toilette, Wickeltisch, Zaun, Mindestschatten, Entfernung,
+Ortsart) filtern; der Score sortiert den Rest. Aktive Filter erscheinen als
+Chips über der Liste und lassen sich einzeln wegtippen.
+
+## Datenquellen
+
+| Quelle | Verwendung |
+| --- | --- |
+| [Overpass API](https://overpass-api.de/) (OpenStreetMap) | Spielplätze, Grünflächen, Toiletten, Trinkwasser, Bäume, Gebäude |
+| [Open-Meteo](https://open-meteo.com/) | Temperatur, gefühlte Temperatur, Bewölkung, UV, Regen, Wind |
+| Eigene Datenbank | Community-Meldungen |
+
+Overpass-Antworten werden 24 Stunden serverseitig gecacht (auf ~1 km gerundeter
+Schlüssel), Wetter 10 Minuten. Parallele Anfragen aus derselben Gegend teilen
+sich einen Overpass-Call; fällt Overpass aus, wird notfalls die letzte Antwort
+ausgeliefert.
+
+Öffentliche Overpass-Instanzen antworten regelmäßig mit 429 („kein Slot frei“).
+Das ist der Normalfall, kein Fehler: `runOverpass()` wartet kurz und fragt
+denselben Server erneut, bevor es auf den Spiegel wechselt. Gemessen antwortet
+Overpass bei 2,5 km Radius in wenigen Sekunden, bei größeren Flächen wächst die
+Antwort schnell auf mehrere Megabyte – deshalb ist der Suchradius auf 3 km
+gedeckelt und die größte Filterstufe liegt bei 2,5 km. Für „mit Kind kurz raus“
+ist das ohnehin die relevante Spanne.
+
+Der Detail-Link trägt den Suchradius der Liste mit (`?...&r=3100`). Die
+Detailseite wiederholt damit exakt die Abfrage der Liste und trifft den Cache –
+sie ist sofort da, statt eine zweite Overpass-Anfrage zu stellen.
+
+### Was OSM nicht weiß
+
+Die Tag-Abdeckung für Elternthemen ist dünn. Deshalb:
+
+- **Toilette**: gilt als vorhanden, wenn ein `amenity=toilets` bis 150 m
+  entfernt liegt – die Entfernung wird mit angezeigt.
+- **Wickeltisch**: `changing_table`, meist am Toiletten-Objekt.
+- **Eingezäunt**: `fenced=yes` oder ein passendes `barrier=*`.
+- **Unbekannt** bleibt `undefined` und wird sichtbar als unbekannt dargestellt,
+  nie als „nicht vorhanden“.
+- Orte mit `access=private` oder `no` fallen raus.
+- Derselbe Ort ist in OSM oft doppelt erfasst (als Punkt *und* als Fläche);
+  `dedupe()` führt beides zusammen und behält den informativeren Eintrag.
+
+## Community-Meldungen
+
+Meldungen sind anonym, brauchen keine Anmeldung und tragen ein `expiresAt`
+(3 Stunden, `STATUS_TTL_MS`). Rate-Limiting läuft zweistufig: Mindestabstand pro
+IP und Stundendeckel pro anonymer ID (eine Zufalls-ID im localStorage, die
+jederzeit gelöscht werden kann – kein Tracking).
+
+Ohne Datenbank funktioniert alles, die Meldungen leben aber nur im Prozess –
+auf Serverless-Hosting also bis zum nächsten Kaltstart. Für den Produktivbetrieb
+Supabase konfigurieren:
+
+```bash
+cp .env.example .env.local
+# NEXT_PUBLIC_SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY eintragen
+```
+
+Das Schema liegt in [`supabase/schema.sql`](supabase/schema.sql) (Tabelle
+`place_status`). Sobald die Variablen gesetzt sind, schaltet `lib/supabase.ts`
+automatisch um.
+
+## PWA
+
+Installierbar über Manifest und Service Worker. Der Service Worker ist bewusst
+zurückhaltend: App-Shell und Kartenkacheln kommen aus dem Cache, **API-Daten
+immer aus dem Netz**. Ein veralteter Schattenwert wäre schlimmer als gar keiner
+– nur wenn das Netz ausfällt, greift die gespeicherte Kopie. Registriert wird er
+ausschließlich im Produktions-Build.
+
+## Bekannte Grenzen
+
+- Gebäudehöhen sind geschätzt; die Gebäudeform wird auf ihren Mittelpunkt
+  reduziert.
+- Ohne Standortfreigabe zeigt die App den zuletzt bekannten Standort, sonst eine
+  Beispielstadt (München), siehe `FALLBACK_COORDS` in `hooks/useGeolocation.ts`.
+- Der In-Memory-Cache lebt pro Serverinstanz und stirbt beim Neustart; hinter
+  mehreren Instanzen sinkt die Trefferquote entsprechend. Für den Produktivbetrieb
+  wäre ein geteilter Cache (Redis o. Ä.) der nächste Schritt.
+- Der Entfernungsfilter endet bei 2,5 km – siehe Overpass-Grenzen oben.
+- Kein Dark Mode, keine Accounts, kein Routing – bewusst außerhalb des MVP.
+
+## Lizenz & Attribution
+
+Kartendaten und Orte stammen von OpenStreetMap-Mitwirkenden
+([ODbL](https://www.openstreetmap.org/copyright)); der Hinweis ist in der
+Kartenansicht sichtbar. Wetterdaten von Open-Meteo (CC BY 4.0).

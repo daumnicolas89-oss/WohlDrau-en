@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2a9d8f;
+  --color-primary-dark: #1f7a6f;
+  --color-primary-light: #3dbdb0;
+  --color-primary-soft: #e2f1ef;
+
+  --color-accent: #e9c46a;
+  --color-accent-soft: #fbf2dc;
+  --color-accent-ink: #8a6d1f;
+
+  --color-warning: #e76f51;
+  --color-warning-soft: #fbe7e1;
+  --color-warning-ink: #b8462b;
+
+  --color-dark: #264653;
+  --color-background: #f8f9fa;
+  --color-card: #ffffff;
+  --color-body: #1a1a1a;
+  --color-muted: #5c6b73;
+  --color-line: #e5e9eb;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-inter), ui-sans-serif, sans-serif;
+
+  --radius-card: 20px;
+  --radius-sheet: 28px;
+
+  --shadow-card: 0 1px 2px rgb(38 70 83 / 0.04), 0 6px 20px -8px rgb(38 70 83 / 0.14);
+  --shadow-float: 0 4px 12px rgb(38 70 83 / 0.1), 0 18px 40px -12px rgb(38 70 83 / 0.28);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--color-background);
+  color: var(--color-body);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/* Draußen wird getippt, nicht gezielt: keine Verzögerung, kein Zoom-Ruckeln. */
+button,
+a {
+  touch-action: manipulation;
+}
+
+@utility safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Leaflet-Grundgerüst, damit die Karte ohne externes CSS sauber sitzt. */
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: #eef1f2;
+  outline: none;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  font-size: 14px;
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: rgb(255 255 255 / 0.82) !important;
+}
+
+/* Platz für die schwebenden Aktionsknöpfe am unteren Rand. */
+.leaflet-bottom {
+  bottom: 4.75rem;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.18s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
+}

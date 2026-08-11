@@ -1,0 +1,101 @@
+"use client";
+
+import { useState } from "react";
+import { STATUS_OPTIONS } from "@/lib/status";
+import type { PlaceStatusType } from "@/types";
+import { Button } from "@/components/ui/Button";
+import { Sheet } from "@/components/ui/Sheet";
+
+const TONE_STYLES = {
+  good: "border-primary bg-primary-soft text-primary-dark",
+  bad: "border-warning bg-warning-soft text-warning-ink",
+  neutral: "border-dark bg-[#e8edef] text-dark",
+} as const;
+
+const MAX_MESSAGE_LENGTH = 140;
+
+/**
+ * Wird von den Aufrufern nur gerendert, solange sie offen sein soll – so
+ * startet jede Meldung mit leerem Formular, ohne Zurücksetz-Effekt.
+ */
+export function ReportStatusModal({
+  placeName,
+  onClose,
+  onSubmit,
+}: {
+  placeName: string;
+  onClose: () => void;
+  onSubmit: (type: PlaceStatusType, message: string) => Promise<void>;
+}) {
+  const [type, setType] = useState<PlaceStatusType | null>(null);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    if (!type) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await onSubmit(type, message);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Meldung fehlgeschlagen");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Sheet
+      open
+      title="Wie ist es gerade?"
+      description={`Für ${placeName}. Deine Meldung ist etwa 3 Stunden sichtbar – anonym, ohne Anmeldung.`}
+      onOpenChange={(next) => {
+        if (!next) onClose();
+      }}
+      footer={
+        <div className="pb-1">
+          {error && <p className="mb-2 text-sm text-warning">{error}</p>}
+          <Button disabled={!type || busy} onClick={submit} className="w-full">
+            {busy ? "Wird gesendet …" : "Melden"}
+          </Button>
+        </div>
+      }
+    >
+      <div className="grid grid-cols-2 gap-2">
+        {STATUS_OPTIONS.map((option) => {
+          const active = type === option.type;
+          return (
+            <button
+              key={option.type}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setType(option.type)}
+              className={`min-h-14 rounded-2xl border-2 px-3 text-sm font-semibold transition ${
+                active
+                  ? TONE_STYLES[option.tone]
+                  : "border-line bg-card text-dark active:bg-background"
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <label className="mt-4 block">
+        <span className="mb-1 block text-sm font-semibold text-dark">
+          Kurze Ergänzung <span className="font-normal text-muted">(optional)</span>
+        </span>
+        <textarea
+          value={message}
+          onChange={(event) => setMessage(event.target.value.slice(0, MAX_MESSAGE_LENGTH))}
+          rows={2}
+          placeholder="z. B. Sandkasten liegt komplett im Schatten"
+          className="w-full resize-none rounded-2xl border border-line bg-background p-3 text-[15px] outline-none focus:border-primary"
+        />
+      </label>
+    </Sheet>
+  );
+}
