@@ -21,7 +21,9 @@ export interface FilterState {
 
 export const DEFAULT_FILTERS: FilterState = {
   timeOffsetMin: 0,
-  maxDistanceM: 2500,
+  // Rund 20 Minuten Fußweg. Weiter ist mit Kleinkind kein „mal eben raus“
+  // mehr – und innerhalb dieser Spanne darf die Ausstattung entscheiden.
+  maxDistanceM: 1500,
   requireToilet: false,
   requireChangingTable: false,
   requireFenced: false,

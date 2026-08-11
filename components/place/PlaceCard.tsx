@@ -54,7 +54,7 @@ export function PlaceCard({
       )}
 
       {place.warnings.length > 0 && (
-        <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-warning">
+        <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-warning-ink">
           <AlertTriangle size={14} aria-hidden />
           {place.warnings[0]}
         </p>

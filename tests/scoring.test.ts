@@ -139,3 +139,33 @@ describe("scorePlace", () => {
     }
   });
 });
+
+describe("Schatten bei Kälte", () => {
+  const kalt = (cloudCover: number) =>
+    weather({
+      hourly: {
+        time: ["2026-06-21T13:00"],
+        temperature: [6],
+        apparentTemperature: [5],
+        cloudCover: [cloudCover],
+        precipitationProbability: [0],
+        uvIndex: [1],
+      },
+    });
+
+  it("bestraft vermeidbaren Baumschatten", () => {
+    const result = score({ shadeInputs: { canopy: 0.9 } }, { weather: kalt(0) });
+    assert.ok(result.breakdown.shadeScore < 40, `war ${result.breakdown.shadeScore}`);
+  });
+
+  it("bestraft Wolkenschatten nicht – dem entkommt kein Ort", () => {
+    const result = score({}, { weather: kalt(95) });
+    assert.ok(result.breakdown.shadeScore > 80, `war ${result.breakdown.shadeScore}`);
+  });
+
+  it("unterscheidet bei bedecktem Himmel weiter nach Bäumen", () => {
+    const kahl = score({}, { weather: kalt(95) });
+    const dicht = score({ shadeInputs: { canopy: 0.9 } }, { weather: kalt(95) });
+    assert.ok(kahl.breakdown.shadeScore > dicht.breakdown.shadeScore);
+  });
+});

@@ -16,6 +16,7 @@ import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
 import { MapControls } from "./map/MapControls";
 import { PlaceCard } from "./place/PlaceCard";
+import { PlacesLoading } from "./place/PlacesLoading";
 import { ReportStatusModal } from "./status/ReportStatusModal";
 import { Button } from "./ui/Button";
 import { Sheet } from "./ui/Sheet";
@@ -75,6 +76,28 @@ export function HomeView() {
     [places.places, coords.lat, coords.lng],
   );
 
+  // Wie viele Orte erfüllen ein Kriterium überhaupt? OSM kennt Zäune kaum –
+  // das gehört im Filter sichtbar gemacht, nicht hinter einer leeren Liste.
+  const inRange = useMemo(
+    () =>
+      places.places.filter(
+        (place) =>
+          haversine(coords.lat, coords.lng, place.lat, place.lng) <=
+          filters.maxDistanceM,
+      ),
+    [places.places, coords.lat, coords.lng, filters.maxDistanceM],
+  );
+
+  const matchCounts = useMemo(
+    () => ({
+      total: inRange.length,
+      toilet: inRange.filter((p) => p.tags.toilet === true).length,
+      changingTable: inRange.filter((p) => p.tags.changing_table === true).length,
+      fenced: inRange.filter((p) => p.tags.fenced === true).length,
+    }),
+    [inRange],
+  );
+
   const filterCount = activeFilterChips(filters).length;
   const locationLabel =
     coords.source === "gps" ? "Orte in deiner Nähe" : FALLBACK_LABEL;
@@ -111,16 +134,7 @@ export function HomeView() {
           </div>
         )}
 
-        {loading && !places.error && (
-          <div className="space-y-3 p-4">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-36 animate-pulse rounded-card bg-card shadow-card" />
-            ))}
-            <p className="text-center text-sm text-muted">
-              Orte, Wetter und Sonnenstand werden geladen …
-            </p>
-          </div>
-        )}
+        {loading && !places.error && <PlacesLoading />}
 
         {!loading && !places.error && filters.viewMode === "map" && (
           <div className="h-[calc(100dvh-16rem)] min-h-[22rem] w-full overflow-hidden">
@@ -160,9 +174,17 @@ export function HomeView() {
                     ? `${filteredOut} Orte in der Nähe passen nicht zu deinen Filtern – Filter lockern?`
                     : "In diesem Umkreis ist nichts erfasst. Größere Entfernung versuchen?"}
                 </p>
-                <Button onClick={filters.reset} className="mx-auto mt-4">
-                  Filter zurücksetzen
-                </Button>
+                {/* Ohne aussortierte Orte hilft Zurücksetzen nicht – dann muss
+                    der Umkreis größer werden. */}
+                {filteredOut > 0 ? (
+                  <Button onClick={filters.reset} className="mx-auto mt-4">
+                    Filter zurücksetzen
+                  </Button>
+                ) : (
+                  <Button onClick={() => setFilterOpen(true)} className="mx-auto mt-4">
+                    Entfernung ändern
+                  </Button>
+                )}
               </div>
             )}
 
@@ -188,7 +210,7 @@ export function HomeView() {
         <button
           type="button"
           onClick={() => setFilterOpen(true)}
-          className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-primary px-5 font-semibold text-white shadow-float"
+          className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-primary-dark px-5 font-semibold text-white shadow-float"
         >
           <SlidersHorizontal size={18} aria-hidden />
           Filter
@@ -200,7 +222,11 @@ export function HomeView() {
         </button>
       </div>
 
-      <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} />
+      <FilterSheet
+        open={filterOpen}
+        counts={matchCounts}
+        onClose={() => setFilterOpen(false)}
+      />
 
       <Sheet
         open={reportPickerOpen}

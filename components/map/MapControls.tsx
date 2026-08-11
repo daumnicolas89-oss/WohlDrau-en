@@ -27,8 +27,8 @@ export function MapControls() {
               type="button"
               aria-pressed={active}
               onClick={() => filters.set("timeOffsetMin", choice.value)}
-              className={`min-h-10 flex-1 rounded-xl text-sm font-semibold transition ${
-                active ? "bg-primary text-white" : "text-muted"
+              className={`min-h-11 flex-1 rounded-xl text-sm font-semibold transition ${
+                active ? "bg-primary-dark text-white" : "text-muted"
               }`}
             >
               {choice.label}

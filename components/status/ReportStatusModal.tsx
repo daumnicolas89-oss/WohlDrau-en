@@ -56,7 +56,7 @@ export function ReportStatusModal({
       }}
       footer={
         <div className="pb-1">
-          {error && <p className="mb-2 text-sm text-warning">{error}</p>}
+          {error && <p className="mb-2 text-sm text-warning-ink">{error}</p>}
           <Button disabled={!type || busy} onClick={submit} className="w-full">
             {busy ? "Wird gesendet …" : "Melden"}
           </Button>

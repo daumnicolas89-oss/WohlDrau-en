@@ -1,18 +1,22 @@
 @import "tailwindcss";
 
 @theme {
+  /* Markenton. Als Flächenfarbe hinter weißer Schrift erreicht er nur 3.3:1 –
+     dafür ist primary-dark da. */
   --color-primary: #2a9d8f;
-  --color-primary-dark: #1f7a6f;
+  /* Trägt weiße Schrift mit 4.6:1 und dunkle Schrift auf primary-soft mit
+     4.7:1 – beides WCAG AA, auch bei praller Sonne. */
+  --color-primary-dark: #1e766c;
   --color-primary-light: #3dbdb0;
   --color-primary-soft: #e2f1ef;
 
   --color-accent: #e9c46a;
   --color-accent-soft: #fbf2dc;
-  --color-accent-ink: #8a6d1f;
+  --color-accent-ink: #866a1e;
 
   --color-warning: #e76f51;
   --color-warning-soft: #fbe7e1;
-  --color-warning-ink: #b8462b;
+  --color-warning-ink: #b4452a;
 
   --color-dark: #264653;
   --color-background: #f8f9fa;

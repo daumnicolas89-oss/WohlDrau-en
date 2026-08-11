@@ -99,7 +99,9 @@ mitgeliefert – der Score bleibt damit nachvollziehbar.
 
 - **shadeScore** – `desiredShade()` bestimmt aus gefühlter Temperatur und
   UV-Index, wie viel Schatten gerade erwünscht ist. Bei 31 °C und UV 8 fast
-  alles, bei 9 °C nahezu nichts – dort ist zu viel Schatten sogar ein Malus.
+  alles, bei 9 °C nahezu nichts – dort ist zu viel Schatten ein Malus, aber nur
+  soweit er *vermeidbar* ist: Unter geschlossener Wolkendecke ist kein Ort
+  sonniger als der andere, ein Malus dafür würde nur alle gleich abwerten.
 - **amenityScore** – Toilette, Zaun und Wickeltisch dominieren, Wasser und
   Überdachung geben kleine Zuschläge.
 - **statusScore** – 50 ist neutral; frische Meldungen heben oder senken den
@@ -117,6 +119,15 @@ Harte Kriterien (Toilette, Wickeltisch, Zaun, Mindestschatten, Entfernung,
 Ortsart) filtern; der Score sortiert den Rest. Aktive Filter erscheinen als
 Chips über der Liste und lassen sich einzeln wegtippen.
 
+Die Voreinstellung liegt bei **1,5 km** (rund 20 Minuten Fußweg). Das ist
+bewusst eng: Weil Entfernung nur 10 % wiegt, würde ein gut ausgestatteter Platz
+sonst eine 35-Minuten-Wanderung anführen. Innerhalb einer fußläufigen Spanne
+darf die Ausstattung dagegen zu Recht entscheiden.
+
+Weil OSM Zäune kaum erfasst (gemessen 2–3 % in Städten), zeigt das Filter-Sheet
+neben jedem Kriterium, wie viele Orte im Umkreis es überhaupt erfüllen – eine
+Datenlücke gehört sichtbar, nicht hinter eine leere Ergebnisliste.
+
 ## Datenquellen
 
 | Quelle | Verwendung |
@@ -129,6 +140,13 @@ Overpass-Antworten werden 24 Stunden serverseitig gecacht (auf ~1 km gerundeter
 Schlüssel), Wetter 10 Minuten. Parallele Anfragen aus derselben Gegend teilen
 sich einen Overpass-Call; fällt Overpass aus, wird notfalls die letzte Antwort
 ausgeliefert.
+
+Zusätzlich landet jede Antwort auf der Platte (`lib/placesCache.ts`, standardmäßig
+unter `os.tmpdir()`, per `WD_CACHE_DIR` umstellbar). Ein Serverneustart kostet
+den Overpass-Preis damit nicht erneut: gemessen 59 ms statt 15–34 s. Fällt
+Overpass aus, werden im Notfall auch bis zu 30 Tage alte Daten ausgeliefert –
+Lage und Ausstattung ändern sich kaum, und der Schatten wird ohnehin live
+gerechnet.
 
 Öffentliche Overpass-Instanzen antworten regelmäßig mit 429 („kein Slot frei“).
 Das ist der Normalfall, kein Fehler: `runOverpass()` wartet kurz und fragt
@@ -183,6 +201,13 @@ zurückhaltend: App-Shell und Kartenkacheln kommen aus dem Cache, **API-Daten
 immer aus dem Netz**. Ein veralteter Schattenwert wäre schlimmer als gar keiner
 – nur wenn das Netz ausfällt, greift die gespeicherte Kopie. Registriert wird er
 ausschließlich im Produktions-Build.
+
+## Barrierefreiheit
+
+Die Palette ist auf Lesbarkeit in praller Sonne geprüft. `primary` (#2A9D8F)
+trägt weiße Schrift nur mit 3.3:1 und ist deshalb Akzent-, keine Flächenfarbe;
+Buttons nutzen `primary-dark` (4.6:1). Alle Text-/Hintergrundpaare erreichen
+WCAG AA, Touch-Targets sind mindestens 44 × 44 px.
 
 ## Bekannte Grenzen
 

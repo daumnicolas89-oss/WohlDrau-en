@@ -2,7 +2,14 @@ import { formatDistance, clamp, walkingMinutes } from "./utils";
 import { freshness, statusOption } from "./status";
 import { computeShade } from "./sun";
 import { weatherAt } from "./weather";
-import type { OsmPlace, Place, PlaceStatus, ScoreBreakdown, Weather } from "@/types";
+import type {
+  OsmPlace,
+  Place,
+  PlaceStatus,
+  ScoreBreakdown,
+  ShadeResult,
+  Weather,
+} from "@/types";
 
 /**
  * Gewichte des „Angenehm jetzt“-Scores. Bewusst flach und erklärbar:
@@ -29,18 +36,27 @@ export function desiredShade(apparentTemperature: number, uvIndex: number): numb
   return clamp(Math.max(fromHeat, fromUv * 0.9));
 }
 
-/** Passt der aktuelle Schatten zu dem, was das Wetter verlangt? */
+/**
+ * Passt der aktuelle Schatten zu dem, was das Wetter verlangt?
+ *
+ * Zu wenig Schatten stört immer. Zu viel Schatten stört nur, wenn es kühl ist –
+ * und auch dann nur, soweit er vermeidbar ist: Unter einer geschlossenen
+ * Wolkendecke ist kein Ort sonniger als der andere, ein Malus dafür würde
+ * lediglich alle Orte gleichmäßig abwerten und die Reihenfolge verrauschen.
+ */
 function shadeScoreOf(
-  shadeIndex: number,
+  shade: ShadeResult,
   apparentTemperature: number,
   uvIndex: number,
 ): number {
   const want = desiredShade(apparentTemperature, uvIndex);
-  const delta = shadeIndex - want;
-  // Zu wenig Schatten stört immer; zu viel Schatten nur, wenn es kühl ist.
   const coldPenalty = clamp((16 - apparentTemperature) / 10);
-  const miss = delta >= 0 ? delta * coldPenalty : -delta * 1.4;
-  return 100 * (1 - clamp(miss));
+
+  if (shade.index < want) return 100 * (1 - clamp((want - shade.index) * 1.4));
+
+  const avoidable = clamp(1 - (1 - shade.fromCanopy) * (1 - shade.fromBuildings));
+  const surplus = Math.max(0, avoidable - want);
+  return 100 * (1 - clamp(surplus * coldPenalty));
 }
 
 /** Toilette, Zaun und Wickeltisch entscheiden den Ausflug mit Kleinkind. */
@@ -102,7 +118,7 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
   const fresh = ctx.statuses.filter((s) => freshness(s, now) > 0);
 
   const breakdown: ScoreBreakdown = {
-    shadeScore: shadeScoreOf(shade.index, w.apparentTemperature, w.uvIndex),
+    shadeScore: shadeScoreOf(shade, w.apparentTemperature, w.uvIndex),
     amenityScore: amenityScoreOf(place),
     statusScore: statusScoreOf(fresh, now),
     distanceScore: distanceScoreOf(distanceM),

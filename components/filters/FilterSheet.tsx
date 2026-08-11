@@ -63,17 +63,30 @@ function ToggleRow({
   label,
   hint,
   checked,
+  match,
   onChange,
 }: {
   label: string;
   hint?: string;
   checked: boolean;
+  /** Wie viele Orte im Umkreis erfüllen das Kriterium – und wie viele gibt es. */
+  match?: { hits: number; total: number };
   onChange: (checked: boolean) => void;
 }) {
+  const scarce = match && match.total > 0 && match.hits / match.total < 0.1;
   return (
     <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 border-b border-line py-3 last:border-b-0">
       <span>
-        <span className="block text-[15px] font-medium text-dark">{label}</span>
+        <span className="block text-[15px] font-medium text-dark">
+          {label}
+          {match && (
+            <span
+              className={`ml-2 text-xs font-normal ${scarce ? "text-warning-ink" : "text-muted"}`}
+            >
+              {match.hits} von {match.total} erfasst
+            </span>
+          )}
+        </span>
         {hint && <span className="block text-xs text-muted">{hint}</span>}
       </span>
       <input
@@ -98,11 +111,20 @@ function ToggleRow({
   );
 }
 
+export interface MatchCounts {
+  total: number;
+  toilet: number;
+  changingTable: number;
+  fenced: number;
+}
+
 export function FilterSheet({
   open,
+  counts,
   onClose,
 }: {
   open: boolean;
+  counts: MatchCounts;
   onClose: () => void;
 }) {
   const filters = useFilters();
@@ -182,17 +204,19 @@ export function FilterSheet({
             label="Toilette"
             hint="Am Ort oder bis 150 m entfernt"
             checked={filters.requireToilet}
+            match={{ hits: counts.toilet, total: counts.total }}
             onChange={(value) => filters.set("requireToilet", value)}
           />
           <ToggleRow
             label="Wickeltisch"
-            hint="Selten in OpenStreetMap erfasst"
             checked={filters.requireChangingTable}
+            match={{ hits: counts.changingTable, total: counts.total }}
             onChange={(value) => filters.set("requireChangingTable", value)}
           />
           <ToggleRow
             label="Eingezäunt"
             checked={filters.requireFenced}
+            match={{ hits: counts.fenced, total: counts.total }}
             onChange={(value) => filters.set("requireFenced", value)}
           />
           <ToggleRow
@@ -203,12 +227,11 @@ export function FilterSheet({
           />
         </div>
 
-        {(filters.requireChangingTable || filters.requireToilet) && (
-          <p className="rounded-2xl bg-background p-3 text-xs leading-relaxed text-muted">
-            Die Ausstattung stammt aus OpenStreetMap und ist oft unvollständig.
-            Strenge Filter blenden auch Orte aus, die schlicht nicht erfasst sind.
-          </p>
-        )}
+        <p className="rounded-2xl bg-background p-3 text-xs leading-relaxed text-muted">
+          Die Ausstattung stammt aus OpenStreetMap und ist oft unvollständig –
+          Zäune sind kaum erfasst. Diese Filter zeigen nur, was dort wirklich
+          eingetragen ist; viele passende Orte fallen dadurch mit heraus.
+        </p>
       </div>
     </Sheet>
   );

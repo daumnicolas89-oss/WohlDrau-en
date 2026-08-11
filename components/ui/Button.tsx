@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes } from "react";
 type Variant = "primary" | "secondary" | "ghost";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-primary text-white active:bg-primary-dark disabled:bg-[#c9d2d5]",
+  primary: "bg-primary-dark text-white active:bg-[#175c54] disabled:bg-[#c9d2d5]",
   secondary: "border border-line bg-card text-dark active:bg-background",
   ghost: "text-muted active:bg-background",
 };

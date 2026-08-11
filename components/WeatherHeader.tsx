@@ -88,6 +88,14 @@ export function WeatherHeader({
           Browser erlauben und erneut auf das Fadenkreuz tippen.
         </p>
       )}
+
+      {geoStatus === "unavailable" && (
+        <p className="mt-3 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
+          Der Standort lässt sich gerade nicht bestimmen – im Gebäude oder ohne
+          GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
+          Ort; das Fadenkreuz versucht es erneut.
+        </p>
+      )}
     </header>
   );
 }

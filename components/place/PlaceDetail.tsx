@@ -24,6 +24,7 @@ import { ReportStatusModal } from "@/components/status/ReportStatusModal";
 import { Button } from "@/components/ui/Button";
 import { AttributeChips } from "./AttributeChips";
 import { ShadeBadge } from "./StatusBadge";
+import { PlacesLoading } from "./PlacesLoading";
 import { ShadeTimeline } from "./ShadeTimeline";
 
 const CONFIDENCE_LABEL = {
@@ -97,15 +98,7 @@ export function PlaceDetail({
         </Link>
       </div>
 
-      {loading && (
-        <div className="space-y-3 p-4">
-          <div className="h-28 animate-pulse rounded-card bg-card shadow-card" />
-          <div className="h-48 animate-pulse rounded-card bg-card shadow-card" />
-          <p className="text-center text-sm text-muted">
-            Ort, Wetter und Sonnenstand werden geladen …
-          </p>
-        </div>
-      )}
+      {loading && <PlacesLoading rows={2} />}
 
       {!loading && places.error && (
         <div className="m-4 rounded-card bg-warning-soft p-4">
@@ -127,7 +120,7 @@ export function PlaceDetail({
           </p>
           <Link
             href="/"
-            className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-primary px-4 font-semibold text-white"
+            className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-primary-dark px-4 font-semibold text-white"
           >
             Zur Übersicht
           </Link>
@@ -272,7 +265,7 @@ export function PlaceDetail({
             <button
               type="button"
               onClick={() => setReportOpen(true)}
-              className="flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-primary font-semibold text-white shadow-float"
+              className="flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float"
             >
               <Megaphone size={18} aria-hidden />
               Status melden

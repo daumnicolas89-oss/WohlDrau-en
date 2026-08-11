@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server";
 import { fetchPlaces, type FetchPlacesResult } from "@/lib/osm";
+import { FRESH_MS, readCache, writeCache } from "@/lib/placesCache";
 
 export const runtime = "nodejs";
 
-/** Spielplätze wandern nicht. Ein Tag Cache spart sehr viele Overpass-Anfragen. */
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const MAX_RADIUS_M = 3000;
 
-const cache = new Map<string, { at: number; value: FetchPlacesResult }>();
+const memory = new Map<string, { at: number; value: FetchPlacesResult }>();
 const inFlight = new Map<string, Promise<FetchPlacesResult>>();
 
 /** Auf ~1 km Raster runden, damit sich Anfragen aus einer Gegend den Cache teilen. */
 function cacheKey(lat: number, lng: number, radius: number) {
   return `${lat.toFixed(2)}:${lng.toFixed(2)}:${radius}`;
+}
+
+function respond(value: FetchPlacesResult, source: string) {
+  return NextResponse.json(value, { headers: { "x-wd-cache": source } });
 }
 
 export async function GET(request: Request) {
@@ -32,9 +35,15 @@ export async function GET(request: Request) {
   }
 
   const key = cacheKey(lat, lng, radius);
-  const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < CACHE_TTL_MS) {
-    return NextResponse.json(hit.value, { headers: { "x-wd-cache": "hit" } });
+
+  const hot = memory.get(key);
+  if (hot && Date.now() - hot.at < FRESH_MS) return respond(hot.value, "memory");
+
+  // Überlebt den Serverneustart – Overpass kann sehr langsam sein.
+  const stored = await readCache(key);
+  if (stored && stored.ageMs < FRESH_MS) {
+    memory.set(key, { at: Date.now() - stored.ageMs, value: stored.value });
+    return respond(stored.value, "disk");
   }
 
   try {
@@ -46,13 +55,14 @@ export async function GET(request: Request) {
       pending.finally(() => inFlight.delete(key));
     }
     const value = await pending;
-    cache.set(key, { at: Date.now(), value });
-    return NextResponse.json(value, { headers: { "x-wd-cache": "miss" } });
+    memory.set(key, { at: Date.now(), value });
+    void writeCache(key, value);
+    return respond(value, "miss");
   } catch (error) {
-    if (hit) {
-      // Lieber leicht veraltete Orte als eine leere Startseite.
-      return NextResponse.json(hit.value, { headers: { "x-wd-cache": "stale" } });
-    }
+    // Lieber veraltete Orte als eine leere Startseite: Ausstattung und Lage
+    // ändern sich kaum, und der Schatten wird ohnehin live gerechnet.
+    if (hot) return respond(hot.value, "stale-memory");
+    if (stored) return respond(stored.value, "stale-disk");
     return NextResponse.json(
       {
         error:
