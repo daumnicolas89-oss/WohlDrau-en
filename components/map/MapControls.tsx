@@ -17,7 +17,7 @@ export function MapControls() {
   const filters = useFilters();
 
   return (
-    <div className="sticky top-0 z-[900] flex items-center gap-2 border-b border-line bg-background/95 px-4 py-2 backdrop-blur">
+    <div className="sticky top-0 z-[900] flex items-center gap-2 bg-background/80 px-4 py-2.5 backdrop-blur-md">
       <div className="flex flex-1 gap-1 rounded-2xl bg-card p-1 shadow-card">
         {TIME_CHOICES.map((choice) => {
           const active = filters.timeOffsetMin === choice.value;
