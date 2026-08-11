@@ -102,10 +102,7 @@ export function PlaceDetail({
 
       {!loading && places.error && (
         <div className="m-4 rounded-card bg-warning-soft p-4">
-          <p className="text-sm font-medium text-warning-ink">
-            Die Ortsdaten sind gerade nicht erreichbar.
-          </p>
-          <p className="mt-1 text-xs text-warning-ink/80">{places.error}</p>
+          <p className="text-sm font-medium text-warning-ink">{places.error}</p>
           <Button variant="secondary" onClick={places.reload} className="mt-3 min-h-11">
             Erneut versuchen
           </Button>

@@ -31,8 +31,9 @@ export async function GET(request: Request) {
     return NextResponse.json(value);
   } catch (error) {
     if (hit) return NextResponse.json(hit.value);
+    console.error("[wohldraussen] weather:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Wetter nicht verfügbar" },
+      { error: "Die Wetterdaten sind gerade nicht erreichbar." },
       { status: 502 },
     );
   }

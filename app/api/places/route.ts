@@ -63,12 +63,13 @@ export async function GET(request: Request) {
     // ändern sich kaum, und der Schatten wird ohnehin live gerechnet.
     if (hot) return respond(hot.value, "stale-memory");
     if (stored) return respond(stored.value, "stale-disk");
+    // Die technische Ursache bleibt im Log; die App zeigt einen brauchbaren Satz.
+    console.error("[wohldraussen] places:", error);
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Orte konnten nicht geladen werden",
+          "OpenStreetMap antwortet gerade nicht. Das liegt meist an einer " +
+          "kurzzeitigen Überlastung – in ein, zwei Minuten klappt es wieder.",
       },
       { status: 502 },
     );

@@ -20,6 +20,15 @@ const MAX_MESSAGE_LENGTH = 140;
 
 const lastPostByIp = new Map<string, number>();
 
+/**
+ * Technische Ursachen gehören ins Log, nicht ins Formular: „TypeError: fetch
+ * failed“ hilft niemandem, der gerade am Spielplatz steht.
+ */
+function fail(error: unknown, message: string, status = 502) {
+  console.error("[wohldraussen] status:", error);
+  return NextResponse.json({ error: message }, { status });
+}
+
 function clientIp(request: Request) {
   return (
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -36,13 +45,7 @@ export async function GET(request: Request) {
     );
     return NextResponse.json({ statuses, persistent: isPersistent() });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Meldungen nicht verfügbar",
-      },
-      { status: 502 },
-    );
+    return fail(error, "Meldungen sind gerade nicht abrufbar.");
   }
 }
 
@@ -105,14 +108,9 @@ export async function POST(request: Request) {
     lastPostByIp.set(ip, Date.now());
     return NextResponse.json({ status }, { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Meldung konnte nicht gespeichert werden",
-      },
-      { status: 502 },
+    return fail(
+      error,
+      "Die Meldung ließ sich gerade nicht speichern. Gleich nochmal versuchen?",
     );
   }
 }
