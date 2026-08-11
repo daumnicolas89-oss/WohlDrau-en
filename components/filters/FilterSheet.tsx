@@ -118,6 +118,7 @@ export interface MatchCounts {
   toilet: number;
   changingTable: number;
   fenced: number;
+  water: number;
 }
 
 export function FilterSheet({
@@ -201,32 +202,39 @@ export function FilterSheet({
         </fieldset>
 
         <div>
-          <h3 className="text-sm font-semibold text-dark">Das muss vorhanden sein</h3>
+          <h3 className="text-sm font-semibold text-dark">Wichtig für mich</h3>
           <p className="mb-1 text-xs leading-relaxed text-muted">
-            Zeigt nur Orte, bei denen das ausdrücklich eingetragen ist.
+            Solche Orte kommen zuerst nach oben – ausgeblendet wird nichts.
           </p>
           <ToggleRow
             label="Toilette"
             hint="Am Ort oder bis 150 Meter entfernt"
-            checked={filters.requireToilet}
+            checked={filters.preferToilet}
             match={{ hits: counts.toilet, total: counts.total }}
-            onChange={(value) => filters.set("requireToilet", value)}
+            onChange={(value) => filters.set("preferToilet", value)}
+          />
+          <ToggleRow
+            label="Wasser zum Planschen"
+            hint="Matschanlage oder Wasserspielplatz"
+            checked={filters.preferWater}
+            match={{ hits: counts.water, total: counts.total }}
+            onChange={(value) => filters.set("preferWater", value)}
           />
           <ToggleRow
             label="Wickeltisch"
-            checked={filters.requireChangingTable}
+            checked={filters.preferChangingTable}
             match={{ hits: counts.changingTable, total: counts.total }}
-            onChange={(value) => filters.set("requireChangingTable", value)}
+            onChange={(value) => filters.set("preferChangingTable", value)}
           />
           <ToggleRow
             label="Eingezäunt"
-            checked={filters.requireFenced}
+            checked={filters.preferFenced}
             match={{ hits: counts.fenced, total: counts.total }}
-            onChange={(value) => filters.set("requireFenced", value)}
+            onChange={(value) => filters.set("preferFenced", value)}
           />
           <ToggleRow
             label="Orte mit Warnungen ausblenden"
-            hint="Zum Beispiel „zu sonnig“ oder „sehr voll“"
+            hint="Zum Beispiel „zu sonnig“ oder „sehr voll“ – blendet aus"
             checked={filters.hideReportedProblems}
             onChange={(value) => filters.set("hideReportedProblems", value)}
           />
@@ -234,8 +242,8 @@ export function FilterSheet({
 
         <p className="rounded-2xl bg-background p-3 text-xs leading-relaxed text-muted">
           Die Angaben stammen aus OpenStreetMap, das Freiwillige pflegen. Vieles
-          ist dort nicht eingetragen – Zäune besonders selten. Ein strenger
-          Filter blendet deshalb auch Orte aus, die eigentlich passen würden.
+          ist dort nicht eingetragen – Zäune besonders selten. Deshalb sortieren
+          diese Wünsche die Orte nur nach oben, statt welche auszublenden.
         </p>
       </div>
     </Sheet>

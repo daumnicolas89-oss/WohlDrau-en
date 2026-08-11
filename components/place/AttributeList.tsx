@@ -1,4 +1,4 @@
-import { Baby, Check, Droplet, Fence, Minus, Toilet, Umbrella, X } from "lucide-react";
+import { Baby, Check, Droplet, Fence, Minus, Toilet, Umbrella, Waves, X } from "lucide-react";
 import { formatDistance } from "@/lib/utils";
 import type { Place, PlaceTags } from "@/types";
 
@@ -10,9 +10,10 @@ interface Eintrag {
 
 const EINTRAEGE: Eintrag[] = [
   { key: "toilet", label: "Toilette", Icon: Toilet },
+  { key: "water_play", label: "Wasser zum Planschen", Icon: Waves },
   { key: "changing_table", label: "Wickeltisch", Icon: Baby },
   { key: "fenced", label: "Eingezäunt", Icon: Fence },
-  { key: "drinking_water", label: "Wasser", Icon: Droplet },
+  { key: "drinking_water", label: "Trinkwasser", Icon: Droplet },
   { key: "shelter", label: "Überdachter Bereich", Icon: Umbrella },
 ];
 

@@ -12,9 +12,12 @@ export type MapStyle = "map" | "satellite";
 export interface FilterState {
   timeOffsetMin: TimeOffset;
   maxDistanceM: number;
-  requireToilet: boolean;
-  requireChangingTable: boolean;
-  requireFenced: boolean;
+  // „prefer": weiche Priorität – solche Orte kommen zuerst, versteckt wird
+  // nichts. So führt dünne OSM-Datenlage nicht zu einer leeren Liste.
+  preferToilet: boolean;
+  preferChangingTable: boolean;
+  preferFenced: boolean;
+  preferWater: boolean;
   shade: ShadeRequirement;
   types: PlaceType[];
   hideReportedProblems: boolean;
@@ -25,9 +28,10 @@ export const DEFAULT_FILTERS: FilterState = {
   // Rund 20 Minuten Fußweg. Weiter ist mit Kleinkind kein „mal eben raus“
   // mehr – und innerhalb dieser Spanne darf die Ausstattung entscheiden.
   maxDistanceM: 1500,
-  requireToilet: false,
-  requireChangingTable: false,
-  requireFenced: false,
+  preferToilet: false,
+  preferChangingTable: false,
+  preferFenced: false,
+  preferWater: false,
   shade: "any",
   types: ["playground", "park"],
   hideReportedProblems: false,
@@ -68,9 +72,10 @@ export const useFilters = create<FilterStore>()(
       // wird deshalb bewusst nicht gespeichert.
       partialize: (state) => ({
         maxDistanceM: state.maxDistanceM,
-        requireToilet: state.requireToilet,
-        requireChangingTable: state.requireChangingTable,
-        requireFenced: state.requireFenced,
+        preferToilet: state.preferToilet,
+        preferChangingTable: state.preferChangingTable,
+        preferFenced: state.preferFenced,
+        preferWater: state.preferWater,
         shade: state.shade,
         types: state.types,
         hideReportedProblems: state.hideReportedProblems,
@@ -104,18 +109,21 @@ export function activeFilterChips(state: FilterState): ActiveFilterChip[] {
       reset: { maxDistanceM: DEFAULT_FILTERS.maxDistanceM },
     });
   }
-  if (state.requireToilet) {
-    chips.push({ key: "requireToilet", label: "Toilette", reset: { requireToilet: false } });
+  if (state.preferToilet) {
+    chips.push({ key: "preferToilet", label: "Toilette", reset: { preferToilet: false } });
   }
-  if (state.requireChangingTable) {
+  if (state.preferChangingTable) {
     chips.push({
-      key: "requireChangingTable",
+      key: "preferChangingTable",
       label: "Wickeltisch",
-      reset: { requireChangingTable: false },
+      reset: { preferChangingTable: false },
     });
   }
-  if (state.requireFenced) {
-    chips.push({ key: "requireFenced", label: "Eingezäunt", reset: { requireFenced: false } });
+  if (state.preferFenced) {
+    chips.push({ key: "preferFenced", label: "Eingezäunt", reset: { preferFenced: false } });
+  }
+  if (state.preferWater) {
+    chips.push({ key: "preferWater", label: "Wasser", reset: { preferWater: false } });
   }
   if (state.hideReportedProblems) {
     chips.push({

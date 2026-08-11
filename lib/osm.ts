@@ -415,8 +415,18 @@ export async function fetchPlaces(
     const ownToilet = yesNo(osmTags.toilets);
     const hasWater =
       waterGrid.near(c.lat, c.lng, WATER_MAX_DISTANCE_M).length > 0 ||
-      osmTags["playground:water"] === "yes" ||
       osmTags.drinking_water === "yes";
+    // Wasser zum Planschen (Matschanlage, Splash-Pad) ist etwas anderes als
+    // Trinkwasser – und an heißen Tagen der Top-Wunsch mit Kind.
+    const waterPlay =
+      osmTags["playground:water"] === "yes" ||
+      osmTags.playground === "water" ||
+      osmTags.playground === "splash_pad" ||
+      osmTags["playground:splash_pad"] === "yes" ||
+      osmTags.leisure === "splash_pad" ||
+      osmTags.leisure === "paddling_pool"
+        ? true
+        : undefined;
 
     const confidence: ShadeConfidence =
       treeDataQuality === "high" && nearBuildings.length > 0
@@ -432,6 +442,7 @@ export async function fetchPlaces(
         yesNo(osmTags.changing_table) ??
         (nearestToilet ? yesNo(nearestToilet.t.tags.changing_table) : undefined),
       drinking_water: hasWater ? true : undefined,
+      water_play: waterPlay,
       shade: shadeQuality(canopy, confidence),
       surface: osmTags.surface,
       age_group: ageGroupFrom(osmTags),

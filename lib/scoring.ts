@@ -67,6 +67,7 @@ function amenityScoreOf(place: OsmPlace): number {
     25 +
       (t.toilet === true ? 30 : 0) +
       (t.fenced === true ? 20 : 0) +
+      (t.water_play === true ? 20 : 0) +
       (t.changing_table === true ? 15 : 0) +
       (t.drinking_water === true ? 5 : 0) +
       (t.shelter === true ? 5 : 0),
@@ -78,6 +79,7 @@ const STATUS_IMPACT: Record<PlaceStatus["type"], number> = {
   great: 45,
   too_sunny: -40,
   wet: -35,
+  dirty_broken: -35,
   too_crowded: -30,
   toilet_closed: -20,
   other: 0,

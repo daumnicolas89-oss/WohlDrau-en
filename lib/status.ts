@@ -15,6 +15,7 @@ export const STATUS_OPTIONS: StatusOption[] = [
   { type: "too_crowded", label: "Sehr voll", tone: "bad" },
   { type: "toilet_closed", label: "Toilette zu", tone: "bad" },
   { type: "wet", label: "Nass / matschig", tone: "bad" },
+  { type: "dirty_broken", label: "Verschmutzt / kaputt", tone: "bad" },
   { type: "other", label: "Sonstiges", tone: "neutral" },
 ];
 

@@ -14,6 +14,7 @@ const PROBLEM_TYPES = new Set<PlaceStatus["type"]>([
   "too_crowded",
   "toilet_closed",
   "wet",
+  "dirty_broken",
 ]);
 
 export interface SelectInput {
@@ -67,10 +68,6 @@ export function selectPlaces({
 
   const visible = scored.filter((place) => {
     if (!filters.types.includes(place.type)) return false;
-    if (filters.requireToilet && place.tags.toilet !== true) return false;
-    if (filters.requireChangingTable && place.tags.changing_table !== true)
-      return false;
-    if (filters.requireFenced && place.tags.fenced !== true) return false;
     if (place.shade.index < SHADE_THRESHOLD[filters.shade]) return false;
     if (
       filters.hideReportedProblems &&
@@ -80,9 +77,19 @@ export function selectPlaces({
     return true;
   });
 
+  // Weiche Prioritäten: gewünschte Ausstattung sortiert Orte nach oben, statt
+  // sie zu verstecken – so führt dünne OSM-Datenlage nicht zur leeren Liste.
+  const priorityScore = (place: Place) =>
+    (filters.preferToilet && place.tags.toilet === true ? 1 : 0) +
+    (filters.preferChangingTable && place.tags.changing_table === true ? 1 : 0) +
+    (filters.preferFenced && place.tags.fenced === true ? 1 : 0) +
+    (filters.preferWater && place.tags.water_play === true ? 1 : 0);
+
   visible.sort(
     (a, b) =>
-      b.pleasantScore - a.pleasantScore || (a.distance ?? 0) - (b.distance ?? 0),
+      priorityScore(b) - priorityScore(a) ||
+      b.pleasantScore - a.pleasantScore ||
+      (a.distance ?? 0) - (b.distance ?? 0),
   );
 
   return { visible, filteredOut: scored.length - visible.length };

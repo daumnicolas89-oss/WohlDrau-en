@@ -12,6 +12,8 @@ export interface PlaceTags {
   toilet?: boolean;
   changing_table?: boolean;
   drinking_water?: boolean;
+  /** Wasser zum Planschen (Matschanlage, Wasserspielplatz) – nicht zum Trinken. */
+  water_play?: boolean;
   shade?: ShadeQuality;
   surface?: string;
   age_group?: string;
@@ -106,6 +108,7 @@ export type PlaceStatusType =
   | "too_crowded"
   | "toilet_closed"
   | "wet"
+  | "dirty_broken"
   | "other";
 
 export interface PlaceStatus {
