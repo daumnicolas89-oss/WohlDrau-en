@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Weather } from "@/types";
 import type { Coords } from "./useGeolocation";
 
@@ -8,6 +8,7 @@ export interface UseWeatherResult {
   weather: Weather | null;
   loading: boolean;
   error: string | null;
+  reload: () => void;
 }
 
 /** Auf ~1 km runden: feiner braucht es das Wetter nicht, spart Anfragen. */
@@ -19,6 +20,7 @@ export function useWeather(coords: Coords): UseWeatherResult {
   const [weather, setWeather] = useState<Weather | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
 
   const lat = round(coords.lat);
   const lng = round(coords.lng);
@@ -48,7 +50,9 @@ export function useWeather(coords: Coords): UseWeatherResult {
 
     load();
     return () => controller.abort();
-  }, [lat, lng]);
+  }, [lat, lng, nonce]);
 
-  return { weather, loading, error };
+  const reload = useCallback(() => setNonce((n) => n + 1), []);
+
+  return { weather, loading, error, reload };
 }

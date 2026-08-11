@@ -62,7 +62,8 @@ export function PlaceDetail({
     ? radius
     : radiusForDistance(placeHint ? 500 : 4000);
   const places = usePlaces(searchOrigin, searchRadius);
-  const { weather } = useWeather(searchOrigin);
+  const wetter = useWeather(searchOrigin);
+  const weather = wetter.weather;
   const { statuses, report } = useStatuses(useMemo(() => [placeId], [placeId]));
   const now = useNow();
   const [reportOpen, setReportOpen] = useState(false);
@@ -84,7 +85,8 @@ export function PlaceDetail({
     await report(placeId, type, message);
   }
 
-  const loading = places.loading || !weather;
+  const loading = places.loading || wetter.loading;
+  const error = places.error ?? wetter.error;
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg bg-background pb-28">
@@ -100,16 +102,23 @@ export function PlaceDetail({
 
       {loading && <PlacesLoading rows={2} />}
 
-      {!loading && places.error && (
+      {!loading && error && (
         <div className="m-4 rounded-card bg-warning-soft p-4">
-          <p className="text-sm font-medium text-warning-ink">{places.error}</p>
-          <Button variant="secondary" onClick={places.reload} className="mt-3 min-h-11">
+          <p className="text-sm font-medium text-warning-ink">{error}</p>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              places.reload();
+              wetter.reload();
+            }}
+            className="mt-3 min-h-11"
+          >
             Erneut versuchen
           </Button>
         </div>
       )}
 
-      {!loading && !places.error && !place && (
+      {!loading && !error && !place && (
         <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
           <p className="font-display font-semibold text-dark">Ort nicht gefunden</p>
           <p className="mt-1 text-sm text-muted">

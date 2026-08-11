@@ -34,7 +34,8 @@ export function HomeView() {
   // exakt den Cache-Eintrag, den diese Liste schon geladen hat.
   const radius = radiusForDistance(filters.maxDistanceM);
   const places = usePlaces(coords, radius);
-  const { weather } = useWeather(coords);
+  const wetter = useWeather(coords);
+  const weather = wetter.weather;
   const placeIds = useMemo(() => places.places.map((p) => p.id), [places.places]);
   const { statuses, report } = useStatuses(placeIds);
   const now = useNow();
@@ -101,7 +102,15 @@ export function HomeView() {
   const filterCount = activeFilterChips(filters).length;
   const locationLabel =
     coords.source === "gps" ? "Orte in deiner Nähe" : FALLBACK_LABEL;
-  const loading = places.loading || !weather;
+  // Ohne Wetter lässt sich kein Schatten bewerten – dann muss ein Fehler
+  // sichtbar werden statt eines Ladezustands, der nie endet.
+  const loading = places.loading || wetter.loading;
+  const error = places.error ?? wetter.error;
+
+  const reload = () => {
+    places.reload();
+    wetter.reload();
+  };
 
   async function submitReport(type: PlaceStatusType, message: string) {
     if (!reportTarget) return;
@@ -121,28 +130,24 @@ export function HomeView() {
       <MapControls />
 
       <main className="relative flex-1">
-        {places.error && (
+        {!loading && error && (
           <div className="m-4 rounded-card bg-warning-soft p-4">
-            <p className="text-sm font-medium text-warning-ink">{places.error}</p>
-            <Button
-              variant="secondary"
-              onClick={places.reload}
-              className="mt-2 min-h-11"
-            >
+            <p className="text-sm font-medium text-warning-ink">{error}</p>
+            <Button variant="secondary" onClick={reload} className="mt-2 min-h-11">
               Erneut versuchen
             </Button>
           </div>
         )}
 
-        {loading && !places.error && <PlacesLoading />}
+        {loading && <PlacesLoading />}
 
-        {!loading && !places.error && filters.viewMode === "map" && (
+        {!loading && !error && filters.viewMode === "map" && (
           <div className="h-[calc(100dvh-16rem)] min-h-[22rem] w-full overflow-hidden">
             <Map places={visible} origin={coords} radius={radius} />
           </div>
         )}
 
-        {!loading && !places.error && filters.viewMode === "list" && (
+        {!loading && !error && filters.viewMode === "list" && (
           <div className="space-y-3 p-4 pb-32">
             <FilterChips />
 

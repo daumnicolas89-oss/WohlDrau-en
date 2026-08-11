@@ -5,13 +5,21 @@
  * - API-Daten: immer aus dem Netz. Ein veralteter Schatten wäre schlimmer als
  *   gar keiner – nur wenn das Netz ausfällt, greifen wir auf die Kopie zurück.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL_CACHE = `wd-shell-${VERSION}`;
 const TILE_CACHE = `wd-tiles-${VERSION}`;
 const DATA_CACHE = `wd-data-${VERSION}`;
 const MAX_TILES = 400;
 
 const SHELL_ASSETS = ["/", "/icon-192.png", "/icon-512.png", "/manifest.webmanifest"];
+
+/*
+ * Orte ändern sich kaum, und das Wetter ist eine Vorhersage über zwölf
+ * Stunden – weatherAt() greift daraus die passende Stunde. Beides bleibt
+ * offline also brauchbar. Meldungen bewusst nicht: eine abgelaufene Meldung
+ * wäre schlimmer als gar keine.
+ */
+const CACHEABLE_API = ["/api/places", "/api/weather"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -73,8 +81,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok && request.url.includes("/api/places")) {
-            caches.open(DATA_CACHE).then((cache) => cache.put(request, response.clone()));
+          if (response.ok && CACHEABLE_API.some((path) => url.pathname === path)) {
+            // Sofort klonen: nach dem await auf caches.open ist der Body
+            // längst von der Seite gelesen und die Kopie leer.
+            const copy = response.clone();
+            caches.open(DATA_CACHE).then((cache) => cache.put(request, copy));
           }
           return response;
         })
@@ -103,7 +114,8 @@ self.addEventListener("fetch", (event) => {
         cached ??
         fetch(request).then((response) => {
           if (response.ok && url.pathname.startsWith("/_next/static")) {
-            caches.open(SHELL_CACHE).then((cache) => cache.put(request, response.clone()));
+            const copy = response.clone();
+            caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
           }
           return response;
         }),
