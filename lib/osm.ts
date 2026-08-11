@@ -37,6 +37,7 @@ interface OverpassElement {
   lon?: number;
   center?: { lat: number; lon: number };
   bounds?: { minlat: number; minlon: number; maxlat: number; maxlon: number };
+  geometry?: { lat: number; lon: number }[];
   tags?: Record<string, string>;
 }
 
@@ -60,7 +61,9 @@ out tags center;
 node["natural"="tree"](${b});
 out skel qt;
 way["building"](${b});
-out ids center;`;
+out ids center;
+way["highway"~"^(residential|living_street|unclassified|tertiary|secondary|pedestrian)$"]["name"](${b});
+out tags geom;`;
 }
 
 /** Overpass antwortet mit 429/504, wenn gerade kein Slot frei ist. Das ist
@@ -251,6 +254,33 @@ export function dedupe(places: OsmPlace[]): OsmPlace[] {
   return kept;
 }
 
+/** Grobe deutsche Präposition nach Straßentyp – deckt die häufigsten Fälle ab. */
+function withStreet(base: string, street: string): string {
+  const am = /(weg|platz|ring|damm|markt|steig|anger|bogen|winkel|feld|hof|graben|park|garten)$/i;
+  return `${base} ${am.test(street) ? "am" : "an der"} ${street}`;
+}
+
+/** Name der nächstgelegenen benannten Straße – oder null, wenn keine nah genug ist. */
+function nearestStreetName(
+  grid: Grid<Point & { name: string }>,
+  lat: number,
+  lng: number,
+  radiusM = 140,
+): string | null {
+  const near = grid.near(lat, lng, radiusM);
+  if (near.length === 0) return null;
+  let best = near[0];
+  let bestD = haversine(lat, lng, best.lat, best.lng);
+  for (const point of near) {
+    const d = haversine(lat, lng, point.lat, point.lng);
+    if (d < bestD) {
+      bestD = d;
+      best = point;
+    }
+  }
+  return best.name;
+}
+
 export interface FetchPlacesResult {
   places: OsmPlace[];
   /** Wie gut ist die Baum-Datenlage in diesem Gebiet? */
@@ -270,6 +300,7 @@ export async function fetchPlaces(
   const waters: Point[] = [];
   const trees: Point[] = [];
   const buildings: Point[] = [];
+  const streetPoints: (Point & { name: string })[] = [];
 
   for (const el of elements) {
     const tags = el.tags;
@@ -283,6 +314,17 @@ export async function fetchPlaces(
       }
       continue;
     }
+    // Benannte Straßen: alle Stützpunkte sammeln, um später namenlosen
+    // Orten die nächstgelegene Straße als Kennung anzuhängen.
+    if (tags.highway) {
+      if (tags.name && el.geometry) {
+        for (const g of el.geometry) {
+          streetPoints.push({ lat: g.lat, lng: g.lon, name: tags.name });
+        }
+      }
+      continue;
+    }
+
     const c = centerOf(el);
     if (!c) continue;
 
@@ -417,5 +459,18 @@ export async function fetchPlaces(
     (p) => p.type === "playground" || (p.shadeInputs.areaM2 ?? 0) > 1500,
   );
 
-  return { places: dedupe(relevant), treeDataQuality };
+  const deduped = dedupe(relevant);
+
+  // Namenlose Orte über die nächste Straße unterscheidbar machen:
+  // „Spielplatz" dreimal hilft niemandem, „Spielplatz an der Lindenstraße" schon.
+  if (streetPoints.length > 0) {
+    const streetGrid = new Grid(streetPoints);
+    for (const place of deduped) {
+      if (!DEFAULT_NAMES.has(place.name)) continue;
+      const street = nearestStreetName(streetGrid, place.lat, place.lng);
+      if (street) place.name = withStreet(place.name, street);
+    }
+  }
+
+  return { places: deduped, treeDataQuality };
 }
