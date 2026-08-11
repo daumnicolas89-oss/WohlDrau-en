@@ -254,10 +254,14 @@ export function dedupe(places: OsmPlace[]): OsmPlace[] {
   return kept;
 }
 
-/** Grobe deutsche Präposition nach Straßentyp – deckt die häufigsten Fälle ab. */
+/**
+ * Bewusst ohne „an der/am": Das grammatische Geschlecht lässt sich aus dem
+ * Straßennamen nicht zuverlässig raten (der Jungfernstieg, aber die
+ * Lindenstraße). Der Name ohne Präposition ist immer korrekt und liest sich
+ * wie eine Ortsangabe: „Spielplatz Jungfernstieg".
+ */
 function withStreet(base: string, street: string): string {
-  const am = /(weg|platz|ring|damm|markt|steig|anger|bogen|winkel|feld|hof|graben|park|garten)$/i;
-  return `${base} ${am.test(street) ? "am" : "an der"} ${street}`;
+  return `${base} ${street}`;
 }
 
 /** Name der nächstgelegenen benannten Straße – oder null, wenn keine nah genug ist. */
