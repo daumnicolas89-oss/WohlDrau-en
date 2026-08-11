@@ -47,9 +47,12 @@ export default function Map({
       className="size-full"
       attributionControl
     >
+      {/* Helle, zurückhaltende Kacheln (CARTO Positron) statt der bunten
+          Standard-OSM-Karte: ruhiger Hintergrund, auf dem die farbigen
+          Orts-Nadeln klar hervorstechen – passend zum edlen Look. */}
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
+        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>'
         maxZoom={19}
       />
       <Recenter lat={origin.lat} lng={origin.lng} />
