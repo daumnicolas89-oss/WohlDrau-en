@@ -342,12 +342,15 @@ export function breakdownRows(
           : "Passt gut zum Wetter gerade";
 
   const meldung = statusSentence(place.lastStatuses, now);
+  // Die tatsächlich verwendeten Gewichte – Schatten kann bei mildem Wetter
+  // klein sein, dann zählen Ausstattung und Nähe entsprechend mehr.
+  const wt = b.weights;
 
   return [
     {
       key: "shade",
       label: "Schatten",
-      weightPercent: 45,
+      weightPercent: Math.round(wt.shade * 100),
       value: Math.round(b.shadeScore),
       tone: toneForValue(b.shadeScore),
       sentence: schattenSatz,
@@ -355,7 +358,7 @@ export function breakdownRows(
     {
       key: "amenity",
       label: "Ausstattung",
-      weightPercent: 25,
+      weightPercent: Math.round(wt.amenity * 100),
       value: Math.round(b.amenityScore),
       tone: toneForValue(b.amenityScore),
       sentence: amenityBreakdownSentence(place),
@@ -363,7 +366,7 @@ export function breakdownRows(
     {
       key: "status",
       label: "Meldungen anderer Eltern",
-      weightPercent: 20,
+      weightPercent: Math.round(wt.status * 100),
       value: Math.round(b.statusScore),
       tone: toneForValue(b.statusScore),
       sentence: meldung
@@ -373,7 +376,7 @@ export function breakdownRows(
     {
       key: "distance",
       label: "Entfernung",
-      weightPercent: 10,
+      weightPercent: Math.round(wt.distance * 100),
       value: Math.round(b.distanceScore),
       tone: toneForValue(b.distanceScore),
       sentence: distanceSentence(place.distance ?? 0),

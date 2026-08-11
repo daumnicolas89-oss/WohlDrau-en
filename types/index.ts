@@ -77,6 +77,12 @@ export interface ScoreBreakdown {
   distanceScore: number;
   /** Regen und Wind dämpfen das Gesamtergebnis (0..1). */
   weatherFactor: number;
+  /**
+   * Tatsächlich verwendete Gewichte (0..1). Schatten schrumpft, wenn er beim
+   * aktuellen Wetter kaum zählt – dann entscheiden Ausstattung und Nähe mehr,
+   * damit es auch an milden Tagen einen echten Sieger gibt.
+   */
+  weights: { shade: number; amenity: number; status: number; distance: number };
 }
 
 /** Bewerteter Ort – das, womit die UI arbeitet. */

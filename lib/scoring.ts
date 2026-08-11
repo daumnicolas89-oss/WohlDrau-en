@@ -117,19 +117,34 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
   const shade = computeShade(place, at, w.cloudCover);
   const fresh = ctx.statuses.filter((s) => freshness(s, now) > 0);
 
+  // Wie sehr entscheidet Schatten bei diesem Wetter überhaupt? Bei Hitze/Sonne
+  // stark, an milden Tagen kaum. Ist er egal, würde ein festes Schatten-Gewicht
+  // alle Orte gleich hoch bewerten – dann sollen Ausstattung und Nähe den
+  // Ausschlag geben. Das frei werdende Gewicht wandert dorthin (60 % / 40 %).
+  const shadeRelevance = desiredShade(w.apparentTemperature, w.uvIndex);
+  const shadeW = 0.15 + (WEIGHTS.shade - 0.15) * shadeRelevance;
+  const freed = WEIGHTS.shade - shadeW;
+  const weights = {
+    shade: shadeW,
+    amenity: WEIGHTS.amenity + freed * 0.6,
+    status: WEIGHTS.status,
+    distance: WEIGHTS.distance + freed * 0.4,
+  };
+
   const breakdown: ScoreBreakdown = {
     shadeScore: shadeScoreOf(shade, w.apparentTemperature, w.uvIndex),
     amenityScore: amenityScoreOf(place),
     statusScore: statusScoreOf(fresh, now),
     distanceScore: distanceScoreOf(distanceM),
     weatherFactor: weatherFactorOf(w.precipitationProbability, weather.windSpeed),
+    weights,
   };
 
   const base =
-    breakdown.shadeScore * WEIGHTS.shade +
-    breakdown.amenityScore * WEIGHTS.amenity +
-    breakdown.statusScore * WEIGHTS.status +
-    breakdown.distanceScore * WEIGHTS.distance;
+    breakdown.shadeScore * weights.shade +
+    breakdown.amenityScore * weights.amenity +
+    breakdown.statusScore * weights.status +
+    breakdown.distanceScore * weights.distance;
 
   const reasons: string[] = [];
   const warnings: string[] = [];
