@@ -6,7 +6,7 @@ create table if not exists public.place_status (
   -- OSM-Referenz, z. B. "way/12345"
   place_id text not null check (char_length(place_id) <= 64),
   status_type text not null check (
-    status_type in ('great', 'too_sunny', 'too_crowded', 'toilet_closed', 'wet', 'other')
+    status_type in ('great', 'too_sunny', 'too_crowded', 'toilet_closed', 'wet', 'dirty_broken', 'other')
   ),
   message text check (char_length(message) <= 140),
   created_at timestamptz not null default now(),
