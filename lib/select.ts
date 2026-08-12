@@ -83,7 +83,8 @@ export function selectPlaces({
     (filters.preferToilet && place.tags.toilet === true ? 1 : 0) +
     (filters.preferChangingTable && place.tags.changing_table === true ? 1 : 0) +
     (filters.preferFenced && place.tags.fenced === true ? 1 : 0) +
-    (filters.preferWater && place.tags.water_play === true ? 1 : 0);
+    (filters.preferWater && place.tags.water_play === true ? 1 : 0) +
+    (filters.preferWheelchair && place.tags.wheelchair === true ? 1 : 0);
 
   visible.sort(
     (a, b) =>

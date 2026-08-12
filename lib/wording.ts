@@ -291,10 +291,18 @@ export function factChips(place: Place): { text: string; unknown: boolean }[] {
     chips.push({ text: "Zaun unbekannt", unknown: true });
   }
 
+  if (place.tags.water_play === true) {
+    chips.push({ text: "Planschwasser", unknown: false });
+  }
   if (place.tags.changing_table === true) {
     chips.push({ text: "Wickeltisch", unknown: false });
   }
-  if (place.tags.drinking_water === true) chips.push({ text: "Wasser", unknown: false });
+  if (place.tags.age_group) {
+    chips.push({ text: place.tags.age_group, unknown: false });
+  }
+  if (place.tags.drinking_water === true) {
+    chips.push({ text: "Trinkwasser", unknown: false });
+  }
 
   return chips;
 }

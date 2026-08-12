@@ -119,6 +119,7 @@ export interface MatchCounts {
   changingTable: number;
   fenced: number;
   water: number;
+  wheelchair: number;
 }
 
 export function FilterSheet({
@@ -231,6 +232,12 @@ export function FilterSheet({
             checked={filters.preferFenced}
             match={{ hits: counts.fenced, total: counts.total }}
             onChange={(value) => filters.set("preferFenced", value)}
+          />
+          <ToggleRow
+            label="Barrierefrei / Kinderwagen"
+            checked={filters.preferWheelchair}
+            match={{ hits: counts.wheelchair, total: counts.total }}
+            onChange={(value) => filters.set("preferWheelchair", value)}
           />
           <ToggleRow
             label="Orte mit Warnungen ausblenden"

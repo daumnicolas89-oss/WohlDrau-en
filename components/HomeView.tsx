@@ -133,6 +133,7 @@ export function HomeView() {
       changingTable: inRange.filter((p) => p.tags.changing_table === true).length,
       fenced: inRange.filter((p) => p.tags.fenced === true).length,
       water: inRange.filter((p) => p.tags.water_play === true).length,
+      wheelchair: inRange.filter((p) => p.tags.wheelchair === true).length,
     }),
     [inRange],
   );

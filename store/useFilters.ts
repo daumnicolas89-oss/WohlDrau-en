@@ -18,6 +18,7 @@ export interface FilterState {
   preferChangingTable: boolean;
   preferFenced: boolean;
   preferWater: boolean;
+  preferWheelchair: boolean;
   shade: ShadeRequirement;
   types: PlaceType[];
   hideReportedProblems: boolean;
@@ -32,6 +33,7 @@ export const DEFAULT_FILTERS: FilterState = {
   preferChangingTable: false,
   preferFenced: false,
   preferWater: false,
+  preferWheelchair: false,
   shade: "any",
   types: ["playground", "park"],
   hideReportedProblems: false,
@@ -76,6 +78,7 @@ export const useFilters = create<FilterStore>()(
         preferChangingTable: state.preferChangingTable,
         preferFenced: state.preferFenced,
         preferWater: state.preferWater,
+        preferWheelchair: state.preferWheelchair,
         shade: state.shade,
         types: state.types,
         hideReportedProblems: state.hideReportedProblems,
@@ -124,6 +127,13 @@ export function activeFilterChips(state: FilterState): ActiveFilterChip[] {
   }
   if (state.preferWater) {
     chips.push({ key: "preferWater", label: "Wasser", reset: { preferWater: false } });
+  }
+  if (state.preferWheelchair) {
+    chips.push({
+      key: "preferWheelchair",
+      label: "Barrierefrei",
+      reset: { preferWheelchair: false },
+    });
   }
   if (state.hideReportedProblems) {
     chips.push({
