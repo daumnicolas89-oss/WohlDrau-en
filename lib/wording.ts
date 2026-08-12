@@ -186,9 +186,10 @@ export function uvWording(uvIndex: number): Wording {
 
 export function distanceSentence(meters: number): string {
   const minuten = walkingMinutes(meters);
-  if (minuten <= 8) return `Nur ${minuten} Minuten zu Fuß`;
-  if (minuten <= 20) return `${minuten} Minuten zu Fuß`;
-  return `${minuten} Minuten zu Fuß – schon ein Stück`;
+  const einheit = minuten === 1 ? "Minute" : "Minuten";
+  if (minuten <= 8) return `Nur ${minuten} ${einheit} zu Fuß`;
+  if (minuten <= 20) return `${minuten} ${einheit} zu Fuß`;
+  return `${minuten} ${einheit} zu Fuß – schon ein Stück`;
 }
 
 /* -------------------------------------------------------- Wichtigster Grund */

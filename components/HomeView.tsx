@@ -244,7 +244,8 @@ export function HomeView() {
               <>
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm text-muted">
-                    {visible.length} Orte in der Nähe – oben steht, wo es{" "}
+                    {visible.length} {visible.length === 1 ? "Ort" : "Orte"} in der
+                    Nähe – oben steht, wo es{" "}
                     {filters.timeOffsetMin === 0
                       ? "gerade"
                       : `in ${filters.timeOffsetMin} Minuten`}{" "}
@@ -279,7 +280,9 @@ export function HomeView() {
                 </p>
                 <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
                   {filteredOut > 0
-                    ? `In der Nähe liegen ${filteredOut} Orte, die deine Filter gerade aussortieren. Ein Kriterium weniger bringt sie zurück.`
+                    ? filteredOut === 1
+                      ? "In der Nähe liegt 1 Ort, den deine Filter gerade aussortieren. Ein Kriterium weniger bringt ihn zurück."
+                      : `In der Nähe liegen ${filteredOut} Orte, die deine Filter gerade aussortieren. Ein Kriterium weniger bringt sie zurück.`
                     : "In diesem Umkreis kennt OpenStreetMap keinen Spielplatz und keine Grünfläche. Mit größerer Entfernung findet sich meist etwas."}
                 </p>
                 {/* Ohne aussortierte Orte hilft Zurücksetzen nicht – dann muss
