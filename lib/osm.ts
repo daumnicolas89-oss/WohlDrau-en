@@ -6,6 +6,7 @@ import type {
   PlaceType,
   ShadeConfidence,
   ShadeQuality,
+  Toilet,
 } from "@/types";
 
 const ENDPOINTS = [
@@ -344,6 +345,8 @@ function nearestStreetName(
 
 export interface FetchPlacesResult {
   places: OsmPlace[];
+  /** Öffentliche Toiletten im Umkreis – für die Toiletten-Suche. */
+  toilets: Toilet[];
   /** Wie gut ist die Baum-Datenlage in diesem Gebiet? */
   treeDataQuality: ShadeConfidence;
 }
@@ -357,7 +360,7 @@ export async function fetchPlaces(
 
   const rawPlaces: OverpassElement[] = [];
   const greens: OverpassElement[] = [];
-  const toilets: (Point & { tags: Record<string, string> })[] = [];
+  const toilets: (Point & { tags: Record<string, string>; id: string })[] = [];
   const waters: Point[] = [];
   const trees: Point[] = [];
   const buildings: Point[] = [];
@@ -390,7 +393,7 @@ export async function fetchPlaces(
     if (!c) continue;
 
     if (tags.amenity === "toilets") {
-      toilets.push({ ...c, tags });
+      toilets.push({ ...c, tags, id: `${el.type}/${el.id}` });
       continue;
     }
     if (tags.amenity === "drinking_water" || tags.amenity === "water_point") {
@@ -576,5 +579,14 @@ export async function fetchPlaces(
     if (count > 1) place.name = `${place.name} ${count}`;
   }
 
-  return { places: deduped, treeDataQuality };
+  const publicToilets: Toilet[] = toilets.map((t) => ({
+    id: t.id,
+    lat: t.lat,
+    lng: t.lng,
+    wheelchair: yesNo(t.tags.wheelchair),
+    changingTable: yesNo(t.tags.changing_table),
+    fee: yesNo(t.tags.fee),
+  }));
+
+  return { places: deduped, toilets: publicToilets, treeDataQuality };
 }

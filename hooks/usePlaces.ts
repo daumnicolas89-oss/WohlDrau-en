@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { haversine } from "@/lib/utils";
-import type { OsmPlace, ShadeConfidence } from "@/types";
+import type { OsmPlace, ShadeConfidence, Toilet } from "@/types";
 import type { Coords } from "./useGeolocation";
 
 interface PlacesResponse {
   places: OsmPlace[];
+  toilets: Toilet[];
   treeDataQuality: ShadeConfidence;
 }
 
@@ -22,6 +23,7 @@ const REFETCH_DISTANCE_M = 400;
 
 export interface UsePlacesResult {
   places: OsmPlace[];
+  toilets: Toilet[];
   treeDataQuality: ShadeConfidence;
   loading: boolean;
   error: string | null;
@@ -41,6 +43,7 @@ export function radiusForDistance(maxDistanceM: number): number {
 
 export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
   const [places, setPlaces] = useState<OsmPlace[]>([]);
+  const [toilets, setToilets] = useState<Toilet[]>([]);
   const [treeDataQuality, setTreeDataQuality] = useState<ShadeConfidence>("medium");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +74,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         }
         const data = (await res.json()) as PlacesResponse;
         setPlaces(data.places);
+        setToilets(data.toilets ?? []);
         setTreeDataQuality(data.treeDataQuality);
       } catch (err) {
         if (controller.signal.aborted) return;
@@ -86,5 +90,5 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
 
   const reload = useCallback(() => setNonce((n) => n + 1), []);
 
-  return { places, treeDataQuality, loading, error, reload };
+  return { places, toilets, treeDataQuality, loading, error, reload };
 }

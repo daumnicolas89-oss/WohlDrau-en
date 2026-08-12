@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { Layers, Megaphone, SlidersHorizontal } from "lucide-react";
+import { Layers, Megaphone, SlidersHorizontal, Toilet } from "lucide-react";
 import { selectPlaces } from "@/lib/select";
 import { formatDistance, haversine } from "@/lib/utils";
 import type { PlaceStatusType } from "@/types";
@@ -16,6 +16,7 @@ import { SCORE_ERKLAERUNG } from "@/lib/wording";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
 import { useManualLocation } from "@/store/useLocation";
 import { LocationSheet } from "./LocationSheet";
+import { ToiletSheet } from "./ToiletSheet";
 import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
 import { MapControls } from "./map/MapControls";
@@ -64,6 +65,7 @@ export function HomeView() {
 
   const [filterOpen, setFilterOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
+  const [toiletOpen, setToiletOpen] = useState(false);
   const [reportPickerOpen, setReportPickerOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState<{ id: string; name: string } | null>(
     null,
@@ -98,6 +100,18 @@ export function HomeView() {
         .sort((a, b) => a.distance - b.distance)
         .slice(0, 6),
     [places.places, coords.lat, coords.lng],
+  );
+
+  const nearestToilets = useMemo(
+    () =>
+      places.toilets
+        .map((toilet) => ({
+          toilet,
+          distance: haversine(coords.lat, coords.lng, toilet.lat, toilet.lng),
+        }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 8),
+    [places.toilets, coords.lat, coords.lng],
   );
 
   // Wie viele Orte erfüllen ein Kriterium überhaupt? OSM kennt Zäune kaum –
@@ -156,6 +170,17 @@ export function HomeView() {
       />
 
       <MapControls />
+
+      {!loading && !error && (
+        <button
+          type="button"
+          onClick={() => setToiletOpen(true)}
+          className="mx-4 mt-3 flex items-center justify-center gap-2 rounded-full border border-line bg-card py-2.5 text-sm font-semibold text-dark shadow-card transition active:scale-[0.99]"
+        >
+          <Toilet size={16} aria-hidden className="text-primary-dark" />
+          Öffentliche Toilette suchen
+        </button>
+      )}
 
       {!online && (
         <p className="mx-4 mt-3 rounded-2xl bg-accent-soft px-4 py-3 text-sm leading-relaxed text-accent-ink">
@@ -341,6 +366,12 @@ export function HomeView() {
         onUseGps={geo.locate}
         manual={manual}
         onSetManual={setManual}
+      />
+
+      <ToiletSheet
+        open={toiletOpen}
+        onClose={() => setToiletOpen(false)}
+        toilets={nearestToilets}
       />
 
       <Sheet

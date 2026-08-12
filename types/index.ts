@@ -61,6 +61,16 @@ export interface OsmPlace {
   imageUrl?: string;
 }
 
+/** Eine öffentliche Toilette aus OpenStreetMap (amenity=toilets). */
+export interface Toilet {
+  id: string;
+  lat: number;
+  lng: number;
+  wheelchair?: boolean;
+  changingTable?: boolean;
+  fee?: boolean;
+}
+
 export type ShadeState = "no-sun" | "shady" | "partial" | "sunny";
 
 export interface ShadeResult {
