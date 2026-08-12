@@ -27,6 +27,7 @@ import { ReportStatusModal } from "@/components/status/ReportStatusModal";
 import { Button } from "@/components/ui/Button";
 import { InfoButton } from "@/components/ui/InfoButton";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
+import { SkyScene, skyMood, SKY_GRADIENT } from "@/components/SkyScene";
 import { AttributeList } from "./AttributeList";
 import { PlacePhoto } from "./PlacePhoto";
 import { PlacesLoading } from "./PlacesLoading";
@@ -102,6 +103,11 @@ export function PlaceDetail({
   const loading = places.loading || wetter.loading;
   const error = places.error ?? wetter.error;
   const bewertung = place ? scoreWording(place.pleasantScore) : null;
+  const heroW = weather ? weatherAt(weather, now) : null;
+  const heroMood =
+    weather && heroW
+      ? skyMood(weather, heroW.cloudCover, heroW.precipitationProbability)
+      : null;
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg bg-background pb-28">
@@ -161,16 +167,22 @@ export function PlaceDetail({
 
       {place && bewertung && weather && (
         <>
-          <header className="sky-hero relative px-5 pt-[max(4rem,calc(env(safe-area-inset-top)+3.5rem))] pb-6">
+          <header
+            className="sky-hero relative overflow-hidden px-5 pt-[max(4rem,calc(env(safe-area-inset-top)+3.5rem))] pb-6"
+            style={heroMood ? { background: SKY_GRADIENT[heroMood] } : undefined}
+          >
+            {heroMood && <SkyScene mood={heroMood} />}
+
             <Link
               href="/"
               aria-label="Zurück zur Übersicht"
-              className="absolute left-4 top-[max(1rem,env(safe-area-inset-top))] flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition active:scale-95"
+              className="absolute left-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition active:scale-95"
             >
               <ArrowLeft size={20} />
             </Link>
 
-            <h1 className="font-display text-[26px] leading-tight font-bold text-dark">
+            <div className="relative">
+              <h1 className="font-display text-[26px] leading-tight font-bold text-dark">
               {place.name}
             </h1>
             <p className="mt-1.5 text-sm text-muted">
@@ -218,6 +230,7 @@ export function PlaceDetail({
             <p className="mt-4 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 text-[15px] leading-relaxed text-dark backdrop-blur">
               {mainDriver(place).text}
             </p>
+            </div>
           </header>
 
           <section className="space-y-4 px-4 pt-4">

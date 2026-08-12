@@ -19,7 +19,7 @@
   --color-warning-ink: #b4452a;
 
   --color-dark: #1c3540;
-  --color-background: #f4f6f5;
+  --color-background: #f6f3ec;
   --color-card: #ffffff;
   --color-body: #1a2529;
   --color-muted: #5c6b73;
@@ -42,8 +42,21 @@
    Bewusst blass – dunkle Schrift bleibt auch bei praller Sonne klar lesbar. */
 @utility sky-hero {
   background:
-    radial-gradient(115% 75% at 88% -12%, rgb(233 196 106 / 0.22), transparent 58%),
-    linear-gradient(178deg, #e6f2f0 0%, #eef4f2 46%, var(--color-background) 100%);
+    radial-gradient(125% 85% at 84% -18%, rgb(249 197 82 / 0.45), rgb(249 197 82 / 0) 54%),
+    linear-gradient(176deg, #fde7c6 0%, #f4ecdd 40%, #eaf1ec 72%, var(--color-background) 100%);
+}
+
+/* Der „Angenehm jetzt"-Ring füllt sich beim Erscheinen – ein Moment Freude. */
+@keyframes ring-grow {
+  from {
+    stroke-dashoffset: var(--ring-umfang);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-animate {
+    animation: none !important;
+  }
 }
 
 :root {

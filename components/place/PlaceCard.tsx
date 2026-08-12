@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ChevronRight, Sparkles } from "lucide-react";
+import { AlertTriangle, ChevronRight, Sun } from "lucide-react";
 import { formatDistance, haversine } from "@/lib/utils";
 import { factChips, mainDriver, scoreWording, shadeWording, statusSentence } from "@/lib/wording";
 import type { Place } from "@/types";
@@ -70,13 +70,11 @@ export function PlaceCard({
   return (
     <Link
       href={href}
-      className={`group block overflow-hidden rounded-card bg-card shadow-card transition active:scale-[0.99] ${
-        beste ? "ring-1 ring-primary-dark/20" : ""
-      }`}
+      className="group block overflow-hidden rounded-card bg-gradient-to-b from-[#fff6e4] to-card shadow-card ring-1 ring-[#eec97a]/60 transition active:scale-[0.99]"
     >
       {beste && (
-        <p className="flex items-center gap-1.5 bg-primary-soft px-5 py-2 text-[11px] font-semibold tracking-[0.14em] text-primary-dark uppercase">
-          <Sparkles size={13} aria-hidden />
+        <p className="flex items-center gap-1.5 bg-accent-soft px-5 py-2 text-[11px] font-semibold tracking-[0.14em] text-accent-ink uppercase">
+          <Sun size={13} aria-hidden />
           Beste Wahl gerade
         </p>
       )}

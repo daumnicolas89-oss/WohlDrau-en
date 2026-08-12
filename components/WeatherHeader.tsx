@@ -1,12 +1,13 @@
 "use client";
 
-import { Crosshair, MapPin } from "lucide-react";
+import { ChevronDown, MapPin } from "lucide-react";
 import { desiredShade } from "@/lib/scoring";
 import { uvWording } from "@/lib/wording";
 import { weatherAt } from "@/lib/weather";
 import type { Weather } from "@/types";
 import type { GeoStatus } from "@/hooks/useGeolocation";
 import { TONE_TEXT } from "@/components/ui/ScoreRing";
+import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
 
 /** Ein Satz, der sagt, worauf es bei diesem Wetter ankommt. */
 function advice(apparent: number, uv: number, rainProbability: number): string {
@@ -47,33 +48,41 @@ export function WeatherHeader({
 }) {
   const values = weather ? weatherAt(weather, at) : null;
   const uv = values ? uvWording(values.uvIndex) : null;
+  const mood =
+    weather && values
+      ? skyMood(weather, values.cloudCover, values.precipitationProbability)
+      : null;
 
   return (
-    <header className="sky-hero px-5 pt-[max(1.15rem,env(safe-area-inset-top))] pb-6">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-primary-dark uppercase">
-            WohlDraußen
-          </p>
-          <h1 className="mt-1.5 flex items-center gap-1.5 truncate text-[15px] font-medium text-muted">
-            <MapPin size={14} aria-hidden className="shrink-0 text-primary-dark" />
-            <span className="truncate">{locationLabel}</span>
-          </h1>
-        </div>
+    <header
+      className="sky-hero relative overflow-hidden px-5 pt-[max(1.15rem,env(safe-area-inset-top))] pb-6"
+      style={mood ? { background: SKY_GRADIENT[mood] } : undefined}
+    >
+      {mood && <SkyScene mood={mood} />}
+
+      <div className="relative pr-20">
+        <p className="text-[11px] font-semibold tracking-[0.16em] text-primary-dark uppercase">
+          WohlDraußen
+        </p>
+        {/* Die Ortszeile ist der Knopf zum Standort-Fenster – der Pfeil zeigt es an. */}
         <button
           type="button"
           onClick={onOpenLocation}
-          aria-label="Standort ändern"
-          className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/60 backdrop-blur transition active:scale-95 ${
-            geoStatus === "locating" ? "animate-pulse text-primary-dark" : "text-dark"
-          }`}
+          aria-label="Standort ändern oder einen Ort suchen"
+          className="mt-1.5 flex max-w-full items-center gap-1.5 text-[15px] font-medium text-muted transition active:opacity-70"
         >
-          <Crosshair size={20} />
+          <MapPin
+            size={14}
+            aria-hidden
+            className={`shrink-0 text-primary-dark ${geoStatus === "locating" ? "animate-pulse" : ""}`}
+          />
+          <span className="truncate">{locationLabel}</span>
+          <ChevronDown size={15} aria-hidden className="shrink-0 text-muted" />
         </button>
       </div>
 
       {values && weather && uv && (
-        <div className="mt-5">
+        <div className="relative mt-5">
           <div className="flex items-start gap-2">
             <span className="font-display text-[64px] leading-[0.9] font-bold tracking-tight text-dark tabular-nums">
               {Math.round(values.temperature)}
@@ -115,9 +124,12 @@ export function WeatherHeader({
       )}
 
       {geoStatus === "denied" && !manualActive && (
-        <p className="mt-3 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          Ohne Standortfreigabe zeigen wir eine Beispielstadt. Tippe oben auf das
-          Standort-Symbol, um deinen Standort freizugeben oder einen Ort zu suchen.
+        <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
+          <MapPin size={15} aria-hidden className="mt-0.5 shrink-0" />
+          <span>
+            Ohne Standortfreigabe zeigen wir eine Beispielstadt. Tippe oben auf den
+            Ortsnamen, um deinen Standort freizugeben oder einen Ort zu suchen.
+          </span>
         </p>
       )}
 

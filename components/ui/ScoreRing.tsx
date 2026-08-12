@@ -63,9 +63,17 @@ export function ScoreRing({
         fill="none"
         stroke={TONE_COLORS[tone]}
         strokeWidth={stroke}
-        strokeDasharray={`${gefuellt} ${umfang - gefuellt}`}
+        strokeDasharray={umfang}
+        strokeDashoffset={umfang - gefuellt}
         strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        className="ring-animate"
+        style={
+          {
+            "--ring-umfang": umfang,
+            animation: "ring-grow 0.9s ease-out",
+          } as React.CSSProperties
+        }
       />
       <text
         x="50%"
