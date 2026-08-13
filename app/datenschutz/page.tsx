@@ -93,7 +93,8 @@ export default function DatenschutzPage() {
             sonnig“). Gespeichert werden die Art der Meldung, ein optionaler kurzer
             Text, der Ortsbezug, eine zufällige, gerätebezogene Kennung (gegen Spam)
             sowie Zeitstempel. <strong>Kein Name, keine Anmeldung.</strong> Meldungen
-            werden nach rund drei Stunden automatisch gelöscht.
+            werden nach rund drei Stunden ausgeblendet und dann automatisch aus
+            der Datenbank gelöscht.
           </p>
           <p>
             Die Speicherung erfolgt bei Supabase (Server-Standort Europa) als

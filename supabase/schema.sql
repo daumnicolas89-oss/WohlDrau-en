@@ -37,14 +37,25 @@ create policy "jeder darf melden"
   on public.place_status for insert
   with check (expires_at <= now() + interval '6 hours');
 
--- Abgelaufene Meldungen aufräumen. Als Cron einplanen, z. B.:
---   select cron.schedule('wohldraussen-cleanup', '0 * * * *',
---     $$select public.purge_expired_place_status()$$);
+-- Abgelaufene Meldungen wirklich löschen, sobald sie ausgeblendet sind (nach
+-- den 3 Stunden ihrer Gültigkeit). So stimmt die Datenschutz-Zusage „nach rund
+-- drei Stunden gelöscht" mit der Realität überein, statt nur auszublenden.
 create or replace function public.purge_expired_place_status()
 returns void
 language sql
 security definer
 set search_path = public
 as $$
-  delete from public.place_status where expires_at < now() - interval '24 hours';
+  delete from public.place_status where expires_at < now();
 $$;
+
+-- Damit die Funktion auch läuft, muss sie regelmäßig aufgerufen werden. Das
+-- übernimmt pg_cron. Einmalig im Supabase-SQL-Editor ausführen (pg_cron muss
+-- unter Database → Extensions aktiviert sein):
+--
+--   create extension if not exists pg_cron;
+--   select cron.schedule(
+--     'wohldraussen-cleanup',
+--     '*/15 * * * *',
+--     $$select public.purge_expired_place_status()$$
+--   );
