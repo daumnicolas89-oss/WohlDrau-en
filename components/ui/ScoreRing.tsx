@@ -2,7 +2,7 @@ import type { Tone } from "@/lib/wording";
 
 /**
  * Kontraststarke Ring-Farben. Die weichen Markentöne sind als Flächen schön,
- * auf Weiß aber zu blass – draußen bei Sonne muss der Ring sofort lesbar sein.
+ * auf Weiß aber zu blass, draußen bei Sonne muss der Ring sofort lesbar sein.
  */
 export const TONE_COLORS: Record<Tone, string> = {
   good: "#1e766c",

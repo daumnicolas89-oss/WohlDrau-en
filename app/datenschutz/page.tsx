@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Datenschutzerklärung – WohlDraußen",
+  title: "Datenschutzerklärung, WohlDraußen",
 };
 
 function Abschnitt({ titel, children }: { titel: string; children: React.ReactNode }) {
@@ -35,7 +35,7 @@ export default function DatenschutzPage() {
       </h1>
 
       <p className="mt-3 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-        Entwurf – auf die App zugeschnitten, aber bitte [Platzhalter] ausfüllen und
+        Entwurf, auf die App zugeschnitten, aber bitte [Platzhalter] ausfüllen und
         vor der Veröffentlichung juristisch prüfen lassen.
       </p>
 
@@ -126,7 +126,7 @@ export default function DatenschutzPage() {
             Orte (OpenStreetMap/Overpass), Wetter (Open-Meteo) und die Ortssuche
             (Nominatim) ruft <strong>unser Server</strong> für dich ab. Deine
             IP-Adresse wird dabei <strong>nicht</strong> an diese Dienste
-            weitergegeben – übermittelt werden nur die für die Anfrage nötigen Angaben
+            weitergegeben, übermittelt werden nur die für die Anfrage nötigen Angaben
             (Kartenausschnitt bzw. Suchbegriff).
           </p>
         </Abschnitt>

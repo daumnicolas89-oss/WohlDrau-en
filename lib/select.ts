@@ -29,7 +29,7 @@ export interface SelectInput {
 
 export interface SelectResult {
   visible: Place[];
-  /** Wie viele Orte die Filter herausgenommen haben – ehrlicher als eine leere Liste. */
+  /** Wie viele Orte die Filter herausgenommen haben, ehrlicher als eine leere Liste. */
   filteredOut: number;
 }
 
@@ -78,7 +78,7 @@ export function selectPlaces({
   });
 
   // Weiche Prioritäten: gewünschte Ausstattung sortiert Orte nach oben, statt
-  // sie zu verstecken – so führt dünne OSM-Datenlage nicht zur leeren Liste.
+  // sie zu verstecken, so führt dünne OSM-Datenlage nicht zur leeren Liste.
   const priorityScore = (place: Place) =>
     (filters.preferToilet && place.tags.toilet === true ? 1 : 0) +
     (filters.preferChangingTable && place.tags.changing_table === true ? 1 : 0) +

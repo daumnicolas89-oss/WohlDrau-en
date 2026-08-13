@@ -3,7 +3,7 @@
 import { X } from "lucide-react";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
 
-/** Zeigt aktive Filter direkt in der Liste – und lässt sie einzeln wegtippen. */
+/** Zeigt aktive Filter direkt in der Liste, und lässt sie einzeln wegtippen. */
 export function FilterChips() {
   const filters = useFilters();
   const chips = activeFilterChips(filters);

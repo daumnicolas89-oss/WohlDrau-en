@@ -72,7 +72,7 @@ export function formatTime(date: Date): string {
 const ANONYMOUS_ID_KEY = "wohldraussen-anonymous-id";
 
 /**
- * Grober Absender-Fingerprint für Rate-Limiting – bewusst kein Tracking:
+ * Grober Absender-Fingerprint für Rate-Limiting, bewusst kein Tracking:
  * eine Zufalls-ID im localStorage, die der Nutzer jederzeit löschen kann.
  */
 export function anonymousId(): string {

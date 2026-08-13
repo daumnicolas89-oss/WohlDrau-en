@@ -8,11 +8,11 @@ import type { MapStyle } from "@/store/useFilters";
 import type { Place } from "@/types";
 import { ORIGIN_MARKER_STYLE, placeMarkerIcon } from "./PlaceMarker";
 
-/** Mehr Nadeln als das hilft niemandem – und kostet auf dem Handy Zeit. */
+/** Mehr Nadeln als das hilft niemandem, und kostet auf dem Handy Zeit. */
 const MAX_MARKERS = 60;
 
 /** Helle, ruhige Karte als Standard; Satellit hilft beim Wiedererkennen und
- *  zeigt sogar das Grün von oben – passend zum Schatten-Thema. */
+ *  zeigt sogar das Grün von oben, passend zum Schatten-Thema. */
 const TILES: Record<MapStyle, { url: string; attribution: string; maxZoom: number }> = {
   map: {
     url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
@@ -93,7 +93,7 @@ export default function Map({
                   `&plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}&r=${radius}`,
               ),
           }}
-          title={`${place.name} – ${formatDistance(place.distance ?? 0)}`}
+          title={`${place.name}, ${formatDistance(place.distance ?? 0)}`}
         />
       ))}
     </MapContainer>

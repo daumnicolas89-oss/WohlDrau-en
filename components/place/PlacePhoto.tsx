@@ -9,7 +9,7 @@ const AerialThumb = dynamic(() => import("./AerialThumb"), {
 });
 
 /**
- * Zeigt ein echtes Foto aus OpenStreetMap, wenn es eines gibt – und sonst (oder
+ * Zeigt ein echtes Foto aus OpenStreetMap, wenn es eines gibt, und sonst (oder
  * bei totem Link) das Luftbild von oben. So hat jeder Ort ein Bild.
  */
 export function PlacePhoto({
@@ -29,7 +29,7 @@ export function PlacePhoto({
   return (
     <div className="relative h-44 overflow-hidden rounded-card bg-[#eef1f2] shadow-card">
       {showPhoto ? (
-        // Beliebige externe Hosts – hier ist ein einfaches img richtig.
+        // Beliebige externe Hosts, hier ist ein einfaches img richtig.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={imageUrl}

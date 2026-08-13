@@ -14,7 +14,7 @@ export function skyMood(
   return "sunny";
 }
 
-/** Passender Himmel-Verlauf für den Kopf – immer hell genug für dunkle Schrift. */
+/** Passender Himmel-Verlauf für den Kopf, immer hell genug für dunkle Schrift. */
 export const SKY_GRADIENT: Record<SkyMood, string> = {
   sunny:
     "radial-gradient(125% 85% at 84% -18%, rgba(249,197,82,0.45), rgba(249,197,82,0) 54%), linear-gradient(176deg, #fde7c6 0%, #f4ecdd 40%, #eaf1ec 72%, var(--color-background) 100%)",
@@ -26,7 +26,7 @@ export const SKY_GRADIENT: Record<SkyMood, string> = {
     "radial-gradient(120% 80% at 82% -16%, rgba(120,150,190,0.32), rgba(120,150,190,0) 54%), linear-gradient(176deg, #dce2eb 0%, #e7ebee 55%, var(--color-background) 100%)",
 };
 
-/** Die Himmels-Figur oben rechts im Kopf – Sonne, Wolke, Regen oder Mond. */
+/** Die Himmels-Figur oben rechts im Kopf, Sonne, Wolke, Regen oder Mond. */
 export function SkyScene({ mood }: { mood: SkyMood }) {
   return (
     <svg

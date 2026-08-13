@@ -7,7 +7,7 @@ import { TONE_COLORS, TONE_TEXT } from "@/components/ui/ScoreRing";
 
 /**
  * Zugeklappt, weil die meisten nur wissen wollen, ob sie hingehen sollen.
- * Aufgeklappt beantwortet es die Nachfrage „warum eigentlich?“ – jede Zahl
+ * Aufgeklappt beantwortet es die Nachfrage „warum eigentlich?“, jede Zahl
  * mit einem Satz daneben, der sagt, was sie bedeutet.
  */
 export function ScoreBreakdown({

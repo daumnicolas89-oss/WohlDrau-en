@@ -75,7 +75,7 @@ export async function POST(request: Request) {
   const previous = lastPostByIp.get(ip);
   if (previous && Date.now() - previous < MIN_INTERVAL_MS) {
     return NextResponse.json(
-      { error: "Kurz durchatmen – gleich geht es weiter." },
+      { error: "Kurz durchatmen, gleich geht es weiter." },
       { status: 429 },
     );
   }

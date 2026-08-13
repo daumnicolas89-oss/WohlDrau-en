@@ -11,7 +11,7 @@ const TIME_CHOICES: { value: TimeOffset; label: string }[] = [
 
 /**
  * Die zwei Entscheidungen, die im Alltag ständig fallen: „wann?“ und
- * „Liste oder Karte?“ – deshalb dauerhaft sichtbar statt im Filter versteckt.
+ * „Liste oder Karte?“, deshalb dauerhaft sichtbar statt im Filter versteckt.
  */
 export function MapControls() {
   const filters = useFilters();

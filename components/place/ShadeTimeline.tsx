@@ -19,7 +19,7 @@ const TONE_FOR_STATE: Record<ShadeState, Tone> = {
 };
 
 /**
- * Beantwortet „und wie ist es, wenn wir ankommen?“ – ein Balken je Stunde,
+ * Beantwortet „und wie ist es, wenn wir ankommen?“, ein Balken je Stunde,
  * Höhe und Farbe zeigen zusammen, wie viel Schutz es dann gibt.
  */
 export function ShadeTimeline({

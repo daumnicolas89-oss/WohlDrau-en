@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Impressum – WohlDraußen",
+  title: "Impressum, WohlDraußen",
 };
 
 /**
@@ -24,7 +24,7 @@ export default function ImpressumPage() {
       <h1 className="mt-4 font-display text-2xl font-bold text-dark">Impressum</h1>
 
       <p className="mt-3 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-        Entwurf – bitte alle [Platzhalter] ausfüllen und vor der Veröffentlichung
+        Entwurf, bitte alle [Platzhalter] ausfüllen und vor der Veröffentlichung
         einmal juristisch prüfen lassen.
       </p>
 

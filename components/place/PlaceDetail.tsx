@@ -36,9 +36,9 @@ import { ShadeMeter } from "./ShadeMeter";
 import { ShadeTimeline } from "./ShadeTimeline";
 
 const VERLAESSLICHKEIT = {
-  high: "Für diese Gegend sind viele Bäume und Gebäude erfasst – die Einschätzung ist ziemlich verlässlich.",
+  high: "Für diese Gegend sind viele Bäume und Gebäude erfasst, die Einschätzung ist ziemlich verlässlich.",
   medium: "Die Einschätzung stützt sich auf teilweise erfasste Bäume und Gebäude.",
-  low: "In dieser Gegend sind kaum Bäume erfasst – der Schattenwert ist nur eine grobe Schätzung.",
+  low: "In dieser Gegend sind kaum Bäume erfasst, der Schattenwert ist nur eine grobe Schätzung.",
 } as const;
 
 export function PlaceDetail({
@@ -54,10 +54,10 @@ export function PlaceDetail({
   radius: number | null;
 }) {
   const geo = useGeolocation();
-  // Der Link von der Startseite bringt den Standort mit – so funktioniert die
+  // Der Link von der Startseite bringt den Standort mit, so funktioniert die
   // Detailseite auch geteilt, ohne erneute Standortfreigabe.
   const viewer = origin ? { ...geo.coords, ...origin } : geo.coords;
-  // Kam der Link aus der Liste, wird exakt deren Abfrage wiederholt – der
+  // Kam der Link aus der Liste, wird exakt deren Abfrage wiederholt, der
   // Server-Cache antwortet sofort. Sonst wird um den Ort herum gesucht, nicht
   // um den Nutzer: ein weiter entfernter Ort fiele sonst aus dem Umkreis.
   const fromList = origin !== null && radius !== null;
@@ -190,7 +190,7 @@ export function PlaceDetail({
               {place.type === "park" ? "Grünfläche" : "Spielplatz"}
             </p>
 
-            {/* Die Antwort auf „soll ich hin?“ – groß, in Worten, mit Zahl. */}
+            {/* Die Antwort auf „soll ich hin?“, groß, in Worten, mit Zahl. */}
             <div className="mt-5 flex items-center gap-4">
               <ScoreRing
                 score={place.pleasantScore}
@@ -225,7 +225,7 @@ export function PlaceDetail({
               </div>
             </div>
 
-            {/* Der Grund gehört direkt an den Wert – sonst bleibt „70“ eine
+            {/* Der Grund gehört direkt an den Wert, sonst bleibt „70“ eine
                 Behauptung. */}
             <p className="mt-4 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 text-[15px] leading-relaxed text-dark backdrop-blur">
               {mainDriver(place).text}
@@ -234,7 +234,7 @@ export function PlaceDetail({
           </header>
 
           <section className="space-y-4 px-4 pt-4">
-            {/* Echtes Foto, wo OSM eines hat – sonst Luftbild von oben. */}
+            {/* Echtes Foto, wo OSM eines hat, sonst Luftbild von oben. */}
             <PlacePhoto
               imageUrl={place.imageUrl}
               lat={place.lat}
@@ -285,7 +285,7 @@ export function PlaceDetail({
                   <p>
                     Die Ausstattung stammt aus OpenStreetMap, einer freien Karte,
                     die Freiwillige pflegen. Vieles ist dort schlicht nicht
-                    eingetragen – Zäune besonders selten.
+                    eingetragen, Zäune besonders selten.
                   </p>
                   <p>
                     Deshalb steht bei fehlenden Angaben „Keine Information“ und

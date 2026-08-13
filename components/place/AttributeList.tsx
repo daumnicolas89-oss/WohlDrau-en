@@ -31,7 +31,7 @@ const EINTRAEGE: Eintrag[] = [
 
 /**
  * Auf der Detailseite zählt Ehrlichkeit mehr als Aufgeräumtheit: Was
- * OpenStreetMap nicht weiß, steht als „Keine Information“ da – nicht als
+ * OpenStreetMap nicht weiß, steht als „Keine Information“ da, nicht als
  * stillschweigendes Nein und nicht als Lücke, die man für ein Ja hält.
  */
 export function AttributeList({ place }: { place: Place }) {

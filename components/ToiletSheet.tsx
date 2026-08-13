@@ -6,7 +6,7 @@ import type { Toilet } from "@/types";
 import { Sheet } from "./ui/Sheet";
 
 /**
- * Öffentliche Toiletten in der Nähe, nach Entfernung sortiert – für den Moment,
+ * Öffentliche Toiletten in der Nähe, nach Entfernung sortiert, für den Moment,
  * in dem es dringend ist (Schwangere, Kind, das muss). Route führt direkt hin.
  */
 export function ToiletSheet({

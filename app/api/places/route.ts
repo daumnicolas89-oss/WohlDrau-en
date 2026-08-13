@@ -39,7 +39,7 @@ export async function GET(request: Request) {
   const hot = memory.get(key);
   if (hot && Date.now() - hot.at < FRESH_MS) return respond(hot.value, "memory");
 
-  // Überlebt den Serverneustart – Overpass kann sehr langsam sein.
+  // Überlebt den Serverneustart, Overpass kann sehr langsam sein.
   const stored = await readCache(key);
   if (stored && stored.ageMs < FRESH_MS) {
     memory.set(key, { at: Date.now() - stored.ageMs, value: stored.value });
@@ -69,7 +69,7 @@ export async function GET(request: Request) {
       {
         error:
           "OpenStreetMap antwortet gerade nicht. Das liegt meist an einer " +
-          "kurzzeitigen Überlastung – in ein, zwei Minuten klappt es wieder.",
+          "kurzzeitigen Überlastung, in ein, zwei Minuten klappt es wieder.",
       },
       { status: 502 },
     );

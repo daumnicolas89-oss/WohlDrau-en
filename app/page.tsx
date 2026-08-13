@@ -15,7 +15,7 @@ function Splash() {
 
 /**
  * Der Startbildschirm hängt komplett an Standort, Uhrzeit und gespeicherten
- * Filtern – alles Dinge, die es auf dem Server nicht gibt. Deshalb wird er
+ * Filtern, alles Dinge, die es auf dem Server nicht gibt. Deshalb wird er
  * bewusst nur im Browser gerendert, statt eine Hydration-Diskrepanz zu
  * riskieren.
  */

@@ -2,7 +2,7 @@ import * as SunCalc from "suncalc";
 import { clamp } from "./utils";
 import type { OsmPlace, ShadeResult, ShadeState } from "@/types";
 
-/** Typische Breite einer Gebäudefront – der Schatten ist nicht nur ein Strich. */
+/** Typische Breite einer Gebäudefront, der Schatten ist nicht nur ein Strich. */
 const BUILDING_HALF_WIDTH_M = 11;
 /** Unterhalb dieser Sonnenhöhe gibt es praktisch keine direkte Einstrahlung mehr. */
 const MIN_ALTITUDE_DEG = 0.5;

@@ -106,7 +106,7 @@ function weatherFactorOf(precipitationProbability: number, windSpeed: number): n
 
 export interface ScoreContext {
   weather: Weather;
-  /** Zeitpunkt der Bewertung – jetzt, +30 Min oder +1 Std. */
+  /** Zeitpunkt der Bewertung, jetzt, +30 Min oder +1 Std. */
   at: Date;
   statuses: PlaceStatus[];
   distanceM: number;
@@ -121,7 +121,7 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
 
   // Wie sehr entscheidet Schatten bei diesem Wetter überhaupt? Bei Hitze/Sonne
   // stark, an milden Tagen kaum. Ist er egal, würde ein festes Schatten-Gewicht
-  // alle Orte gleich hoch bewerten – dann sollen Ausstattung und Nähe den
+  // alle Orte gleich hoch bewerten, dann sollen Ausstattung und Nähe den
   // Ausschlag geben. Das frei werdende Gewicht wandert dorthin (60 % / 40 %).
   const shadeRelevance = desiredShade(w.apparentTemperature, w.uvIndex);
   const shadeW = 0.15 + (WEIGHTS.shade - 0.15) * shadeRelevance;

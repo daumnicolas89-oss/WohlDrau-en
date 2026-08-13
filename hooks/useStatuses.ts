@@ -16,7 +16,7 @@ export interface UseStatusesResult {
 
 export function useStatuses(placeIds: string[]): UseStatusesResult {
   const [statuses, setStatuses] = useState<PlaceStatus[]>([]);
-  // Die Liste selbst ändert sich bei jedem Render – nur ihr Inhalt zählt.
+  // Die Liste selbst ändert sich bei jedem Render, nur ihr Inhalt zählt.
   const key = placeIds.slice(0, 300).join(",");
 
   useEffect(() => {

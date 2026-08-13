@@ -11,12 +11,12 @@ import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
 
 /** Ein Satz, der sagt, worauf es bei diesem Wetter ankommt. */
 function advice(apparent: number, uv: number, rainProbability: number): string {
-  if (rainProbability >= 60) return "Regen ist wahrscheinlich – kurz raus lohnt trotzdem.";
+  if (rainProbability >= 60) return "Regen ist wahrscheinlich. Kurz raus lohnt trotzdem.";
   const want = desiredShade(apparent, uv);
   if (want > 0.7) return "Jetzt zählt vor allem Schatten.";
   if (want > 0.4) return "Etwas Schatten tut gut.";
-  if (apparent < 8) return "Kühl – sonnige Ecken sind angenehmer.";
-  return "Angenehm – fast überall gut auszuhalten.";
+  if (apparent < 8) return "Kühl. Sonnige Ecken sind angenehmer.";
+  return "Angenehm, fast überall gut auszuhalten.";
 }
 
 function Wert({ label, children }: { label: string; children: React.ReactNode }) {
@@ -42,7 +42,7 @@ export function WeatherHeader({
   at: Date;
   locationLabel: string;
   geoStatus: GeoStatus;
-  /** Ein Ort wurde manuell gewählt – dann sind die GPS-Hinweise unpassend. */
+  /** Ein Ort wurde manuell gewählt, dann sind die GPS-Hinweise unpassend. */
   manualActive?: boolean;
   onOpenLocation: () => void;
 }) {
@@ -64,7 +64,7 @@ export function WeatherHeader({
         <p className="text-[11px] font-semibold tracking-[0.16em] text-primary-dark uppercase">
           WohlDraußen
         </p>
-        {/* Die Ortszeile ist der Knopf zum Standort-Fenster – der Pfeil zeigt es an. */}
+        {/* Die Ortszeile ist der Knopf zum Standort-Fenster, der Pfeil zeigt es an. */}
         <button
           type="button"
           onClick={onOpenLocation}
@@ -105,12 +105,12 @@ export function WeatherHeader({
             )}
           </p>
 
-          {/* Jede Zahl bekommt ihre Bezeichnung – „0 %“ allein ist ein Rätsel. */}
+          {/* Jede Zahl bekommt ihre Bezeichnung, „0 %“ allein ist ein Rätsel. */}
           <dl className="mt-5 flex gap-3 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 backdrop-blur">
             <Wert label="Sonne">
               <span className={TONE_TEXT[uv.tone]}>{uv.label}</span>{" "}
               <span className="font-normal text-muted">
-                {values.uvIndex.toFixed(1)}
+                · UV {values.uvIndex.toFixed(1).replace(".", ",")}
               </span>
             </Wert>
             <span aria-hidden className="w-px self-stretch bg-line" />
@@ -135,9 +135,9 @@ export function WeatherHeader({
 
       {geoStatus === "unavailable" && !manualActive && (
         <p className="mt-3 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          Der Standort lässt sich gerade nicht bestimmen – im Gebäude oder ohne
+          Der Standort lässt sich gerade nicht bestimmen, im Gebäude oder ohne
           GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
-          Ort; das Fadenkreuz versucht es erneut.
+          Ort; über den Ortsnamen oben kannst du es erneut versuchen.
         </p>
       )}
     </header>

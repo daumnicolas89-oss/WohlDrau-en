@@ -6,7 +6,7 @@ import type { Place, PlaceStatus, ShadeState, Weather } from "@/types";
 
 /**
  * Diese Datei übersetzt Zahlen in Sätze. Sie ist die einzige Stelle, an der
- * aus „shadeScore: 72“ ein „Passt gut zum Wetter gerade“ wird – damit die
+ * aus „shadeScore: 72“ ein „Passt gut zum Wetter gerade“ wird, damit die
  * Sprache überall dieselbe bleibt und niemand eine rohe Zahl vorgesetzt bekommt.
  */
 
@@ -64,34 +64,34 @@ export function shadeReason(place: Place, at: Date): string {
   const { fromClouds, fromCanopy, fromBuildings, sunAltitudeDeg, state } = place.shade;
 
   if (state === "no-sun") {
-    return "Die Sonne steht unter dem Horizont – Schatten spielt jetzt keine Rolle.";
+    return "Die Sonne steht unter dem Horizont. Schatten spielt jetzt keine Rolle.";
   }
 
   const stunde = at.getHours();
 
   if (fromClouds >= 0.5 && fromClouds >= Math.max(fromCanopy, fromBuildings)) {
-    return "Dichte Wolken – die Sonne kommt gerade kaum durch.";
+    return "Dichte Wolken. Die Sonne kommt gerade kaum durch.";
   }
   if (fromCanopy >= 0.35 && fromCanopy >= fromBuildings) {
     return "Viele Bäume ringsum halten die Sonne ab.";
   }
   if (fromBuildings >= 0.3) {
     return sunAltitudeDeg < 25
-      ? "Die Sonne steht tief – die Häuser ringsum werfen lange Schatten."
+      ? "Die Sonne steht tief. Die Häuser ringsum werfen lange Schatten."
       : "Gebäude in der Nähe beschatten einen Teil der Fläche.";
   }
   if (sunAltitudeDeg > 45) {
-    return "Die Sonne steht hoch – offene Flächen sind gerade stark besonnt.";
+    return "Die Sonne steht hoch. Offene Flächen sind gerade stark besonnt.";
   }
   if (sunAltitudeDeg < 25) {
     return stunde >= 15
-      ? "Später Nachmittag – Bäume und Gebäude werfen jetzt mehr Schatten."
-      : "Die Morgensonne steht noch flach – lange Schatten von Häusern und Bäumen.";
+      ? "Später Nachmittag. Bäume und Gebäude werfen jetzt mehr Schatten."
+      : "Die Morgensonne steht noch flach. Lange Schatten von Häusern und Bäumen.";
   }
-  return "Kaum Bäume und offene Fläche – hier gibt es wenig Schutz vor der Sonne.";
+  return "Kaum Bäume und offene Fläche. Hier gibt es wenig Schutz vor der Sonne.";
 }
 
-/** Was sich in der nächsten Stunde ändert – nur wenn es der Rede wert ist. */
+/** Was sich in der nächsten Stunde ändert, nur wenn es der Rede wert ist. */
 export function shadeOutlook(jetzt: number, spaeter: number): string | null {
   const differenz = spaeter - jetzt;
   if (differenz > 0.18) return "In einer Stunde ist hier deutlich mehr Schatten.";
@@ -124,7 +124,7 @@ export function amenitySentence(place: Place): string {
 
 /**
  * Für die Aufschlüsselung reicht die Aufzählung des Vorhandenen nicht: Neben
- * einer roten 30 muss stehen, *warum* sie niedrig ist – nämlich weil das
+ * einer roten 30 muss stehen, *warum* sie niedrig ist, nämlich weil das
  * Wichtige fehlt oder gar nicht erfasst ist.
  */
 export function amenityBreakdownSentence(place: Place): string {
@@ -141,10 +141,10 @@ export function amenityBreakdownSentence(place: Place): string {
   if (tags.fenced !== true) fehlend.push("Zaun");
 
   if (vorhanden.length === 0) {
-    return "Nichts eingetragen – zu Toilette und Zaun fehlt jede Angabe";
+    return "Nichts eingetragen. Zu Toilette und Zaun fehlt jede Angabe";
   }
-  if (fehlend.length === 0) return `${vorhanden.join(", ")} – alles Wichtige da`;
-  return `${vorhanden.join(", ")} – zu ${listeMitUnd(fehlend)} fehlt die Angabe`;
+  if (fehlend.length === 0) return `${vorhanden.join(", ")}. Alles Wichtige da`;
+  return `${vorhanden.join(", ")}. Zu ${listeMitUnd(fehlend)} fehlt die Angabe`;
 }
 
 function listeMitUnd(teile: string[]): string {
@@ -154,7 +154,7 @@ function listeMitUnd(teile: string[]): string {
 
 /* ---------------------------------------------------------------- Meldungen */
 
-/** „Vor 20 Minuten gemeldet: zu voll“ – oder nichts, wenn es nichts gibt. */
+/** „Vor 20 Minuten gemeldet: zu voll“, oder nichts, wenn es nichts gibt. */
 export function statusSentence(
   statuses: PlaceStatus[],
   now = Date.now(),
@@ -174,7 +174,7 @@ export function statusSentence(
 
 /* ---------------------------------------------------------------------- UV */
 
-/** „5.6“ sagt niemandem etwas – „hoch“ schon. */
+/** „5.6“ sagt niemandem etwas, „hoch“ schon. */
 export function uvWording(uvIndex: number): Wording {
   if (uvIndex < 3) return { label: "niedrig", tone: "good" };
   if (uvIndex < 6) return { label: "mittel", tone: "medium" };
@@ -189,7 +189,7 @@ export function distanceSentence(meters: number): string {
   const einheit = minuten === 1 ? "Minute" : "Minuten";
   if (minuten <= 8) return `Nur ${minuten} ${einheit} zu Fuß`;
   if (minuten <= 20) return `${minuten} ${einheit} zu Fuß`;
-  return `${minuten} ${einheit} zu Fuß – schon ein Stück`;
+  return `${minuten} ${einheit} zu Fuß, schon ein Stück`;
 }
 
 /* -------------------------------------------------------- Wichtigster Grund */
@@ -201,7 +201,7 @@ export interface Driver {
 
 /**
  * Warum steht dieser Ort da, wo er steht? Gesucht ist der Bestandteil, der am
- * stärksten vom Mittelmaß abweicht – gewichtet, denn Schatten zählt 45 % und
+ * stärksten vom Mittelmaß abweicht, gewichtet, denn Schatten zählt 45 % und
  * Entfernung nur 10 %. Das beantwortet die eigentliche Frage: „Wieso der?“
  */
 export function mainDriver(place: Place): Driver {
@@ -217,7 +217,7 @@ export function mainDriver(place: Place): Driver {
   const positiv = staerkster.delta > 0;
 
   if (Math.abs(staerkster.delta) < 4) {
-    return { text: "Alles im Mittelfeld – nichts sticht heraus.", tone: "neutral" };
+    return { text: "Alles im Mittelfeld, nichts sticht heraus.", tone: "neutral" };
   }
 
   switch (staerkster.key) {
@@ -347,11 +347,11 @@ export function breakdownRows(
       : abweichung < -0.15
         ? "Weniger Schatten, als es bei dem Wetter bräuchte"
         : abweichung > 0.25 && w.apparentTemperature < 14
-          ? "Mehr Schatten als nötig – bei der Kühle eher ungemütlich"
+          ? "Mehr Schatten als nötig, bei der Kühle eher ungemütlich"
           : "Passt gut zum Wetter gerade";
 
   const meldung = statusSentence(place.lastStatuses, now);
-  // Die tatsächlich verwendeten Gewichte – Schatten kann bei mildem Wetter
+  // Die tatsächlich verwendeten Gewichte, Schatten kann bei mildem Wetter
   // klein sein, dann zählen Ausstattung und Nähe entsprechend mehr.
   const wt = b.weights;
 
@@ -380,7 +380,7 @@ export function breakdownRows(
       tone: toneForValue(b.statusScore),
       sentence: meldung
         ? meldung.text.charAt(0).toUpperCase() + meldung.text.slice(1)
-        : "Bisher keine Meldungen – zählt weder positiv noch negativ",
+        : "Bisher keine Meldungen, zählt weder positiv noch negativ",
     },
     {
       key: "distance",
@@ -393,9 +393,9 @@ export function breakdownRows(
   ];
 }
 
-/** Regen und Wind wirken auf alle Orte gleich – das gehört dazugesagt. */
+/** Regen und Wind wirken auf alle Orte gleich, das gehört dazugesagt. */
 export function weatherFactorNote(factor: number): string | null {
   if (factor >= 0.97) return null;
   const abzug = Math.round((1 - factor) * 100);
-  return `Wetter zieht überall ${abzug} % ab – Regen oder starker Wind.`;
+  return `Regen oder starker Wind zieht überall ${abzug} % ab.`;
 }

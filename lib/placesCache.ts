@@ -5,7 +5,7 @@ import { join } from "node:path";
 import type { FetchPlacesResult } from "./osm";
 
 /**
- * Overpass ist zeitweise sehr langsam – gemessen zwischen 3 und 68 Sekunden für
+ * Overpass ist zeitweise sehr langsam, gemessen zwischen 3 und 68 Sekunden für
  * dieselbe Abfrage. Spielplätze wandern aber nicht, deshalb wird das Ergebnis
  * zusätzlich auf die Platte geschrieben: Ein Serverneustart soll den Preis
  * nicht erneut kosten, und bei einem Ausfall gibt es noch etwas zu zeigen.
@@ -37,7 +37,7 @@ export async function readCache(
     if (ageMs > STALE_MS) return null;
     return { value: entry.value, ageMs };
   } catch {
-    // Kein Eintrag, kaputte Datei, kein Schreibrecht – alles unkritisch.
+    // Kein Eintrag, kaputte Datei, kein Schreibrecht, alles unkritisch.
     return null;
   }
 }

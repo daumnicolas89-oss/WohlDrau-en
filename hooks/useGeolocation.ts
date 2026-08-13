@@ -70,7 +70,7 @@ export function useGeolocation() {
         JSON.stringify({ lat: next.lat, lng: next.lng }),
       );
     } catch {
-      // Privater Modus o. Ä. – der Standort funktioniert trotzdem.
+      // Privater Modus o. Ä., der Standort funktioniert trotzdem.
     }
   }, []);
 

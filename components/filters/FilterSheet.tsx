@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 
 const SHADE_CHOICES: { value: ShadeRequirement; label: string }[] = [
-  // Die Frage steht in der Überschrift – die Antworten dürfen kurz sein und
+  // Die Frage steht in der Überschrift, die Antworten dürfen kurz sein und
   // passen so ohne Umbruch in eine Zeile.
   { value: "any", label: "Egal" },
   { value: "partial", label: "Etwas" },
@@ -71,7 +71,7 @@ function ToggleRow({
   label: string;
   hint?: string;
   checked: boolean;
-  /** Wie viele Orte im Umkreis erfüllen das Kriterium – und wie viele gibt es. */
+  /** Wie viele Orte im Umkreis erfüllen das Kriterium, und wie viele gibt es. */
   match?: { hits: number; total: number };
   onChange: (checked: boolean) => void;
 }) {
@@ -205,7 +205,7 @@ export function FilterSheet({
         <div>
           <h3 className="text-sm font-semibold text-dark">Wichtig für mich</h3>
           <p className="mb-1 text-xs leading-relaxed text-muted">
-            Solche Orte kommen zuerst nach oben – ausgeblendet wird nichts.
+            Solche Orte kommen zuerst nach oben, ausgeblendet wird nichts.
           </p>
           <ToggleRow
             label="Toilette"
@@ -241,7 +241,7 @@ export function FilterSheet({
           />
           <ToggleRow
             label="Orte mit Warnungen ausblenden"
-            hint="Zum Beispiel „zu sonnig“ oder „sehr voll“ – blendet aus"
+            hint="Zum Beispiel „zu sonnig“ oder „sehr voll“, blendet aus"
             checked={filters.hideReportedProblems}
             onChange={(value) => filters.set("hideReportedProblems", value)}
           />
@@ -249,7 +249,7 @@ export function FilterSheet({
 
         <p className="rounded-2xl bg-background p-3 text-xs leading-relaxed text-muted">
           Die Angaben stammen aus OpenStreetMap, das Freiwillige pflegen. Vieles
-          ist dort nicht eingetragen – Zäune besonders selten. Deshalb sortieren
+          ist dort nicht eingetragen, Zäune besonders selten. Deshalb sortieren
           diese Wünsche die Orte nur nach oben, statt welche auszublenden.
         </p>
       </div>

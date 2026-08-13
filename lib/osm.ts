@@ -16,7 +16,7 @@ const ENDPOINTS = [
 
 /**
  * Kurz genug, dass der Spiegel noch eine Chance bekommt, bevor jemand aufgibt.
- * Öffentliche Overpass-Instanzen sind zeitweise überlastet – das ist der
+ * Öffentliche Overpass-Instanzen sind zeitweise überlastet, das ist der
  * Normalfall, nicht die Ausnahme.
  */
 const ENDPOINT_TIMEOUT_MS = 28_000;
@@ -68,7 +68,7 @@ out tags geom;`;
 }
 
 /** Overpass antwortet mit 429/504, wenn gerade kein Slot frei ist. Das ist
- * kein Fehler, sondern eine Bitte um Geduld – kurz warten hilft mehr als der
+ * kein Fehler, sondern eine Bitte um Geduld, kurz warten hilft mehr als der
  * sofortige Wechsel auf einen Spiegel, der ebenfalls überlastet sein kann. */
 const RETRY_STATUS = new Set([429, 502, 503, 504]);
 const RETRIES_PER_ENDPOINT = 3;
@@ -165,11 +165,11 @@ function fencedFrom(tags: Record<string, string>): boolean | undefined {
 /**
  * Ein echtes Foto, falls OSM eines kennt. `wikimedia_commons` ist die
  * verlässliche Quelle (Special:FilePath liefert das Bild direkt); ein `image`-
- * Tag nur, wenn es sicher über https lädt – sonst blockiert es der Browser.
+ * Tag nur, wenn es sicher über https lädt, sonst blockiert es der Browser.
  */
 function imageUrlFrom(tags: Record<string, string>): string | undefined {
   const commons = tags.wikimedia_commons;
-  // Nur einzelne Dateien liefern ein Bild – „Category:…" verweist auf eine
+  // Nur einzelne Dateien liefern ein Bild, „Category:…" verweist auf eine
   // Sammlung ohne direktes Foto und würde ins Leere laufen.
   if (commons && !/^Category:/i.test(commons.trim())) {
     const file = commons.replace(/^File:/i, "").trim();
@@ -242,7 +242,7 @@ class Grid<T extends Point> {
 }
 
 const DEFAULT_NAMES = new Set(["Spielplatz", "Grünfläche"]);
-/** Derselbe Ort ist in OSM oft doppelt erfasst – als Punkt und als Fläche. */
+/** Derselbe Ort ist in OSM oft doppelt erfasst, als Punkt und als Fläche. */
 const DUPLICATE_RADIUS_M = 45;
 
 /** Je mehr ein Eintrag weiß, desto eher ist er der brauchbare Zwilling. */
@@ -288,7 +288,7 @@ function withStreet(base: string, street: string): string {
 }
 
 /**
- * Name der benannten Grünfläche, in der ein Ort liegt – für Spielplätze mitten
+ * Name der benannten Grünfläche, in der ein Ort liegt, für Spielplätze mitten
  * im Park, die keine Straße in der Nähe haben. Die kleinste passende Fläche
  * gewinnt (spezifischer: „Alter Botanischer Garten" statt „Innenstadt").
  */
@@ -322,7 +322,7 @@ function compassLabel(dLatDeg: number, dLngDeg: number, atLatDeg: number): strin
   return dirs[Math.round((((angle % 360) + 360) % 360) / 45) % 8];
 }
 
-/** Name der nächstgelegenen benannten Straße – oder null, wenn keine nah genug ist. */
+/** Name der nächstgelegenen benannten Straße, oder null, wenn keine nah genug ist. */
 function nearestStreetName(
   grid: Grid<Point & { name: string }>,
   lat: number,
@@ -345,7 +345,7 @@ function nearestStreetName(
 
 export interface FetchPlacesResult {
   places: OsmPlace[];
-  /** Öffentliche Toiletten im Umkreis – für die Toiletten-Suche. */
+  /** Öffentliche Toiletten im Umkreis, für die Toiletten-Suche. */
   toilets: Toilet[];
   /** Wie gut ist die Baum-Datenlage in diesem Gebiet? */
   treeDataQuality: ShadeConfidence;
@@ -477,7 +477,7 @@ export async function fetchPlaces(
       waterGrid.near(c.lat, c.lng, WATER_MAX_DISTANCE_M).length > 0 ||
       osmTags.drinking_water === "yes";
     // Wasser zum Planschen (Matschanlage, Splash-Pad) ist etwas anderes als
-    // Trinkwasser – und an heißen Tagen der Top-Wunsch mit Kind.
+    // Trinkwasser, und an heißen Tagen der Top-Wunsch mit Kind.
     const waterPlay =
       osmTags["playground:water"] === "yes" ||
       osmTags.playground === "water" ||
@@ -571,7 +571,7 @@ export async function fetchPlaces(
   }
 
   // Letzte Sicherung: sollte ein Name trotz Himmelsrichtung noch doppelt sein
-  // (drei Orte, gleiche Richtung), durchnummerieren – garantiert eindeutig.
+  // (drei Orte, gleiche Richtung), durchnummerieren, garantiert eindeutig.
   const used = new Map<string, number>();
   for (const place of deduped) {
     const count = (used.get(place.name) ?? 0) + 1;

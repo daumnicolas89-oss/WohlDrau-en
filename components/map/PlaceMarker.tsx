@@ -27,7 +27,7 @@ export function placeMarkerIcon(state: ShadeState, rank: number) {
   });
 }
 
-/** Der eigene Standort – bewusst anders als die Orte. */
+/** Der eigene Standort, bewusst anders als die Orte. */
 export const ORIGIN_MARKER_STYLE = {
   color: "#ffffff",
   weight: 3,

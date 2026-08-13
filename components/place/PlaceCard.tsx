@@ -9,7 +9,7 @@ import { ShadeMeter } from "./ShadeMeter";
 /**
  * Die Reihenfolge folgt der Frage im Kopf: Wo ist das? Wie gut ist es dort
  * gerade? Warum? Und was muss ich sonst noch wissen? Alles darunter ist
- * bewusst leiser gesetzt – eine Karte, die überall gleich laut ruft, hilft
+ * bewusst leiser gesetzt, eine Karte, die überall gleich laut ruft, hilft
  * beim Überfliegen nicht.
  */
 export function PlaceCard({
@@ -21,7 +21,7 @@ export function PlaceCard({
 }: {
   place: Place;
   origin: { lat: number; lng: number };
-  /** Suchradius dieser Liste – die Detailseite nutzt dieselbe Abfrage. */
+  /** Suchradius dieser Liste, die Detailseite nutzt dieselbe Abfrage. */
   radius: number;
   /** Platz in der Liste; der erste bekommt eine Auszeichnung. */
   rank: number;
@@ -40,7 +40,7 @@ export function PlaceCard({
   const beste = rank === 0;
 
   // Ab Platz 2 eine schlanke Zeile: ein klarer Favorit oben, darunter eine
-  // ruhige, scanbare Liste – das bricht den „Einheitsbrei" ohne mehr Farbe.
+  // ruhige, scanbare Liste, das bricht den „Einheitsbrei" ohne mehr Farbe.
   if (!beste) {
     const distance = haversine(origin.lat, origin.lng, place.lat, place.lng);
     return (
@@ -52,7 +52,7 @@ export function PlaceCard({
           score={place.pleasantScore}
           tone={bewertung.tone}
           size={46}
-          label={`Angenehm jetzt: ${place.pleasantScore} von 100 – ${bewertung.label}`}
+          label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}`}
         />
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-display text-[16px] leading-tight font-semibold text-dark">
@@ -96,7 +96,7 @@ export function PlaceCard({
             score={place.pleasantScore}
             tone={bewertung.tone}
             size={60}
-            label={`Angenehm jetzt: ${place.pleasantScore} von 100 – ${bewertung.label}`}
+            label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}`}
           />
         </div>
 

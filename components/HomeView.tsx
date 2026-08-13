@@ -39,7 +39,7 @@ export function HomeView() {
   const geo = useGeolocation();
   const { manual, setManual } = useManualLocation();
   const geoStatus = geo.status;
-  // Ein manuell gewählter Ort überstimmt GPS – so funktioniert die Suche und
+  // Ein manuell gewählter Ort überstimmt GPS, so funktioniert die Suche und
   // der „Reise"-Blick, und ein blockierter Standort ist kein Sackgasse mehr.
   const coords = useMemo(
     () =>
@@ -145,7 +145,7 @@ export function HomeView() {
     : coords.source === "gps"
       ? "Orte in deiner Nähe"
       : FALLBACK_LABEL;
-  // Ohne Wetter lässt sich kein Schatten bewerten – dann muss ein Fehler
+  // Ohne Wetter lässt sich kein Schatten bewerten, dann muss ein Fehler
   // sichtbar werden statt eines Ladezustands, der nie endet.
   const loading = places.loading || wetter.loading;
   const error = places.error ?? wetter.error;
@@ -246,7 +246,7 @@ export function HomeView() {
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm text-muted">
                     {visible.length} {visible.length === 1 ? "Ort" : "Orte"} in der
-                    Nähe – oben steht, wo es{" "}
+                    Nähe, oben steht, wo es{" "}
                     {filters.timeOffsetMin === 0
                       ? "gerade"
                       : `in ${filters.timeOffsetMin} Minuten`}{" "}
@@ -286,7 +286,7 @@ export function HomeView() {
                       : `In der Nähe liegen ${filteredOut} Orte, die deine Filter gerade aussortieren. Ein Kriterium weniger bringt sie zurück.`
                     : "In diesem Umkreis kennt OpenStreetMap keinen Spielplatz und keine Grünfläche. Mit größerer Entfernung findet sich meist etwas."}
                 </p>
-                {/* Ohne aussortierte Orte hilft Zurücksetzen nicht – dann muss
+                {/* Ohne aussortierte Orte hilft Zurücksetzen nicht, dann muss
                     der Umkreis größer werden. */}
                 {filteredOut > 0 ? (
                   <Button onClick={filters.reset} className="mx-auto mt-4">

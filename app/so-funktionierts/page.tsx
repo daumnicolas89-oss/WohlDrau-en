@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "So funktioniert's – WohlDraußen",
+  title: "So funktioniert's, WohlDraußen",
 };
 
 function Abschnitt({
@@ -62,7 +62,7 @@ export default function SoFunktioniertsPage() {
       <div className="mt-6 space-y-4">
         <Abschnitt Icon={Sun} titel="Der Wert „Angenehm jetzt“">
           <p>
-            Jeder Ort bekommt einen Wert von 0–100 – wie angenehm es dort{" "}
+            Jeder Ort bekommt einen Wert von 0–100, wie angenehm es dort{" "}
             <strong>gerade</strong> ist. Der Ring zeigt ihn auf einen Blick:
             grün = angenehm, gelb = mittel, orange = eher ungünstig.
           </p>
@@ -74,7 +74,7 @@ export default function SoFunktioniertsPage() {
             kommt dieser Wert zustande?“ genau nachsehen.
           </p>
           <p>
-            Der Schatten ist <strong>gerechnet, nicht gemessen</strong> – aus dem
+            Der Schatten ist <strong>gerechnet, nicht gemessen</strong>, aus dem
             Sonnenstand, erfassten Bäumen und Gebäuden. Eine gute Schätzung, keine
             Garantie.
           </p>
@@ -83,14 +83,14 @@ export default function SoFunktioniertsPage() {
         <Abschnitt Icon={Sparkles} titel="Die Liste und die „Beste Wahl“">
           <p>
             Ganz oben steht der Favorit für <strong>genau jetzt</strong>, darunter
-            eine ruhige Liste weiterer Orte – nach Angenehmheit sortiert. Tippe
+            eine ruhige Liste weiterer Orte, nach Angenehmheit sortiert. Tippe
             einen Ort an, um alle Details zu sehen.
           </p>
         </Abschnitt>
 
         <Abschnitt Icon={Clock} titel="Jetzt, in 30 Minuten oder in 1 Stunde">
           <p>
-            Über die Leiste oben wählst du den Zeitpunkt. Die Sonne wandert – ein
+            Über die Leiste oben wählst du den Zeitpunkt. Die Sonne wandert, ein
             Ort kann in einer Stunde deutlich schattiger (oder sonniger) sein.
           </p>
         </Abschnitt>
@@ -112,7 +112,7 @@ export default function SoFunktioniertsPage() {
           <p>
             Auf der Detailseite bringt dich <strong>„Route dorthin“</strong> direkt
             zur Navigation. In der Karten-Ansicht kannst du zwischen{" "}
-            <strong>Karte und Satellit</strong> umschalten – aus der Luft erkennt
+            <strong>Karte und Satellit</strong> umschalten, aus der Luft erkennt
             man Bäume und den Platz oft leichter.
           </p>
         </Abschnitt>
@@ -120,7 +120,7 @@ export default function SoFunktioniertsPage() {
         <Abschnitt Icon={Toilet} titel="Öffentliche Toiletten">
           <p>
             Über <strong>„Toilette finden“</strong> siehst du öffentliche Toiletten
-            in der Nähe, sortiert nach Entfernung – mit Route dorthin.
+            in der Nähe, sortiert nach Entfernung, mit Route dorthin.
           </p>
         </Abschnitt>
 
@@ -132,14 +132,14 @@ export default function SoFunktioniertsPage() {
           <p>
             Meldungen werden <strong>anonym</strong> gespeichert, sind an den{" "}
             <strong>Ort</strong> gebunden (nicht an dich) und rund{" "}
-            <strong>drei Stunden</strong> sichtbar – danach zählen sie nicht mehr.
+            <strong>drei Stunden</strong> sichtbar, danach zählen sie nicht mehr.
             Kein Login nötig.
           </p>
         </Abschnitt>
       </div>
 
       <p className="mt-6 px-1 text-xs leading-relaxed text-muted">
-        Ortsdaten, Namen und Ausstattung stammen aus OpenStreetMap – einer freien
+        Ortsdaten, Namen und Ausstattung stammen aus OpenStreetMap, einer freien
         Karte, die Freiwillige pflegen. Sie ist gut, aber lückenhaft; im Zweifel
         lohnt der Blick vor Ort. Das Wetter kommt von Open-Meteo.
       </p>

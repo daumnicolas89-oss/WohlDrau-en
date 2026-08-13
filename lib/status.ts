@@ -1,6 +1,6 @@
 import type { PlaceStatus, PlaceStatusType } from "@/types";
 
-/** Community-Meldungen sind bewusst kurzlebig – danach zählen sie nicht mehr. */
+/** Community-Meldungen sind bewusst kurzlebig, danach zählen sie nicht mehr. */
 export const STATUS_TTL_MS = 3 * 60 * 60 * 1000;
 
 export interface StatusOption {

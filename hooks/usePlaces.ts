@@ -12,7 +12,7 @@ interface PlacesResponse {
 }
 
 /**
- * Etwas mehr laden, als der Distanzfilter zeigt – Filter ändern sich schneller
+ * Etwas mehr laden, als der Distanzfilter zeigt, Filter ändern sich schneller
  * als Daten. Der Radius bleibt aber an den Filter gekoppelt: Overpass-Zeit
  * wächst mit der Fläche, und die erste Liste soll schnell da sein.
  */
@@ -50,7 +50,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
   const [nonce, setNonce] = useState(0);
 
   // Nicht bei jedem GPS-Zucken neu laden. Anpassung des abgeleiteten Zustands
-  // während des Renderns – React rendert direkt neu, ohne Effekt-Umweg.
+  // während des Renderns, React rendert direkt neu, ohne Effekt-Umweg.
   const [anchor, setAnchor] = useState(coords);
   if (haversine(anchor.lat, anchor.lng, coords.lat, coords.lng) > REFETCH_DISTANCE_M) {
     setAnchor(coords);

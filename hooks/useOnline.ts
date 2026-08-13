@@ -18,7 +18,7 @@ function subscribe(onChange: () => void) {
  *
  * `useSyncExternalStore` statt eines Effekts: Der Wert wird bei jedem Render
  * frisch aus dem Browser gelesen. Ein einmalig gemerkter Startwert kann sonst
- * veralten – etwa wenn die Seite ohne Netz neu geladen wird und
+ * veralten, etwa wenn die Seite ohne Netz neu geladen wird und
  * `navigator.onLine` beim ersten Render noch `true` meldet.
  */
 export function useOnline(): boolean {

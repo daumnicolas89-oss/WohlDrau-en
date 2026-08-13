@@ -14,8 +14,8 @@ function coords(lat?: string, lng?: string) {
  *
  * lat/lng = Standort des Nutzers (Entfernung), plat/plng = Standort des Ortes,
  * r = Suchradius der Liste. Mit lat/lng/r trifft die Detailseite denselben
- * Cache-Eintrag wie die Liste und ist sofort da. Fehlen die Parameter – etwa
- * bei einem geteilten Link – lädt sie selbst nach.
+ * Cache-Eintrag wie die Liste und ist sofort da. Fehlen die Parameter, etwa
+ * bei einem geteilten Link, lädt sie selbst nach.
  */
 export default async function PlacePage({
   params,

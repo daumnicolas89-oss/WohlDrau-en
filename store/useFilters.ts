@@ -12,7 +12,7 @@ export type MapStyle = "map" | "satellite";
 export interface FilterState {
   timeOffsetMin: TimeOffset;
   maxDistanceM: number;
-  // „prefer": weiche Priorität – solche Orte kommen zuerst, versteckt wird
+  // „prefer": weiche Priorität, solche Orte kommen zuerst, versteckt wird
   // nichts. So führt dünne OSM-Datenlage nicht zu einer leeren Liste.
   preferToilet: boolean;
   preferChangingTable: boolean;
@@ -27,7 +27,7 @@ export interface FilterState {
 export const DEFAULT_FILTERS: FilterState = {
   timeOffsetMin: 0,
   // Rund 20 Minuten Fußweg. Weiter ist mit Kleinkind kein „mal eben raus“
-  // mehr – und innerhalb dieser Spanne darf die Ausstattung entscheiden.
+  // mehr, und innerhalb dieser Spanne darf die Ausstattung entscheiden.
   maxDistanceM: 1500,
   preferToilet: false,
   preferChangingTable: false,
@@ -89,7 +89,7 @@ export const useFilters = create<FilterStore>()(
   ),
 );
 
-/** Aktive Filter als kurze Chips – auch die Grundlage für den Zähler am Button. */
+/** Aktive Filter als kurze Chips, auch die Grundlage für den Zähler am Button. */
 export interface ActiveFilterChip {
   key: keyof FilterState;
   label: string;

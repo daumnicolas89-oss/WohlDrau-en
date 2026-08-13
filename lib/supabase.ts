@@ -22,7 +22,7 @@ export function isPersistent(): boolean {
 
 /**
  * Fallback ohne Datenbank: hält Meldungen im Prozess. Für lokale Entwicklung
- * und Demos ausreichend – auf serverless Instanzen überlebt das keinen
+ * und Demos ausreichend, auf serverless Instanzen überlebt das keinen
  * Kaltstart, deshalb für die Produktion Supabase konfigurieren.
  */
 interface MemoryRow extends PlaceStatus {
@@ -31,7 +31,7 @@ interface MemoryRow extends PlaceStatus {
 
 const memory: MemoryRow[] = [];
 
-/** Die Absender-ID bleibt im Server – nach außen geht nur die Meldung. */
+/** Die Absender-ID bleibt im Server, nach außen geht nur die Meldung. */
 function toPublic(row: MemoryRow): PlaceStatus {
   return {
     id: row.id,

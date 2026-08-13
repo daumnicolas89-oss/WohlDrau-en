@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer } from "react-leaflet";
 
 /**
- * Ein Luftbild-Ausschnitt genau von diesem Ort – bewusst als „Bild", nicht als
+ * Ein Luftbild-Ausschnitt genau von diesem Ort, bewusst als „Bild", nicht als
  * Karte: alle Interaktionen sind aus, damit es sich wie ein Foto von oben
  * anfühlt. Funktioniert für jeden Ort, weil jeder Koordinaten hat.
  */

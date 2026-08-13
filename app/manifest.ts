@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "WohlDraußen",
     short_name: "WohlDraußen",
     description:
-      "Zeigt in Echtzeit, wo es sich gerade lohnt, rauszugehen – Schatten, Toilette, Zaun, Entfernung.",
+      "Zeigt in Echtzeit, wo es sich gerade lohnt, rauszugehen, Schatten, Toilette, Zaun, Entfernung.",
     lang: "de",
     start_url: "/",
     display: "standalone",

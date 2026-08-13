@@ -15,7 +15,7 @@ const TONE_STYLES = {
 const MAX_MESSAGE_LENGTH = 140;
 
 /**
- * Wird von den Aufrufern nur gerendert, solange sie offen sein soll – so
+ * Wird von den Aufrufern nur gerendert, solange sie offen sein soll, so
  * startet jede Meldung mit leerem Formular, ohne Zurücksetz-Effekt.
  */
 export function ReportStatusModal({
@@ -50,7 +50,7 @@ export function ReportStatusModal({
     <Sheet
       open
       title="Wie ist es dort gerade?"
-      description={`Für ${placeName}. Deine Rückmeldung hilft anderen Eltern und ist etwa drei Stunden sichtbar – anonym, ohne Anmeldung.`}
+      description={`Für ${placeName}. Deine Rückmeldung hilft anderen Eltern und ist etwa drei Stunden sichtbar, anonym, ohne Anmeldung.`}
       onOpenChange={(next) => {
         if (!next) onClose();
       }}

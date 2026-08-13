@@ -13,7 +13,7 @@ const ICONS: Record<ShadeState, typeof Sun> = {
 /**
  * Schatten als Balken statt als nackte Prozentzahl: Der Füllgrad sagt in
  * einem Blick, wie viel Schutz es gerade gibt. Die Farbe wiederholt die
- * Aussage – grün gut beschattet, gelb mittel, rot ungeschützt.
+ * Aussage, grün gut beschattet, gelb mittel, rot ungeschützt.
  */
 export function ShadeMeter({
   state,
@@ -27,7 +27,7 @@ export function ShadeMeter({
   shadeIndex: number;
   size?: "sm" | "lg";
   reason?: string;
-  /** Kennzeichnet den Wert als Schätzung – auf der Karte, wo der Platz fehlt. */
+  /** Kennzeichnet den Wert als Schätzung, auf der Karte, wo der Platz fehlt. */
   estimateHint?: boolean;
 }) {
   const wording = shadeWording(state);
@@ -67,7 +67,7 @@ export function ShadeMeter({
 
       {size === "lg" && (
         <p className="mt-1.5 text-xs text-muted">
-          Geschätzt {prozent} % der Fläche liegen im Schatten – berechnet aus
+          Geschätzt {prozent} % der Fläche liegen im Schatten, berechnet aus
           Sonnenstand, erfassten Bäumen und Gebäuden, keine Messung vor Ort.
         </p>
       )}
