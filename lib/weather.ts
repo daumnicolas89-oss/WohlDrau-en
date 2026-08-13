@@ -78,6 +78,10 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
  * Annahme, bei der Schatten kaum ins Gewicht fällt, also nichts vorgaukelt.
  * Die leeren Stunden-Arrays sind Absicht: `weatherAt` fällt dann sauber auf
  * diese Werte zurück. Nur fürs Rechnen gedacht, nie zum Anzeigen echter Zahlen.
+ *
+ * ACHTUNG `isDay`: Tag oder Nacht kommt aus dem Sonnenstand (`computeShade`),
+ * niemals aus diesem Ersatzwert. Der Wert hier ist willkürlich und wäre nachts
+ * schlicht falsch, lies ihn nicht für Tag/Nacht-Entscheidungen aus.
  */
 export const FALLBACK_WEATHER: Weather = {
   time: "",
@@ -88,6 +92,7 @@ export const FALLBACK_WEATHER: Weather = {
   precipitationProbability: 0,
   windSpeed: 8,
   uvIndex: 3,
+  // Bedeutungslos, siehe Warnung oben, Tag/Nacht kommt aus dem Sonnenstand.
   isDay: true,
   hourly: {
     time: [],

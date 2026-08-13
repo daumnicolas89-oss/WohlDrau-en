@@ -12,6 +12,30 @@ import type { Place, PlaceStatus, ShadeState, Weather } from "@/types";
 
 export type Tone = "good" | "medium" | "bad" | "neutral";
 
+/**
+ * Ein Satz für den Wetter-Kopf, der sagt, worauf es gerade ankommt. Nachts
+ * spielt Schatten keine Rolle, dann empfiehlt der Satz auch keinen, sonst
+ * widerspricht er dem Mond und der Liste („Keine Sonne mehr“).
+ */
+export function weatherAdvice(
+  apparent: number,
+  uv: number,
+  rainProbability: number,
+  isDay: boolean,
+): string {
+  if (rainProbability >= 60) return "Regen ist wahrscheinlich. Kurz raus lohnt trotzdem.";
+  if (!isDay) {
+    if (apparent < 8) return "Kühle Nacht, zieh dich warm an.";
+    if (apparent >= 21) return "Laue Nacht, angenehm für draußen.";
+    return "Angenehm draußen, ganz ohne Sonne.";
+  }
+  const want = desiredShade(apparent, uv);
+  if (want > 0.7) return "Jetzt zählt vor allem Schatten.";
+  if (want > 0.4) return "Etwas Schatten tut gut.";
+  if (apparent < 8) return "Kühl. Sonnige Ecken sind angenehmer.";
+  return "Angenehm, fast überall gut auszuhalten.";
+}
+
 export interface Wording {
   label: string;
   tone: Tone;

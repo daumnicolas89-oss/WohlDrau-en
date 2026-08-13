@@ -1,15 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { computeShade } from "@/lib/sun";
+import { shadeWindow } from "@/lib/sun";
 import { formatTime } from "@/lib/utils";
-import { weatherAt } from "@/lib/weather";
 import { shadeShort, type Tone } from "@/lib/wording";
 import type { OsmPlace, ShadeState, Weather } from "@/types";
 import { TONE_COLORS } from "@/components/ui/ScoreRing";
-
-const STEP_MINUTES = 60;
-const STEPS = 6;
 
 const TONE_FOR_STATE: Record<ShadeState, Tone> = {
   shady: "good",
@@ -32,12 +28,7 @@ export function ShadeTimeline({
   from: Date;
 }) {
   const steps = useMemo(
-    () =>
-      Array.from({ length: STEPS }, (_, index) => {
-        const at = new Date(from.getTime() + index * STEP_MINUTES * 60_000);
-        const shade = computeShade(place, at, weatherAt(weather, at).cloudCover);
-        return { at, shade };
-      }),
+    () => shadeWindow(place, weather, from),
     [place, weather, from],
   );
 

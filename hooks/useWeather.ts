@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { FALLBACK_WEATHER } from "@/lib/weather";
 import type { Weather } from "@/types";
 import type { Coords } from "./useGeolocation";
 
@@ -9,6 +10,20 @@ export interface UseWeatherResult {
   loading: boolean;
   error: string | null;
   reload: () => void;
+}
+
+/**
+ * Leitet aus dem Wetter-Zustand die drei Dinge ab, die Start- und Detailseite
+ * bei einem Ausfall gleich behandeln müssen: das Ersatzwetter fürs Rechnen, ob
+ * das echte Wetter gerade fehlt (für den Hinweis), und ob das Laden noch aufs
+ * Wetter warten soll. An einer Stelle, damit beide Seiten nie auseinanderlaufen.
+ */
+export function deriveWeatherState(wetter: UseWeatherResult) {
+  return {
+    scoringWeather: wetter.weather ?? FALLBACK_WEATHER,
+    weatherMissing: !wetter.weather && !wetter.loading,
+    weatherBlocksLoading: wetter.loading && !wetter.error,
+  };
 }
 
 /** Auf ~1 km runden: feiner braucht es das Wetter nicht, spart Anfragen. */

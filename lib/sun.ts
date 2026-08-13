@@ -1,6 +1,7 @@
 import * as SunCalc from "suncalc";
 import { clamp } from "./utils";
-import type { OsmPlace, ShadeResult, ShadeState } from "@/types";
+import { weatherAt } from "./weather";
+import type { OsmPlace, ShadeResult, ShadeState, Weather } from "@/types";
 
 /** Typische Breite einer Gebäudefront, der Schatten ist nicht nur ein Strich. */
 const BUILDING_HALF_WIDTH_M = 11;
@@ -102,4 +103,29 @@ export function computeShade(
 export function sunTimes(lat: number, lng: number, date: Date) {
   const times = SunCalc.getTimes(date, lat, lng);
   return { sunrise: times.sunrise, sunset: times.sunset };
+}
+
+/** Länge und Auflösung der Schatten-Vorschau, an einer Stelle, damit die
+ *  Anzeige (Balken) und die Entscheidung „lohnt die Vorschau überhaupt?“
+ *  nie unterschiedliche Fenster betrachten. */
+export const SHADE_WINDOW_STEPS = 6;
+export const SHADE_WINDOW_STEP_MINUTES = 60;
+
+export interface ShadeStep {
+  at: Date;
+  shade: ShadeResult;
+}
+
+/** Der Schatten für die nächsten Stunden, Schritt für Schritt. */
+export function shadeWindow(place: OsmPlace, weather: Weather, from: Date): ShadeStep[] {
+  return Array.from({ length: SHADE_WINDOW_STEPS }, (_, index) => {
+    const at = new Date(from.getTime() + index * SHADE_WINDOW_STEP_MINUTES * 60_000);
+    return { at, shade: computeShade(place, at, weatherAt(weather, at).cloudCover) };
+  });
+}
+
+/** Kommt in diesem Fenster überhaupt die Sonne vor? Nachts durchgehend „nein“,
+ *  dann lohnt die Schatten-Vorschau nicht. */
+export function windowHasSun(place: OsmPlace, weather: Weather, from: Date): boolean {
+  return shadeWindow(place, weather, from).some((step) => step.shade.state !== "no-sun");
 }

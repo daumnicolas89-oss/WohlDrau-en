@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
+import { NavTracker } from "@/components/NavTracker";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 
 const inter = Inter({
@@ -44,6 +45,7 @@ export default function RootLayout({
     <html lang="de" className={`${inter.variable} ${jakarta.variable}`}>
       <body className="min-h-dvh bg-background text-body antialiased">
         {children}
+        <NavTracker />
         <ServiceWorkerRegistration />
       </body>
     </html>

@@ -6,6 +6,11 @@ import type { Place } from "@/types";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { ShadeMeter } from "./ShadeMeter";
 
+/** „Im Grünen, aber kaum Bäume getaggt": der echte Schatten kann höher sein als
+ *  gezeigt. Dieser Ehrlichkeits-Hinweis gehört an jede betroffene Karte. */
+const WENIG_BAEUME_HINT =
+  "Wenige Bäume erfasst, hier kann es schattiger sein als angezeigt.";
+
 /**
  * Die Reihenfolge folgt der Frage im Kopf: Wo ist das? Wie gut ist es dort
  * gerade? Warum? Und was muss ich sonst noch wissen? Alles darunter ist
@@ -38,6 +43,8 @@ export function PlaceCard({
   const meldung = statusSentence(place.lastStatuses, now);
   const chips = factChips(place);
   const beste = rank === 0;
+  const wenigBaumdaten =
+    place.shadeInputs.confidence === "low" && place.shadeInputs.inGreen;
 
   // Ab Platz 2 eine schlanke Zeile: ein klarer Favorit oben, darunter eine
   // ruhige, scanbare Liste, das bricht den „Einheitsbrei" ohne mehr Farbe.
@@ -61,6 +68,11 @@ export function PlaceCard({
           <p className="mt-1 truncate text-sm text-muted">
             {shadeWording(place.shade.state).label} · {formatDistance(distance)}
           </p>
+          {wenigBaumdaten && (
+            <p className="mt-0.5 text-xs leading-snug text-muted">
+              {WENIG_BAEUME_HINT}
+            </p>
+          )}
         </div>
         <ChevronRight size={18} aria-hidden className="shrink-0 text-muted" />
       </Link>
@@ -106,9 +118,9 @@ export function PlaceCard({
             shadeIndex={place.shade.index}
             estimateHint
           />
-          {place.shadeInputs.confidence === "low" && place.shadeInputs.inGreen && (
+          {wenigBaumdaten && (
             <p className="mt-1.5 text-xs leading-relaxed text-muted">
-              Wenige Bäume erfasst, hier kann es schattiger sein als angezeigt.
+              {WENIG_BAEUME_HINT}
             </p>
           )}
         </div>

@@ -84,3 +84,27 @@ export function anonymousId(): string {
   }
   return id;
 }
+
+const IN_APP_NAV_KEY = "wohldraussen-in-app-nav";
+
+/**
+ * Merkt sich (pro Tab), dass innerhalb der App navigiert wurde. Nur dann darf
+ * „Zurück" den Browser-Verlauf zurückspulen, sonst landet man bei einem
+ * geteilten Link auf der vorher offenen fremden Seite statt auf der Übersicht.
+ * `history.length` reicht dafür nicht, weil auch fremde Seiten mitzählen.
+ */
+export function markInAppNavigation(): void {
+  try {
+    sessionStorage.setItem(IN_APP_NAV_KEY, "1");
+  } catch {
+    // Privater Modus o. Ä.: dann bleibt „Zurück" beim sicheren Link auf "/".
+  }
+}
+
+export function hasInAppHistory(): boolean {
+  try {
+    return sessionStorage.getItem(IN_APP_NAV_KEY) === "1";
+  } catch {
+    return false;
+  }
+}

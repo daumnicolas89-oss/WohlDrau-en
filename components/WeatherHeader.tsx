@@ -1,34 +1,12 @@
 "use client";
 
 import { ChevronDown, CloudOff, MapPin } from "lucide-react";
-import { desiredShade } from "@/lib/scoring";
-import { uvWording } from "@/lib/wording";
+import { uvWording, weatherAdvice } from "@/lib/wording";
 import { weatherAt } from "@/lib/weather";
 import type { Weather } from "@/types";
 import type { GeoStatus } from "@/hooks/useGeolocation";
 import { TONE_TEXT } from "@/components/ui/ScoreRing";
 import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
-
-/** Ein Satz, der sagt, worauf es bei diesem Wetter ankommt. */
-function advice(
-  apparent: number,
-  uv: number,
-  rainProbability: number,
-  isDay: boolean,
-): string {
-  if (rainProbability >= 60) return "Regen ist wahrscheinlich. Kurz raus lohnt trotzdem.";
-  // Nachts spielt Schatten keine Rolle, dann darf der Satz auch keinen empfehlen.
-  if (!isDay) {
-    if (apparent < 8) return "Kühle Nacht, zieh dich warm an.";
-    if (apparent >= 21) return "Laue Nacht, angenehm für draußen.";
-    return "Angenehm draußen, ganz ohne Sonne.";
-  }
-  const want = desiredShade(apparent, uv);
-  if (want > 0.7) return "Jetzt zählt vor allem Schatten.";
-  if (want > 0.4) return "Etwas Schatten tut gut.";
-  if (apparent < 8) return "Kühl. Sonnige Ecken sind angenehmer.";
-  return "Angenehm, fast überall gut auszuhalten.";
-}
 
 function Wert({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -112,7 +90,7 @@ export function WeatherHeader({
           {/* Der emotionale Kern: ein Satz, der sagt, worauf es jetzt ankommt –
               deshalb als Überschrift, nicht als Fußnote. */}
           <p className="mt-4 font-display text-[22px] leading-snug font-semibold text-dark">
-            {advice(
+            {weatherAdvice(
               values.apparentTemperature,
               values.uvIndex,
               values.precipitationProbability,

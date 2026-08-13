@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, CloudOff, ExternalLink, Megaphone, Navigation } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
 import { formatAge, statusOption } from "@/lib/status";
-import { computeShade } from "@/lib/sun";
-import { haversine } from "@/lib/utils";
-import { FALLBACK_WEATHER, weatherAt } from "@/lib/weather";
+import { computeShade, windowHasSun } from "@/lib/sun";
+import { hasInAppHistory, haversine } from "@/lib/utils";
+import { weatherAt } from "@/lib/weather";
 import {
   SCORE_ERKLAERUNG,
   distanceSentence,
@@ -23,7 +23,7 @@ import { useNow } from "@/hooks/useNow";
 import { useOnline } from "@/hooks/useOnline";
 import { radiusForDistance, usePlaces } from "@/hooks/usePlaces";
 import { useStatuses } from "@/hooks/useStatuses";
-import { useWeather } from "@/hooks/useWeather";
+import { deriveWeatherState, useWeather } from "@/hooks/useWeather";
 import { ReportStatusModal } from "@/components/status/ReportStatusModal";
 import { Button } from "@/components/ui/Button";
 import { InfoButton } from "@/components/ui/InfoButton";
@@ -56,9 +56,10 @@ export function PlaceDetail({
 }) {
   const router = useRouter();
   // Zurück heißt: an genau die Stelle der Liste, wo man war (Scroll bleibt
-  // erhalten). Nur wer direkt hier landet (geteilter Link), folgt dem href "/".
+  // erhalten). Nur wer wirklich aus der App kommt, spult den Verlauf zurück,
+  // ein Direkteinstieg (geteilter Link) folgt sicher dem href "/".
   function goBack(event: React.MouseEvent<HTMLAnchorElement>) {
-    if (typeof window !== "undefined" && window.history.length > 1) {
+    if (hasInAppHistory()) {
       event.preventDefault();
       router.back();
     }
@@ -83,7 +84,8 @@ export function PlaceDetail({
   const weather = wetter.weather;
   // Fällt nur das Wetter aus, soll der Ort trotzdem erscheinen, mit neutralem
   // Ersatzwetter geordnet, statt die Detailseite ganz wegzublenden.
-  const scoringWeather = weather ?? FALLBACK_WEATHER;
+  const { scoringWeather, weatherMissing, weatherBlocksLoading } =
+    deriveWeatherState(wetter);
   const { statuses, report } = useStatuses(useMemo(() => [placeId], [placeId]));
   const now = useNow();
   const online = useOnline();
@@ -116,24 +118,17 @@ export function PlaceDetail({
 
   /** Lohnt der Schatten-Verlauf? Nur wenn in den nächsten Stunden überhaupt
    *  die Sonne aufgeht, sonst zeigt er nachts sinnlose volle Balken. */
-  const sonneImFenster = useMemo(() => {
-    if (!place) return false;
-    for (let i = 0; i <= 5; i++) {
-      const at = new Date(now.getTime() + i * 60 * 60_000);
-      if (computeShade(place, at, weatherAt(scoringWeather, at).cloudCover).state !== "no-sun") {
-        return true;
-      }
-    }
-    return false;
-  }, [place, scoringWeather, now]);
+  const sonneImFenster = useMemo(
+    () => (place ? windowHasSun(place, scoringWeather, now) : false),
+    [place, scoringWeather, now],
+  );
 
   async function submitReport(type: PlaceStatusType, message: string) {
     await report(placeId, type, message);
   }
 
-  const loading = places.loading || (wetter.loading && !wetter.error);
+  const loading = places.loading || weatherBlocksLoading;
   const error = places.error;
-  const weatherMissing = !weather && !wetter.loading;
   const bewertung = place ? scoreWording(place.pleasantScore) : null;
   const heroW = weather ? weatherAt(weather, now) : null;
   const heroMood =

@@ -9,10 +9,9 @@ import type { PlaceStatusType } from "@/types";
 import { FALLBACK_LABEL, useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
 import { useOnline } from "@/hooks/useOnline";
-import { FALLBACK_WEATHER } from "@/lib/weather";
 import { radiusForDistance, usePlaces } from "@/hooks/usePlaces";
 import { useStatuses } from "@/hooks/useStatuses";
-import { useWeather } from "@/hooks/useWeather";
+import { deriveWeatherState, useWeather } from "@/hooks/useWeather";
 import { SCORE_ERKLAERUNG } from "@/lib/wording";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
 import { useManualLocation } from "@/store/useLocation";
@@ -60,6 +59,8 @@ export function HomeView() {
   const places = usePlaces(coords, radius);
   const wetter = useWeather(coords);
   const weather = wetter.weather;
+  const { scoringWeather, weatherMissing, weatherBlocksLoading } =
+    deriveWeatherState(wetter);
   const placeIds = useMemo(() => places.places.map((p) => p.id), [places.places]);
   const { statuses, report } = useStatuses(placeIds);
   const now = useNow();
@@ -82,14 +83,14 @@ export function HomeView() {
     () =>
       selectPlaces({
         places: places.places,
-        weather: weather ?? FALLBACK_WEATHER,
+        weather: scoringWeather,
         statuses,
         filters,
         origin: coords,
         at,
         now: now.getTime(),
       }),
-    [places.places, weather, statuses, filters, coords, at, now],
+    [places.places, scoringWeather, statuses, filters, coords, at, now],
   );
 
   const nearest = useMemo(
@@ -149,9 +150,8 @@ export function HomeView() {
   // Die Orte tragen die Seite. Fällt nur das Wetter aus, bleibt die Liste
   // sichtbar (mit Ersatzwetter geordnet) statt alles wegzublenden, ein
   // Overpass-Fehler dagegen lässt nichts zu zeigen übrig.
-  const loading = places.loading || (wetter.loading && !wetter.error);
+  const loading = places.loading || weatherBlocksLoading;
   const error = places.error;
-  const weatherMissing = !weather && !wetter.loading;
 
   const reload = () => {
     places.reload();
