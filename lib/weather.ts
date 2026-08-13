@@ -71,6 +71,34 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
   };
 }
 
+/**
+ * Neutrales Ersatzwetter, falls Open-Meteo gerade nicht antwortet. Damit bricht
+ * nicht die ganze Seite weg: Orte lassen sich weiter nach Schatten (aus dem
+ * Sonnenstand), Nähe und Ausstattung ordnen. Milde, trockene, halb bewölkte
+ * Annahme, bei der Schatten kaum ins Gewicht fällt, also nichts vorgaukelt.
+ * Die leeren Stunden-Arrays sind Absicht: `weatherAt` fällt dann sauber auf
+ * diese Werte zurück. Nur fürs Rechnen gedacht, nie zum Anzeigen echter Zahlen.
+ */
+export const FALLBACK_WEATHER: Weather = {
+  time: "",
+  temperature: 18,
+  apparentTemperature: 18,
+  cloudCover: 40,
+  precipitation: 0,
+  precipitationProbability: 0,
+  windSpeed: 8,
+  uvIndex: 3,
+  isDay: true,
+  hourly: {
+    time: [],
+    temperature: [],
+    apparentTemperature: [],
+    cloudCover: [],
+    precipitationProbability: [],
+    uvIndex: [],
+  },
+};
+
 /** Wetterwerte zum gewünschten Zeitpunkt (jetzt, +30 Min, +1 Std). */
 export function weatherAt(weather: Weather, date: Date) {
   const stamp = date.getTime();

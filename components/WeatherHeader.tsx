@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, MapPin } from "lucide-react";
+import { ChevronDown, CloudOff, MapPin } from "lucide-react";
 import { desiredShade } from "@/lib/scoring";
 import { uvWording } from "@/lib/wording";
 import { weatherAt } from "@/lib/weather";
@@ -32,6 +32,7 @@ function Wert({ label, children }: { label: string; children: React.ReactNode })
 
 export function WeatherHeader({
   weather,
+  weatherError = false,
   at,
   locationLabel,
   geoStatus,
@@ -39,6 +40,8 @@ export function WeatherHeader({
   onOpenLocation,
 }: {
   weather: Weather | null;
+  /** Wetter gerade nicht erreichbar, die Orte werden ohne aktuelle Werte geordnet. */
+  weatherError?: boolean;
   at: Date;
   locationLabel: string;
   geoStatus: GeoStatus;
@@ -121,6 +124,17 @@ export function WeatherHeader({
             <Wert label="Wind">{Math.round(weather.windSpeed)} km/h</Wert>
           </dl>
         </div>
+      )}
+
+      {weatherError && (
+        <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
+          <CloudOff size={15} aria-hidden className="mt-0.5 shrink-0" />
+          <span>
+            Das Wetter ist gerade nicht erreichbar. Die Orte sind trotzdem da,
+            nach Schatten und Nähe geordnet, nur ohne aktuelle Grad- und
+            Regenwerte. Meist ist es gleich wieder da.
+          </span>
+        </p>
       )}
 
       {geoStatus === "denied" && !manualActive && (

@@ -9,6 +9,7 @@ import type { PlaceStatusType } from "@/types";
 import { FALLBACK_LABEL, useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
 import { useOnline } from "@/hooks/useOnline";
+import { FALLBACK_WEATHER } from "@/lib/weather";
 import { radiusForDistance, usePlaces } from "@/hooks/usePlaces";
 import { useStatuses } from "@/hooks/useStatuses";
 import { useWeather } from "@/hooks/useWeather";
@@ -81,7 +82,7 @@ export function HomeView() {
     () =>
       selectPlaces({
         places: places.places,
-        weather,
+        weather: weather ?? FALLBACK_WEATHER,
         statuses,
         filters,
         origin: coords,
@@ -145,10 +146,12 @@ export function HomeView() {
     : coords.source === "gps"
       ? "Orte in deiner Nähe"
       : FALLBACK_LABEL;
-  // Ohne Wetter lässt sich kein Schatten bewerten, dann muss ein Fehler
-  // sichtbar werden statt eines Ladezustands, der nie endet.
-  const loading = places.loading || wetter.loading;
-  const error = places.error ?? wetter.error;
+  // Die Orte tragen die Seite. Fällt nur das Wetter aus, bleibt die Liste
+  // sichtbar (mit Ersatzwetter geordnet) statt alles wegzublenden, ein
+  // Overpass-Fehler dagegen lässt nichts zu zeigen übrig.
+  const loading = places.loading || (wetter.loading && !wetter.error);
+  const error = places.error;
+  const weatherMissing = !weather && !wetter.loading;
 
   const reload = () => {
     places.reload();
@@ -164,6 +167,7 @@ export function HomeView() {
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col bg-background">
       <WeatherHeader
         weather={weather}
+        weatherError={weatherMissing}
         at={at}
         locationLabel={locationLabel}
         geoStatus={geoStatus}

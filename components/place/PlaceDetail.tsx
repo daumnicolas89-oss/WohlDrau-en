@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink, Megaphone, Navigation } from "lucide-react";
+import { ArrowLeft, CloudOff, ExternalLink, Megaphone, Navigation } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
 import { formatAge, statusOption } from "@/lib/status";
 import { computeShade } from "@/lib/sun";
 import { haversine } from "@/lib/utils";
-import { weatherAt } from "@/lib/weather";
+import { FALLBACK_WEATHER, weatherAt } from "@/lib/weather";
 import {
   SCORE_ERKLAERUNG,
   distanceSentence,
@@ -81,6 +81,9 @@ export function PlaceDetail({
   const places = usePlaces(searchOrigin, searchRadius);
   const wetter = useWeather(searchOrigin);
   const weather = wetter.weather;
+  // Fällt nur das Wetter aus, soll der Ort trotzdem erscheinen, mit neutralem
+  // Ersatzwetter geordnet, statt die Detailseite ganz wegzublenden.
+  const scoringWeather = weather ?? FALLBACK_WEATHER;
   const { statuses, report } = useStatuses(useMemo(() => [placeId], [placeId]));
   const now = useNow();
   const online = useOnline();
@@ -89,30 +92,35 @@ export function PlaceDetail({
   const osmPlace = places.places.find((p) => p.id === placeId) ?? null;
 
   const place = useMemo(() => {
-    if (!osmPlace || !weather) return null;
+    if (!osmPlace) return null;
     return scorePlace(osmPlace, {
-      weather,
+      weather: scoringWeather,
       at: now,
       distanceM: haversine(viewer.lat, viewer.lng, osmPlace.lat, osmPlace.lng),
       statuses: statuses.filter((s) => s.placeId === placeId),
       now: now.getTime(),
     });
-  }, [osmPlace, weather, statuses, placeId, now, viewer.lat, viewer.lng]);
+  }, [osmPlace, scoringWeather, statuses, placeId, now, viewer.lat, viewer.lng]);
 
   /** Wie sieht es in einer Stunde aus? Beantwortet „lohnt es sich später eher?“ */
   const ausblick = useMemo(() => {
-    if (!place || !weather) return null;
+    if (!place) return null;
     const spaeter = new Date(now.getTime() + 60 * 60_000);
-    const dann = computeShade(place, spaeter, weatherAt(weather, spaeter).cloudCover);
+    const dann = computeShade(
+      place,
+      spaeter,
+      weatherAt(scoringWeather, spaeter).cloudCover,
+    );
     return shadeOutlook(place.shade.index, dann.index);
-  }, [place, weather, now]);
+  }, [place, scoringWeather, now]);
 
   async function submitReport(type: PlaceStatusType, message: string) {
     await report(placeId, type, message);
   }
 
-  const loading = places.loading || wetter.loading;
-  const error = places.error ?? wetter.error;
+  const loading = places.loading || (wetter.loading && !wetter.error);
+  const error = places.error;
+  const weatherMissing = !weather && !wetter.loading;
   const bewertung = place ? scoreWording(place.pleasantScore) : null;
   const heroW = weather ? weatherAt(weather, now) : null;
   const heroMood =
@@ -122,7 +130,7 @@ export function PlaceDetail({
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg bg-background pb-28">
-      {!(place && bewertung && weather) && (
+      {!(place && bewertung) && (
         <div className="px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1">
           <Link
             href="/"
@@ -177,7 +185,7 @@ export function PlaceDetail({
         </div>
       )}
 
-      {place && bewertung && weather && (
+      {place && bewertung && (
         <>
           <header
             className="sky-hero relative overflow-hidden px-5 pt-[max(4rem,calc(env(safe-area-inset-top)+3.5rem))] pb-6"
@@ -247,6 +255,17 @@ export function PlaceDetail({
           </header>
 
           <section className="space-y-4 px-4 pt-4">
+            {weatherMissing && (
+              <p className="flex items-start gap-2 rounded-card border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
+                <CloudOff size={15} aria-hidden className="mt-0.5 shrink-0" />
+                <span>
+                  Das Wetter ist gerade nicht erreichbar. Schatten und Bewertung
+                  beruhen hier auf dem Sonnenstand und einer neutralen Annahme,
+                  nicht auf aktuellen Werten.
+                </span>
+              </p>
+            )}
+
             {/* Echtes Foto, wo OSM eines hat, sonst Luftbild von oben. */}
             <PlacePhoto
               imageUrl={place.imageUrl}
@@ -281,12 +300,12 @@ export function PlaceDetail({
               <p className="mb-3 text-sm text-muted">
                 Geschätzt für die nächsten Stunden.
               </p>
-              <ShadeTimeline place={place} weather={weather} from={now} />
+              <ShadeTimeline place={place} weather={scoringWeather} from={now} />
             </div>
 
             <ScoreBreakdown
               place={place}
-              weather={weather}
+              weather={scoringWeather}
               at={now}
               now={now.getTime()}
             />
