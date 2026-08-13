@@ -114,6 +114,19 @@ export function PlaceDetail({
     return shadeOutlook(place.shade.index, dann.index);
   }, [place, scoringWeather, now]);
 
+  /** Lohnt der Schatten-Verlauf? Nur wenn in den nächsten Stunden überhaupt
+   *  die Sonne aufgeht, sonst zeigt er nachts sinnlose volle Balken. */
+  const sonneImFenster = useMemo(() => {
+    if (!place) return false;
+    for (let i = 0; i <= 5; i++) {
+      const at = new Date(now.getTime() + i * 60 * 60_000);
+      if (computeShade(place, at, weatherAt(scoringWeather, at).cloudCover).state !== "no-sun") {
+        return true;
+      }
+    }
+    return false;
+  }, [place, scoringWeather, now]);
+
   async function submitReport(type: PlaceStatusType, message: string) {
     await report(placeId, type, message);
   }
@@ -288,20 +301,26 @@ export function PlaceDetail({
               {ausblick && (
                 <p className="mt-2 text-sm font-medium text-primary-dark">{ausblick}</p>
               )}
-              <p className="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
-                {VERLAESSLICHKEIT[place.shadeInputs.confidence]}
-              </p>
+              {/* Die Verlässlichkeit bezieht sich auf die Schatten-Schätzung,
+                  nachts gibt es keine, also weglassen. */}
+              {place.shade.state !== "no-sun" && (
+                <p className="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
+                  {VERLAESSLICHKEIT[place.shadeInputs.confidence]}
+                </p>
+              )}
             </div>
 
-            <div className="rounded-card bg-card p-5 shadow-card">
-              <h2 className="mb-1 font-display font-semibold text-dark">
-                Wie lange hält der Schatten?
-              </h2>
-              <p className="mb-3 text-sm text-muted">
-                Geschätzt für die nächsten Stunden.
-              </p>
-              <ShadeTimeline place={place} weather={scoringWeather} from={now} />
-            </div>
+            {sonneImFenster && (
+              <div className="rounded-card bg-card p-5 shadow-card">
+                <h2 className="mb-1 font-display font-semibold text-dark">
+                  Wie lange hält der Schatten?
+                </h2>
+                <p className="mb-3 text-sm text-muted">
+                  Geschätzt für die nächsten Stunden.
+                </p>
+                <ShadeTimeline place={place} weather={scoringWeather} from={now} />
+              </div>
+            )}
 
             <ScoreBreakdown
               place={place}

@@ -54,22 +54,29 @@ export function ShadeMeter({
         )}
       </div>
 
-      <div
-        className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-line"
-        role="img"
-        aria-label={`Geschätzt ${prozent} Prozent der Fläche liegen im Schatten`}
-      >
-        <div
-          className="h-full rounded-full transition-[width]"
-          style={{ width: `${Math.max(3, prozent)}%`, background: TONE_COLORS[tone] }}
-        />
-      </div>
+      {/* Ohne Sonne ist ein Schatten-Prozentwert sinnlos (rechnerisch 100 %,
+          würde aber wie „dicht beschattet durch Bäume" wirken). Dann sagt nur
+          der Grund-Satz darunter, was Sache ist. */}
+      {state !== "no-sun" && (
+        <>
+          <div
+            className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-line"
+            role="img"
+            aria-label={`Geschätzt ${prozent} Prozent der Fläche liegen im Schatten`}
+          >
+            <div
+              className="h-full rounded-full transition-[width]"
+              style={{ width: `${Math.max(3, prozent)}%`, background: TONE_COLORS[tone] }}
+            />
+          </div>
 
-      {size === "lg" && (
-        <p className="mt-1.5 text-xs text-muted">
-          Geschätzt {prozent} % der Fläche liegen im Schatten, berechnet aus
-          Sonnenstand, erfassten Bäumen und Gebäuden, keine Messung vor Ort.
-        </p>
+          {size === "lg" && (
+            <p className="mt-1.5 text-xs text-muted">
+              Geschätzt {prozent} % der Fläche liegen im Schatten, berechnet aus
+              Sonnenstand, erfassten Bäumen und Gebäuden, keine Messung vor Ort.
+            </p>
+          )}
+        </>
       )}
 
       {reason && (

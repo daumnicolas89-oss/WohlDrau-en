@@ -123,10 +123,21 @@ export function WeatherHeader({
           {/* Jede Zahl bekommt ihre Bezeichnung, „0 %“ allein ist ein Rätsel. */}
           <dl className="mt-5 flex gap-3 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 backdrop-blur">
             <Wert label="Sonne">
-              <span className={TONE_TEXT[uv.tone]}>{uv.label}</span>{" "}
-              <span className="font-normal text-muted">
-                · UV {values.uvIndex.toFixed(1).replace(".", ",")}
-              </span>
+              {weather.isDay ? (
+                <>
+                  <span className={TONE_TEXT[uv.tone]}>{uv.label}</span>{" "}
+                  <span className="font-normal text-muted">
+                    · UV {values.uvIndex.toFixed(1).replace(".", ",")}
+                  </span>
+                </>
+              ) : (
+                <>
+                  keine{" "}
+                  <span className="font-normal text-muted">
+                    (UV {values.uvIndex.toFixed(1).replace(".", ",")})
+                  </span>
+                </>
+              )}
             </Wert>
             <span aria-hidden className="w-px self-stretch bg-line" />
             <Wert label="Regen">
