@@ -331,12 +331,15 @@ export function HomeView() {
               </div>
             )}
 
-            <footer className="flex justify-center gap-4 pt-3 pb-1 text-xs text-muted">
+            <footer className="flex flex-wrap justify-center gap-x-4 gap-y-1 pt-3 pb-1 text-xs text-muted">
               <Link href="/so-funktionierts" className="underline underline-offset-2">
                 So funktioniert&apos;s
               </Link>
               <Link href="/impressum" className="underline underline-offset-2">
                 Impressum
+              </Link>
+              <Link href="/datenschutz" className="underline underline-offset-2">
+                Datenschutz
               </Link>
             </footer>
           </div>
