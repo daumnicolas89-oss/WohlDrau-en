@@ -92,3 +92,23 @@ create trigger place_status_rate_limit
   before insert on public.place_status
   for each row
   execute function public.limit_reports_per_place();
+
+-- ---------------------------------------------------------------------------
+-- STUFE 2 – erst beim Deployment ausführen (nicht vorher!)
+-- Voraussetzung: In der Hosting-Umgebung (z. B. Vercel) ist der geheime
+-- SUPABASE_SERVICE_ROLE_KEY als Server-Variable gesetzt. Dann schreibt und
+-- liest der Server mit erhöhten Rechten (umgeht RLS), und die Außenwelt darf
+-- mit dem öffentlichen Schlüssel gar nichts mehr direkt an der Tabelle tun.
+--
+--   -- a) Öffentliches Schreiben schließen (nur noch der Server darf schreiben):
+--   drop policy if exists "jeder darf melden" on public.place_status;
+--
+--   -- b) Öffentliches Lesen schließen (Reads laufen ohnehin über den Server;
+--   --    das verbirgt zugleich die Geräte-Kennung „anonymous_id", Punkt 7):
+--   drop policy if exists "gueltige Meldungen sind oeffentlich" on public.place_status;
+--
+-- Danach unbedingt testen: Melden und Anzeige der Meldungen müssen weiter
+-- funktionieren (jetzt über den service_role-Server). Fehlt der Schlüssel,
+-- fällt der Server auf den öffentlichen zurück und beide Schritte würden das
+-- Melden lahmlegen – deshalb erst NACH gesetztem Schlüssel ausführen.
+-- ---------------------------------------------------------------------------
