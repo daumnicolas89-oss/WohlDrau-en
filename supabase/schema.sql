@@ -59,3 +59,36 @@ $$;
 --     '*/15 * * * *',
 --     $$select public.purge_expired_place_status()$$
 --   );
+
+-- Missbrauchsschutz (Stufe 1): höchstens N Meldungen pro Ort und Stunde.
+-- Direkt in der Datenbank erzwungen, also vom Client nicht umgehbar. Bremst
+-- Massen-Fälschungen aus, ohne dass ein Server-Schlüssel nötig ist. Der volle
+-- Riegel (nur der Server darf schreiben, Sperre pro IP) folgt beim Deployment.
+create or replace function public.limit_reports_per_place()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  recent int;
+begin
+  select count(*) into recent
+  from public.place_status
+  where place_id = new.place_id
+    and created_at > now() - interval '1 hour';
+
+  if recent >= 8 then
+    raise exception 'Zu viele Meldungen fuer diesen Ort in kurzer Zeit'
+      using errcode = 'check_violation';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists place_status_rate_limit on public.place_status;
+create trigger place_status_rate_limit
+  before insert on public.place_status
+  for each row
+  execute function public.limit_reports_per_place();
