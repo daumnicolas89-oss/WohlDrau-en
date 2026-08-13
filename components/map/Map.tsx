@@ -4,8 +4,10 @@ import { useEffect, useMemo } from "react";
 import { CircleMarker, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { useRouter } from "next/navigation";
 import { formatDistance } from "@/lib/utils";
+import { scoreWording } from "@/lib/wording";
 import type { MapStyle } from "@/store/useFilters";
 import type { Place } from "@/types";
+import { TONE_COLORS } from "@/components/ui/ScoreRing";
 import { ORIGIN_MARKER_STYLE, placeMarkerIcon } from "./PlaceMarker";
 
 /** Mehr Nadeln als das hilft niemandem, und kostet auf dem Handy Zeit. */
@@ -53,7 +55,10 @@ export default function Map({
     () =>
       places.slice(0, MAX_MARKERS).map((place, index) => ({
         place,
-        icon: placeMarkerIcon(place.shade.state, index + 1),
+        icon: placeMarkerIcon(
+          TONE_COLORS[scoreWording(place.pleasantScore).tone],
+          index + 1,
+        ),
       })),
     [places],
   );
