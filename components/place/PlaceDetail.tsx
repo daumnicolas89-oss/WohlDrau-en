@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ExternalLink, Megaphone, Navigation } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
 import { formatAge, statusOption } from "@/lib/status";
@@ -53,6 +54,16 @@ export function PlaceDetail({
   /** Suchradius der Liste, aus der dieser Link kam. */
   radius: number | null;
 }) {
+  const router = useRouter();
+  // Zurück heißt: an genau die Stelle der Liste, wo man war (Scroll bleibt
+  // erhalten). Nur wer direkt hier landet (geteilter Link), folgt dem href "/".
+  function goBack(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      event.preventDefault();
+      router.back();
+    }
+  }
+
   const geo = useGeolocation();
   // Der Link von der Startseite bringt den Standort mit, so funktioniert die
   // Detailseite auch geteilt, ohne erneute Standortfreigabe.
@@ -115,8 +126,9 @@ export function PlaceDetail({
         <div className="px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1">
           <Link
             href="/"
+            onClick={goBack}
             aria-label="Zurück zur Übersicht"
-            className="flex size-11 items-center justify-center rounded-full bg-card text-dark shadow-card"
+            className="flex size-11 items-center justify-center rounded-full bg-card text-dark shadow-card transition hover:bg-background active:scale-95"
           >
             <ArrowLeft size={20} />
           </Link>
@@ -175,8 +187,9 @@ export function PlaceDetail({
 
             <Link
               href="/"
+              onClick={goBack}
               aria-label="Zurück zur Übersicht"
-              className="absolute left-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition active:scale-95"
+              className="absolute left-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
             >
               <ArrowLeft size={20} />
             </Link>
@@ -196,7 +209,7 @@ export function PlaceDetail({
                 score={place.pleasantScore}
                 tone={bewertung.tone}
                 size={92}
-                label={`Angenehm jetzt: ${place.pleasantScore} von 100`}
+                label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}`}
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-1">

@@ -72,9 +72,14 @@ export function PlacesLoading({
             ))}
           </>
         ) : (
-          Array.from({ length: rows }, (_, i) => (
-            <div key={i} className="h-36 rounded-card bg-card shadow-card" />
-          ))
+          <>
+            {/* Detailseite: ein hoher Block für Kopf und Wert, darunter
+                ruhigere Karten – näher an dem, was gleich erscheint. */}
+            <div className="h-44 rounded-card bg-card shadow-card" />
+            {Array.from({ length: rows }, (_, i) => (
+              <div key={i} className="h-28 rounded-card bg-card shadow-card" />
+            ))}
+          </>
         )}
       </div>
       <p className="text-center text-sm text-muted" aria-live="polite">

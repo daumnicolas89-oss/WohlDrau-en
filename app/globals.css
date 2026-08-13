@@ -163,3 +163,17 @@ a {
     animation: none;
   }
 }
+
+/* Wer „Bewegung reduzieren“ gewählt hat, soll auch keine gedrückten Knöpfe
+   schrumpfen sehen. Nur Dauern kürzen, keine Transforms verbieten – sonst
+   bricht die Karte, die zum Verschieben und Zoomen Transforms braucht. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
