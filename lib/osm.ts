@@ -28,6 +28,10 @@ const BUILDING_SEARCH_RADIUS_M = 90;
 const MAX_BUILDINGS_PER_PLACE = 24;
 /** Kronenfläche eines ausgewachsenen Stadtbaums. */
 const TREE_CANOPY_M2 = 80;
+/** Ab so vielen Bäumen direkt am Ort trauen wir dem Schattenwert. Unter dem
+ *  unteren Wert ist er in einer Grünfläche eher geraten als gemessen. */
+const LOCAL_TREES_CONFIDENT = 8;
+const LOCAL_TREES_SPARSE = 3;
 const TOILET_MAX_DISTANCE_M = 150;
 const WATER_MAX_DISTANCE_M = 120;
 
@@ -343,6 +347,28 @@ function nearestStreetName(
   return best.name;
 }
 
+/**
+ * Wie verlässlich ist der Schattenwert für genau diesen Ort? Bewusst lokal:
+ * Ein gut gepflegtes Viertel (viele Bäume im Gebiet) darf seine Verlässlichkeit
+ * nicht auf einen darin liegenden, kaum getaggten Spielplatz vererben. Ein Wald
+ * oder viele Bäume direkt am Ort sind belastbar; eine Grünfläche mit fast keinen
+ * erfassten Bäumen ist geraten, dort kann es schattiger sein, als die wenigen
+ * Punkte zeigen. Ausgelagert und exportiert, damit dieser Kernfall testbar ist.
+ */
+export function shadeConfidenceFor(params: {
+  isForest: boolean;
+  inGreen: boolean;
+  treeCount: number;
+  areaTreeQuality: ShadeConfidence;
+}): ShadeConfidence {
+  const { isForest, inGreen, treeCount, areaTreeQuality } = params;
+  if (isForest || treeCount >= LOCAL_TREES_CONFIDENT) return "high";
+  if ((inGreen && treeCount < LOCAL_TREES_SPARSE) || areaTreeQuality === "low") {
+    return "low";
+  }
+  return "medium";
+}
+
 export interface FetchPlacesResult {
   places: OsmPlace[];
   /** Öffentliche Toiletten im Umkreis, für die Toiletten-Suche. */
@@ -488,12 +514,12 @@ export async function fetchPlaces(
         ? true
         : undefined;
 
-    const confidence: ShadeConfidence =
-      treeDataQuality === "high" && nearBuildings.length > 0
-        ? "high"
-        : treeDataQuality === "low" && nearBuildings.length === 0
-          ? "low"
-          : "medium";
+    const confidence = shadeConfidenceFor({
+      isForest: osmTags.natural === "wood" || osmTags.landuse === "forest",
+      inGreen,
+      treeCount,
+      areaTreeQuality: treeDataQuality,
+    });
 
     const tags: PlaceTags = {
       fenced: fencedFrom(osmTags),

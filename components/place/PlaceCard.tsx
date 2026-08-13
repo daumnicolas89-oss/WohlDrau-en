@@ -106,6 +106,11 @@ export function PlaceCard({
             shadeIndex={place.shade.index}
             estimateHint
           />
+          {place.shadeInputs.confidence === "low" && place.shadeInputs.inGreen && (
+            <p className="mt-1.5 text-xs leading-relaxed text-muted">
+              Wenige Bäume erfasst, hier kann es schattiger sein als angezeigt.
+            </p>
+          )}
         </div>
 
         <p className="mt-3.5 text-[15px] leading-relaxed text-dark">{grund.text}</p>
