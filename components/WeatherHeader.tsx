@@ -6,6 +6,7 @@ import { weatherAt } from "@/lib/weather";
 import type { Weather } from "@/types";
 import type { GeoStatus } from "@/hooks/useGeolocation";
 import { TONE_TEXT } from "@/components/ui/ScoreRing";
+import { Logo } from "./Logo";
 import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
 
 function Wert({ label, children }: { label: string; children: React.ReactNode }) {
@@ -53,9 +54,7 @@ export function WeatherHeader({
       {mood && <SkyScene mood={mood} />}
 
       <div className="relative pr-20">
-        <p className="text-[11px] font-semibold tracking-[0.16em] text-primary-dark uppercase">
-          WohlDraußen
-        </p>
+        <Logo />
         {/* Die Ortszeile ist der Knopf zum Standort-Fenster, der Pfeil zeigt es an. */}
         <button
           type="button"
