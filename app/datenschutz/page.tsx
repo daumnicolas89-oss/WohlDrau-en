@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Datenschutzerklärung · WohlDraußen",
+  title: "Datenschutzerklärung · PlatzDa",
 };
 
 function Abschnitt({ titel, children }: { titel: string; children: React.ReactNode }) {
@@ -52,7 +52,7 @@ export default function DatenschutzPage() {
 
         <Abschnitt titel="Überblick">
           <p>
-            WohlDraußen kommt <strong>ohne Konto, ohne Login und ohne Tracking</strong>{" "}
+            PlatzDa kommt <strong>ohne Konto, ohne Login und ohne Tracking</strong>{" "}
             aus. Es werden keine Cookies zu Werbe- oder Analysezwecken gesetzt und
             keine Nutzungsprofile erstellt.
           </p>

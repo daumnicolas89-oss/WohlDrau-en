@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "WohlDraußen",
-    short_name: "WohlDraußen",
+    name: "PlatzDa",
+    short_name: "PlatzDa",
     description:
       "Zeigt in Echtzeit, wo es sich gerade lohnt, rauszugehen, Schatten, Toilette, Zaun, Entfernung.",
     lang: "de",

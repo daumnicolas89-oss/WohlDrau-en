@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 function Splash() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center gap-3 bg-background p-8 text-center">
-      <p className="font-display text-2xl font-bold text-dark">WohlDraußen</p>
+      <p className="font-display text-2xl font-bold text-dark">PlatzDa</p>
       <p className="text-sm text-muted">
         Wir schauen kurz, wo es sich gerade lohnt …
       </p>

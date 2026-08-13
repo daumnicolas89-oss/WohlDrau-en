@@ -19,14 +19,14 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "WohlDraußen, wo es sich jetzt lohnt, rauszugehen",
+  title: "PlatzDa, wo es sich jetzt lohnt, rauszugehen",
   description:
     "Zeigt in Echtzeit, welche Spielplätze und Parks in deiner Nähe gerade angenehm sind: Schatten, Toilette, Zaun, Entfernung.",
-  applicationName: "WohlDraußen",
+  applicationName: "PlatzDa",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "WohlDraußen",
+    title: "PlatzDa",
     statusBarStyle: "default",
   },
 };

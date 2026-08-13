@@ -69,7 +69,7 @@ export async function GET(request: Request) {
     const res = await fetch(url, {
       headers: {
         // Nominatim verlangt eine aussagekräftige Kennung.
-        "User-Agent": "WohlDraussen/0.1 (Standortsuche)",
+        "User-Agent": "PlatzDa/0.1 (Standortsuche)",
         "Accept-Language": "de",
       },
       signal: AbortSignal.timeout(8000),

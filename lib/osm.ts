@@ -90,7 +90,7 @@ async function runOverpass(query: string): Promise<OverpassElement[]> {
           method: "POST",
           headers: {
             "Content-Type": "text/plain;charset=UTF-8",
-            "User-Agent": "WohlDraussen/0.1",
+            "User-Agent": "PlatzDa/0.1",
           },
           body: query,
           signal: AbortSignal.timeout(ENDPOINT_TIMEOUT_MS),

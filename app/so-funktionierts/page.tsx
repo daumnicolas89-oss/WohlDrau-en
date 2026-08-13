@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "So funktioniert's · WohlDraußen",
+  title: "So funktioniert's · PlatzDa",
 };
 
 function Abschnitt({
@@ -51,10 +51,10 @@ export default function SoFunktioniertsPage() {
       </Link>
 
       <h1 className="mt-4 px-1 font-display text-2xl font-bold text-dark">
-        So funktioniert WohlDraußen
+        So funktioniert PlatzDa
       </h1>
       <p className="mt-2 px-1 text-[15px] leading-relaxed text-muted">
-        WohlDraußen zeigt dir, wo es gerade jetzt draußen am angenehmsten ist:
+        PlatzDa zeigt dir, wo es gerade jetzt draußen am angenehmsten ist:
         Spielplätze und Grünflächen in deiner Nähe, mit genug Schatten und allem,
         was zählt.
       </p>
