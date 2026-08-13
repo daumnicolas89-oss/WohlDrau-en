@@ -125,7 +125,7 @@ export function LocationSheet({
         <button
           type="submit"
           disabled={busy || query.trim().length < 2}
-          className="min-h-12 shrink-0 rounded-2xl bg-primary-dark px-4 font-semibold text-white transition active:bg-[#175c54] disabled:bg-[#c9d2d5]"
+          className="min-h-12 shrink-0 rounded-2xl bg-primary-dark px-4 font-semibold text-white transition hover:bg-primary-darker active:bg-primary-darker disabled:bg-disabled disabled:hover:bg-disabled"
         >
           {busy ? "…" : "Suchen"}
         </button>

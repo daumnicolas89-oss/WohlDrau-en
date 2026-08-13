@@ -209,7 +209,7 @@ export function HomeView() {
           </div>
         )}
 
-        {loading && <PlacesLoading />}
+        {loading && <PlacesLoading hero />}
 
         {!loading && !error && filters.viewMode === "map" && (
           <div className="relative h-[calc(100dvh-16rem)] min-h-[22rem] w-full overflow-hidden">
@@ -234,6 +234,24 @@ export function HomeView() {
               <Layers size={16} aria-hidden />
               {filters.mapStyle === "map" ? "Satellit" : "Karte"}
             </button>
+
+            {/* Auch die Karte braucht eine Antwort, wenn nichts übrig bleibt,
+                sonst steht der Nutzer vor einer leeren Karte mit nur dem
+                eigenen Punkt. */}
+            {visible.length === 0 && (
+              <div className="pointer-events-none absolute inset-x-4 top-16 z-[905] mx-auto max-w-sm rounded-card bg-card/95 p-4 text-center shadow-float backdrop-blur">
+                <p className="font-display font-semibold text-dark">
+                  {filteredOut > 0
+                    ? "Nichts passt zu deinen Filtern"
+                    : "Hier ist nichts erfasst"}
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">
+                  {filteredOut > 0
+                    ? "Lockere einen Filter, dann tauchen Orte wieder auf."
+                    : "In diesem Umkreis kennt OpenStreetMap nichts. Mit größerer Entfernung findet sich meist etwas."}
+                </p>
+              </div>
+            )}
           </div>
         )}
 

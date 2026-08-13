@@ -384,7 +384,7 @@ export function PlaceDetail({
               type="button"
               onClick={() => setReportOpen(true)}
               aria-label="Rückmeldung zu diesem Ort geben"
-              className="flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float transition active:scale-95"
+              className="flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float transition hover:bg-background active:scale-95"
             >
               <Megaphone size={18} aria-hidden />
               Melden
@@ -393,7 +393,7 @@ export function PlaceDetail({
               href={`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=walking`}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-13 flex-1 items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float transition active:bg-[#175c54]"
+              className="flex min-h-13 flex-1 items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float transition hover:bg-primary-darker active:bg-[#175c54]"
             >
               <Navigation size={18} aria-hidden />
               Route dorthin

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { STATUS_OPTIONS } from "@/lib/status";
 import type { PlaceStatusType } from "@/types";
 import { Button } from "@/components/ui/Button";
@@ -31,6 +32,7 @@ export function ReportStatusModal({
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
 
   async function submit() {
     if (!type) return;
@@ -38,12 +40,38 @@ export function ReportStatusModal({
     setError(null);
     try {
       await onSubmit(type, message);
-      onClose();
+      // Kurz „Danke“ zeigen, statt das Sheet wortlos verschwinden zu lassen.
+      setDone(true);
+      window.setTimeout(onClose, 1600);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Meldung fehlgeschlagen");
-    } finally {
       setBusy(false);
     }
+  }
+
+  if (done) {
+    return (
+      <Sheet
+        open
+        title="Danke, deine Rückmeldung ist da"
+        description="Sie hilft den nächsten Eltern und ist etwa drei Stunden sichtbar."
+        onOpenChange={(next) => {
+          if (!next) onClose();
+        }}
+      >
+        <div
+          role="status"
+          className="flex flex-col items-center gap-3 py-6 text-center"
+        >
+          <span className="flex size-14 items-center justify-center rounded-full bg-primary-soft text-primary-dark">
+            <Check size={28} aria-hidden />
+          </span>
+          <p className="text-[15px] text-muted">
+            Anonym gespeichert, ganz ohne Anmeldung.
+          </p>
+        </div>
+      </Sheet>
+    );
   }
 
   return (
@@ -56,7 +84,11 @@ export function ReportStatusModal({
       }}
       footer={
         <div className="pb-1">
-          {error && <p className="mb-2 text-sm text-warning-ink">{error}</p>}
+          {error && (
+            <p role="alert" className="mb-2 text-sm text-warning-ink">
+              {error}
+            </p>
+          )}
           <Button disabled={!type || busy} onClick={submit} className="w-full">
             {busy ? "Wird gesendet …" : "Absenden"}
           </Button>
@@ -75,7 +107,7 @@ export function ReportStatusModal({
               className={`min-h-14 rounded-2xl border-2 px-3 text-sm font-semibold transition ${
                 active
                   ? TONE_STYLES[option.tone]
-                  : "border-line bg-card text-dark active:bg-background"
+                  : "border-line bg-card text-dark hover:bg-background active:bg-background"
               }`}
             >
               {option.label}

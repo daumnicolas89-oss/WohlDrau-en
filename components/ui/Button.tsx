@@ -3,9 +3,11 @@ import type { ButtonHTMLAttributes } from "react";
 type Variant = "primary" | "secondary" | "ghost";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-primary-dark text-white active:bg-[#175c54] disabled:bg-[#c9d2d5]",
-  secondary: "border border-line bg-card text-dark active:bg-background",
-  ghost: "text-muted active:bg-background",
+  primary:
+    "bg-primary-dark text-white hover:bg-primary-darker active:bg-primary-darker disabled:bg-disabled disabled:hover:bg-disabled",
+  secondary:
+    "border border-line bg-card text-dark hover:bg-background active:bg-background",
+  ghost: "text-muted hover:bg-background active:bg-background",
 };
 
 /** Große Touch-Targets: die App wird mit Kind auf dem Arm bedient. */

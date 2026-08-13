@@ -70,7 +70,7 @@ export function ToiletSheet({
                 href={`https://www.google.com/maps/dir/?api=1&destination=${toilet.lat},${toilet.lng}&travelmode=walking`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary-dark px-3.5 py-2 text-sm font-semibold text-white transition active:bg-[#175c54]"
+                className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary-dark px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-primary-darker active:bg-primary-darker"
               >
                 <Navigation size={15} aria-hidden />
                 Route

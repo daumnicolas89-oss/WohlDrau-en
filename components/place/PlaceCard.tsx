@@ -46,7 +46,7 @@ export function PlaceCard({
     return (
       <Link
         href={href}
-        className="flex items-center gap-3.5 rounded-card bg-card p-4 shadow-card transition active:scale-[0.99]"
+        className="flex items-center gap-3.5 rounded-card bg-card p-4 shadow-card transition hover:shadow-float active:scale-[0.99]"
       >
         <ScoreRing
           score={place.pleasantScore}
@@ -70,7 +70,7 @@ export function PlaceCard({
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-card bg-gradient-to-b from-[#fff6e4] to-card shadow-card ring-1 ring-[#eec97a]/60 transition active:scale-[0.99]"
+      className="group block overflow-hidden rounded-card bg-gradient-to-b from-[#fff6e4] to-card shadow-card ring-1 ring-[#eec97a]/60 transition hover:shadow-float active:scale-[0.99]"
     >
       {beste && (
         <p className="flex items-center gap-1.5 bg-accent-soft px-5 py-2 text-[11px] font-semibold tracking-[0.14em] text-accent-ink uppercase">
