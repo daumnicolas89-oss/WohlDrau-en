@@ -36,7 +36,7 @@ import { ShadeMeter } from "./ShadeMeter";
 import { ShadeTimeline } from "./ShadeTimeline";
 
 const VERLAESSLICHKEIT = {
-  high: "Für diese Gegend sind viele Bäume und Gebäude erfasst. Die Einschätzung ist ziemlich verlässlich.",
+  high: "Bäume und Gebäude sind für diese Gegend gut in der Karte erfasst, die Einschätzung ist also ziemlich verlässlich.",
   medium: "Die Einschätzung stützt sich auf teilweise erfasste Bäume und Gebäude.",
   low: "In dieser Gegend sind kaum Bäume erfasst. Der Schattenwert ist nur eine grobe Schätzung.",
 } as const;

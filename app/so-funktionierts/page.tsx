@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "So funktioniert's, WohlDraußen",
+  title: "So funktioniert's · WohlDraußen",
 };
 
 function Abschnitt({

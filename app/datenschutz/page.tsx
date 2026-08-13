@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Datenschutzerklärung, WohlDraußen",
+  title: "Datenschutzerklärung · WohlDraußen",
 };
 
 function Abschnitt({ titel, children }: { titel: string; children: React.ReactNode }) {

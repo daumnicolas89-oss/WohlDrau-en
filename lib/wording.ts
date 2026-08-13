@@ -200,10 +200,30 @@ export interface Driver {
 }
 
 /**
+ * Warum der Schatten hier zum guten Wert beiträgt. Wichtig: bei mildem Wetter
+ * ist der Schatten-Score auch dann hoch, wenn kaum Schatten da ist (er wird
+ * dann nicht gebraucht). Dann darf der Satz nicht „viel Schatten“ behaupten,
+ * sonst widerspricht er der Schatten-Anzeige darunter.
+ */
+function schattenGrund(state: Place["shade"]["state"]): string {
+  switch (state) {
+    case "no-sun":
+      return "Vor allem, weil die Sonne hier keine Rolle mehr spielt.";
+    case "shady":
+      return "Vor allem, weil es hier gerade viel Schatten gibt.";
+    case "partial":
+      return "Vor allem, weil es hier genug schattige Ecken gibt.";
+    default:
+      return "Vor allem, weil die Sonne gerade gut auszuhalten ist.";
+  }
+}
+
+/**
  * Warum steht dieser Ort da, wo er steht? Gesucht ist der Bestandteil, der am
  * stärksten vom Mittelmaß abweicht, gewichtet, denn Schatten zählt 45 % und
  * Entfernung nur 10 %. Das beantwortet die eigentliche Frage: „Wieso der?“
  */
+
 export function mainDriver(place: Place): Driver {
   const b = place.breakdown;
   const beitraege = [
@@ -223,13 +243,7 @@ export function mainDriver(place: Place): Driver {
   switch (staerkster.key) {
     case "shade":
       return positiv
-        ? {
-            text:
-              place.shade.state === "no-sun"
-                ? "Vor allem, weil die Sonne hier keine Rolle mehr spielt."
-                : "Vor allem, weil es hier gerade viel Schatten gibt.",
-            tone: "good",
-          }
+        ? { text: schattenGrund(place.shade.state), tone: "good" }
         : { text: "Bremst vor allem: kaum Schatten bei dieser Sonne.", tone: "bad" };
     case "amenity":
       return positiv
