@@ -10,8 +10,19 @@ import { TONE_TEXT } from "@/components/ui/ScoreRing";
 import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
 
 /** Ein Satz, der sagt, worauf es bei diesem Wetter ankommt. */
-function advice(apparent: number, uv: number, rainProbability: number): string {
+function advice(
+  apparent: number,
+  uv: number,
+  rainProbability: number,
+  isDay: boolean,
+): string {
   if (rainProbability >= 60) return "Regen ist wahrscheinlich. Kurz raus lohnt trotzdem.";
+  // Nachts spielt Schatten keine Rolle, dann darf der Satz auch keinen empfehlen.
+  if (!isDay) {
+    if (apparent < 8) return "Kühle Nacht, zieh dich warm an.";
+    if (apparent >= 21) return "Laue Nacht, angenehm für draußen.";
+    return "Angenehm draußen, ganz ohne Sonne.";
+  }
   const want = desiredShade(apparent, uv);
   if (want > 0.7) return "Jetzt zählt vor allem Schatten.";
   if (want > 0.4) return "Etwas Schatten tut gut.";
@@ -105,6 +116,7 @@ export function WeatherHeader({
               values.apparentTemperature,
               values.uvIndex,
               values.precipitationProbability,
+              weather.isDay,
             )}
           </p>
 
