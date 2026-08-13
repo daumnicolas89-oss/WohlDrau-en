@@ -69,7 +69,7 @@ export async function GET(request: Request) {
       {
         error:
           "OpenStreetMap antwortet gerade nicht. Das liegt meist an einer " +
-          "kurzzeitigen Überlastung, in ein, zwei Minuten klappt es wieder.",
+          "kurzzeitigen Überlastung. In ein, zwei Minuten klappt es wieder.",
       },
       { status: 502 },
     );

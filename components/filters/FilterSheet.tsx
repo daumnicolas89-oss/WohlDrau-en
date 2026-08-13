@@ -205,7 +205,7 @@ export function FilterSheet({
         <div>
           <h3 className="text-sm font-semibold text-dark">Wichtig für mich</h3>
           <p className="mb-1 text-xs leading-relaxed text-muted">
-            Solche Orte kommen zuerst nach oben, ausgeblendet wird nichts.
+            Solche Orte kommen zuerst nach oben. Ausgeblendet wird nichts.
           </p>
           <ToggleRow
             label="Toilette"

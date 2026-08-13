@@ -28,7 +28,7 @@ export function PlacesLoading({ rows = 3 }: { rows?: number }) {
       {slow && (
         <p className="text-center text-xs leading-relaxed text-muted">
           Beim ersten Besuch einer Gegend holen wir die Kartendaten live von
-          OpenStreetMap. Das kann eine Minute dauern, danach ist es sofort da.
+          OpenStreetMap. Das kann eine Minute dauern. Danach ist es sofort da.
         </p>
       )}
     </div>

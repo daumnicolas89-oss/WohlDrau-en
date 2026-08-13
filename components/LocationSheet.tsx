@@ -73,7 +73,7 @@ export function LocationSheet({
     <Sheet
       open={open}
       title="Standort"
-      description="Nutze deinen Standort, oder sieh dir einen anderen Ort an."
+      description="Nutze deinen Standort oder sieh dir einen anderen Ort an."
       onOpenChange={(next) => {
         if (!next) onClose();
       }}
@@ -92,7 +92,7 @@ export function LocationSheet({
       {geoStatus === "denied" && (
         <p className="mt-2 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           Der Standort ist im Browser blockiert. Erlaube ihn über das Schloss-Symbol
-          in der Adressleiste, oder such einfach unten deinen Ort.
+          in der Adressleiste oder such einfach unten deinen Ort.
         </p>
       )}
 

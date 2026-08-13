@@ -74,9 +74,9 @@ export default function SoFunktioniertsPage() {
             kommt dieser Wert zustande?“ genau nachsehen.
           </p>
           <p>
-            Der Schatten ist <strong>gerechnet, nicht gemessen</strong>, aus dem
-            Sonnenstand, erfassten Bäumen und Gebäuden. Eine gute Schätzung, keine
-            Garantie.
+            Der Schatten ist <strong>gerechnet, nicht gemessen</strong>. Er kommt
+            aus dem Sonnenstand, den erfassten Bäumen und den Gebäuden ringsum.
+            Eine gute Schätzung, keine Garantie.
           </p>
         </Abschnitt>
 

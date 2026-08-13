@@ -135,7 +135,7 @@ export function WeatherHeader({
 
       {geoStatus === "unavailable" && !manualActive && (
         <p className="mt-3 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          Der Standort lässt sich gerade nicht bestimmen, im Gebäude oder ohne
+          Der Standort lässt sich gerade nicht bestimmen. Im Gebäude oder ohne
           GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
           Ort; über den Ortsnamen oben kannst du es erneut versuchen.
         </p>
