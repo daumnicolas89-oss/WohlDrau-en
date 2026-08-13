@@ -20,6 +20,7 @@ import { ToiletSheet } from "./ToiletSheet";
 import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
 import { MapControls } from "./map/MapControls";
+import Link from "next/link";
 import { PlaceCard } from "./place/PlaceCard";
 import { PlacesLoading } from "./place/PlacesLoading";
 import { ReportStatusModal } from "./status/ReportStatusModal";
@@ -329,6 +330,15 @@ export function HomeView() {
                 </InfoButton>
               </div>
             )}
+
+            <footer className="flex justify-center gap-4 pt-3 pb-1 text-xs text-muted">
+              <Link href="/so-funktionierts" className="underline underline-offset-2">
+                So funktioniert&apos;s
+              </Link>
+              <Link href="/impressum" className="underline underline-offset-2">
+                Impressum
+              </Link>
+            </footer>
           </div>
         )}
       </main>
