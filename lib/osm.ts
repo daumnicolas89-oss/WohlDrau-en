@@ -189,7 +189,7 @@ function ageGroupFrom(tags: Record<string, string>): string | undefined {
   const max = Number.parseInt(tags.max_age ?? "", 10);
   const hasMin = Number.isFinite(min);
   const hasMax = Number.isFinite(max);
-  if (hasMin && hasMax) return `${min}–${max} Jahre`;
+  if (hasMin && hasMax) return `${min} bis ${max} Jahre`;
   if (hasMax) return `bis ${max} Jahre`;
   if (hasMin) return `ab ${min} Jahren`;
   return undefined;

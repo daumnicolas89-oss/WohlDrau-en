@@ -314,7 +314,7 @@ export function HomeView() {
                 </p>
                 <InfoButton title="Woher kommen die Daten?">
                   <p>
-                    Orte, Toiletten und Ausstattung stammen aus OpenStreetMap –
+                    Orte, Toiletten und Ausstattung stammen aus OpenStreetMap,
                     einer freien Karte, die Freiwillige pflegen. Sie ist gut,
                     aber lückenhaft: Zäune etwa sind kaum eingetragen.
                   </p>

@@ -54,7 +54,7 @@ export default function SoFunktioniertsPage() {
         So funktioniert WohlDraußen
       </h1>
       <p className="mt-2 px-1 text-[15px] leading-relaxed text-muted">
-        WohlDraußen zeigt dir, wo es gerade jetzt draußen am angenehmsten ist –
+        WohlDraußen zeigt dir, wo es gerade jetzt draußen am angenehmsten ist:
         Spielplätze und Grünflächen in deiner Nähe, mit genug Schatten und allem,
         was zählt.
       </p>
@@ -62,7 +62,7 @@ export default function SoFunktioniertsPage() {
       <div className="mt-6 space-y-4">
         <Abschnitt Icon={Sun} titel="Der Wert „Angenehm jetzt“">
           <p>
-            Jeder Ort bekommt einen Wert von 0–100, wie angenehm es dort{" "}
+            Jeder Ort bekommt einen Wert von 0 bis 100, wie angenehm es dort{" "}
             <strong>gerade</strong> ist. Der Ring zeigt ihn auf einen Blick:
             grün = angenehm, gelb = mittel, orange = eher ungünstig.
           </p>
@@ -99,8 +99,8 @@ export default function SoFunktioniertsPage() {
           <p>
             Beim Öffnen fragt die App nach deinem Standort, um Orte in der Nähe zu
             zeigen. Über den <strong>Ortsnamen oben</strong> kannst du deinen
-            Standort freigeben oder einen <strong>anderen Ort suchen</strong> –
-            praktisch, um vorab zu schauen, wohin man fährt.
+            Standort freigeben oder einen <strong>anderen Ort suchen</strong>.
+            Praktisch, um vorab zu schauen, wohin man fährt.
           </p>
           <p>
             Dein Standort wird nur verwendet, um die Karte auf dich zu zentrieren.
