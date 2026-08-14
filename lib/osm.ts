@@ -3,6 +3,7 @@ import { bboxAround, haversine, offsetMeters } from "./utils";
 import type {
   NearBuilding,
   OsmPlace,
+  PlaceKind,
   PlaceTags,
   PlaceType,
   ShadeConfidence,
@@ -86,20 +87,35 @@ out tags geom;`;
 const RETRY_STATUS = new Set([429, 502, 503, 504]);
 const RETRIES_PER_ENDPOINT = 3;
 const RETRY_BASE_DELAY_MS = 1500;
+/**
+ * Gesamtbudget über alle Spiegel und Versuche. Ohne Deckel läuft der Worst
+ * Case (2 Spiegel × 3 Versuche × 28 s + Pausen) auf ~3 Minuten – länger als
+ * das Function-Limit der Route (maxDuration 120 s). Dann würde Vercel die
+ * Function killen, bevor der Stale-Cache-Fallback antworten kann.
+ */
+const TOTAL_BUDGET_MS = 100_000;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function runOverpass(query: string): Promise<OverpassElement[]> {
   let lastError: unknown = null;
+  const startedAt = Date.now();
 
   for (const endpoint of ENDPOINTS) {
     for (let attempt = 0; attempt < RETRIES_PER_ENDPOINT; attempt++) {
+      if (Date.now() - startedAt > TOTAL_BUDGET_MS) {
+        throw lastError instanceof Error
+          ? lastError
+          : new Error("Overpass-Zeitbudget aufgebraucht");
+      }
       try {
         const res = await fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "text/plain;charset=UTF-8",
-            "User-Agent": "PlatzDa/0.1",
+            // Die Overpass-Policy verlangt einen erreichbaren Absender –
+            // anonyme User-Agents werden bei Last zuerst gedrosselt/gesperrt.
+            "User-Agent": "PlatzDa/0.1 (+https://platzda.app; kontakt@nicolas-daum.ai)",
           },
           body: query,
           signal: AbortSignal.timeout(ENDPOINT_TIMEOUT_MS),
@@ -115,7 +131,8 @@ async function runOverpass(query: string): Promise<OverpassElement[]> {
         await sleep(RETRY_BASE_DELAY_MS * (attempt + 1));
       } catch (err) {
         lastError = err;
-        // Zeitüberschreitung: einmal nachfassen, dann den nächsten Spiegel.
+        // Netz-/Timeout-Fehler: bis zu dreimal je Spiegel nachfassen, danach
+        // zum nächsten wechseln (das Gesamtbudget oben deckelt alles).
         if (attempt === RETRIES_PER_ENDPOINT - 1) break;
         await sleep(RETRY_BASE_DELAY_MS);
       }
@@ -247,11 +264,16 @@ class Grid<T extends Point> {
 
   near(lat: number, lng: number, radiusM: number): T[] {
     const span = Math.ceil(radiusM / 111000 / this.size);
+    // Längengrad-Zellen sind um cos(lat) schmaler als Breitengrad-Zellen –
+    // ohne eigene Spanne fehlen im Osten/Westen Punkte am Radiusrand.
+    const lngSpan = Math.ceil(
+      radiusM / (111000 * Math.max(0.2, Math.cos((lat * Math.PI) / 180))) / this.size,
+    );
     const out: T[] = [];
     const baseLat = Math.floor(lat / this.size);
     const baseLng = Math.floor(lng / this.size);
     for (let i = -span; i <= span; i++) {
-      for (let j = -span; j <= span; j++) {
+      for (let j = -lngSpan; j <= lngSpan; j++) {
         const bucket = this.cells.get(`${baseLat + i}:${baseLng + j}`);
         if (bucket) out.push(...bucket);
       }
@@ -260,7 +282,7 @@ class Grid<T extends Point> {
   }
 }
 
-const DEFAULT_NAMES = new Set(["Spielplatz", "Grünfläche"]);
+const DEFAULT_NAMES = new Set(["Spielplatz", "Grünfläche", "Wäldchen", "Garten"]);
 /** Derselbe Ort ist in OSM oft doppelt erfasst, als Punkt und als Fläche. */
 const DUPLICATE_RADIUS_M = 45;
 
@@ -449,7 +471,13 @@ export async function fetchPlaces(
       }
       if (el.members) {
         for (const m of el.members) {
-          if (m.role === "outer" && m.geometry && m.geometry.length >= 2) {
+          // inner-Ringe (Lichtungen) gehören dazu: das Even-Odd-Ray-Casting
+          // zählt sie automatisch als Loch – sonst gälte eine Lichtung als Wald.
+          if (
+            (m.role === "outer" || m.role === "inner") &&
+            m.geometry &&
+            m.geometry.length >= 2
+          ) {
             rings.push(m.geometry.map((g) => ({ lat: g.lat, lng: g.lon })));
           }
         }
@@ -479,8 +507,11 @@ export async function fetchPlaces(
       if (tags.leisure === "park") greens.push(el);
       continue;
     }
+    // Gärten, Wäldchen und Waldstücke: zählen als Schatten-Kontext (greens) UND
+    // sind selbst ein lohnendes Ziel mit Kind – also auch als Ort zeigen.
     if (tags.leisure === "garden" || tags.natural === "wood" || tags.landuse === "forest") {
       greens.push(el);
+      if (!isBlocked(tags)) rawPlaces.push(el);
     }
   }
 
@@ -503,7 +534,30 @@ export async function fetchPlaces(
     if (seen.has(id)) continue;
     seen.add(id);
 
-    const type: PlaceType = osmTags.leisure === "park" ? "park" : "playground";
+    // Alles Grüne (Park, Garten, Wald) bewerten wir wie eine Grünfläche; nur
+    // echte Spielplätze sind „playground". Der Anzeigename unterscheidet feiner.
+    const isGreen =
+      osmTags.leisure === "park" ||
+      osmTags.leisure === "garden" ||
+      osmTags.natural === "wood" ||
+      osmTags.landuse === "forest";
+    const type: PlaceType = isGreen ? "park" : "playground";
+    const kind: PlaceKind =
+      osmTags.natural === "wood" || osmTags.landuse === "forest"
+        ? "wood"
+        : osmTags.leisure === "garden"
+          ? "garden"
+          : osmTags.leisure === "park"
+            ? "park"
+            : "playground";
+    const defaultName =
+      kind === "wood"
+        ? "Wäldchen"
+        : kind === "garden"
+          ? "Garten"
+          : kind === "park"
+            ? "Grünfläche"
+            : "Spielplatz";
     const areaM2 = areaOf(el);
     // Suchradius für Bäume: bei Punkt-Objekten pauschal 40 m.
     // Nur Bäume, die wirklich auf dem Platz stehen, sollen zählen. Ein weiter
@@ -594,10 +648,11 @@ export async function fetchPlaces(
 
     places.push({
       id,
-      name: osmTags.name ?? (type === "park" ? "Grünfläche" : "Spielplatz"),
+      name: osmTags.name ?? defaultName,
       lat: c.lat,
       lng: c.lng,
       type,
+      kind,
       tags,
       shadeInputs: {
         canopy: Number(canopy.toFixed(3)),
@@ -612,10 +667,19 @@ export async function fetchPlaces(
     });
   }
 
-  // Winzige, namenlose Grünschnipsel bringen niemanden weiter.
-  const relevant = places.filter(
-    (p) => p.type === "playground" || (p.shadeInputs.areaM2 ?? 0) > 1500,
-  );
+  // Winzige, namenlose Grünschnipsel bringen niemanden weiter. Und: In Städten
+  // taggt OSM viele kleine Zier-Baumgruppen als „wood" – die würden die Liste
+  // fluten. Darum namenlose Wäldchen/Gärten nur ab echter Größe (~2 ha) zeigen;
+  // benannte Wälder/Gärten und Parks bleiben wie bisher.
+  const REAL_WOOD_M2 = 20_000;
+  const relevant = places.filter((p) => {
+    if (p.kind === "playground") return true;
+    const area = p.shadeInputs.areaM2 ?? 0;
+    const named = !DEFAULT_NAMES.has(p.name);
+    // Namenlose Wäldchen/Gärten nur ab echter Größe; benannte immer.
+    if (p.kind === "wood" || p.kind === "garden") return named || area >= REAL_WOOD_M2;
+    return area > 1500; // Grünfläche/Park
+  });
 
   const deduped = dedupe(relevant);
 

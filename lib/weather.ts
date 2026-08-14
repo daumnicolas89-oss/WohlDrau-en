@@ -3,6 +3,7 @@ import type { Weather } from "@/types";
 const ENDPOINT = "https://api.open-meteo.com/v1/forecast";
 
 interface OpenMeteoResponse {
+  utc_offset_seconds?: number;
   current: {
     time: string;
     temperature_2m: number;
@@ -12,6 +13,8 @@ interface OpenMeteoResponse {
     wind_speed_10m: number;
     uv_index: number | null;
     is_day: number;
+    weather_code: number | null;
+    snowfall: number | null;
   };
   hourly: {
     time: string[];
@@ -29,7 +32,7 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
   url.searchParams.set("longitude", lng.toFixed(3));
   url.searchParams.set(
     "current",
-    "temperature_2m,apparent_temperature,cloud_cover,precipitation,wind_speed_10m,uv_index,is_day",
+    "temperature_2m,apparent_temperature,cloud_cover,precipitation,wind_speed_10m,uv_index,is_day,weather_code,snowfall",
   );
   url.searchParams.set(
     "hourly",
@@ -58,6 +61,9 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
     windSpeed: data.current.wind_speed_10m,
     uvIndex: data.current.uv_index ?? 0,
     isDay: data.current.is_day === 1,
+    weatherCode: data.current.weather_code ?? 0,
+    snowfall: data.current.snowfall ?? 0,
+    utcOffsetSeconds: data.utc_offset_seconds,
     hourly: {
       time: slice(data.hourly.time),
       temperature: slice(data.hourly.temperature_2m),
@@ -94,6 +100,8 @@ export const FALLBACK_WEATHER: Weather = {
   uvIndex: 3,
   // Bedeutungslos, siehe Warnung oben, Tag/Nacht kommt aus dem Sonnenstand.
   isDay: true,
+  weatherCode: 0,
+  snowfall: 0,
   hourly: {
     time: [],
     temperature: [],
@@ -108,10 +116,16 @@ export const FALLBACK_WEATHER: Weather = {
 export function weatherAt(weather: Weather, date: Date) {
   const stamp = date.getTime();
   const hours = weather.hourly.time;
+  // Open-Meteo liefert Orts-Lokalzeit ohne Zeitzonen-Suffix. Mit dem
+  // mitgelieferten UTC-Versatz wird daraus ein echter Zeitpunkt – wichtig,
+  // wenn die Geräte-Zeitzone nicht die des Orts ist (Urlaub). Ohne Versatz
+  // (alte gecachte Antwort) wie früher als Geräte-Lokalzeit lesen.
+  const off = weather.utcOffsetSeconds;
+  const epochOf = (t: string) =>
+    off === undefined ? new Date(t).getTime() : Date.parse(`${t}Z`) - off * 1000;
   let index = 0;
   for (let i = 0; i < hours.length; i++) {
-    // Open-Meteo liefert lokale Zeit ohne Zeitzonen-Suffix.
-    if (new Date(hours[i]).getTime() <= stamp) index = i;
+    if (epochOf(hours[i]) <= stamp) index = i;
   }
   return {
     temperature: weather.hourly.temperature[index] ?? weather.temperature,

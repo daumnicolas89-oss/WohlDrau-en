@@ -17,6 +17,7 @@ export function place(overrides: PlaceOverrides = {}): OsmPlace {
     lat: 48.137,
     lng: 11.575,
     type: "playground",
+    kind: "playground",
     tags: {},
     toiletDistance: null,
     ...overrides,
@@ -52,6 +53,8 @@ export function weather(overrides: Partial<Weather> = {}): Weather {
     windSpeed: 6,
     uvIndex: hourly.uvIndex[0],
     isDay: true,
+    weatherCode: 0,
+    snowfall: 0,
     ...overrides,
     hourly,
   };

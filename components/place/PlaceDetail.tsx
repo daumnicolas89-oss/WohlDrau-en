@@ -30,6 +30,7 @@ import { InfoButton } from "@/components/ui/InfoButton";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { SkyScene, skyMood, SKY_GRADIENT } from "@/components/SkyScene";
 import { AttributeList } from "./AttributeList";
+import { PlaceKindTag } from "./PlaceKindTag";
 import { PlacePhoto } from "./PlacePhoto";
 import { PlacesLoading } from "./PlacesLoading";
 import { ScoreBreakdown } from "./ScoreBreakdown";
@@ -186,7 +187,7 @@ export function PlaceDetail({
           </p>
           <Link
             href="/"
-            className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-primary-dark px-4 font-semibold text-white"
+            className="mt-4 inline-flex min-h-12 items-center justify-center rounded-2xl bg-primary-dark px-5 font-semibold text-white shadow-card transition hover:bg-primary-darker active:scale-[0.98]"
           >
             Zur Übersicht
           </Link>
@@ -214,9 +215,12 @@ export function PlaceDetail({
               <h1 className="font-display text-[26px] leading-tight font-bold text-dark">
               {place.name}
             </h1>
-            <p className="mt-1.5 text-sm text-muted">
-              {distanceSentence(place.distance ?? 0)} ·{" "}
-              {place.type === "park" ? "Grünfläche" : "Spielplatz"}
+            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm text-muted">
+              {distanceSentence(place.distance ?? 0)}
+              <span aria-hidden className="text-line">
+                ·
+              </span>
+              <PlaceKindTag kind={place.kind} className="font-medium" />
             </p>
 
             {/* Die Antwort auf „soll ich hin?“, groß, in Worten, mit Zahl. */}
@@ -233,7 +237,7 @@ export function PlaceDetail({
                     Angenehm jetzt
                   </p>
                   <InfoButton
-                    title="Woher kommt dieser Wert?"
+                    title="Wie kommt dieser Wert zustande?"
                     ariaLabel="Erklärung zum Wert „Angenehm jetzt“"
                   >
                     <p>{SCORE_ERKLAERUNG}</p>
@@ -345,7 +349,7 @@ export function PlaceDetail({
                     eingetragen, Zäune besonders selten.
                   </p>
                   <p>
-                    Deshalb steht bei fehlenden Angaben „Keine Information“ und
+                    Deshalb steht bei fehlenden Angaben „Keine Angabe“ und
                     nicht „nicht vorhanden“. Im Zweifel lohnt der Blick vor Ort.
                   </p>
                 </InfoButton>
@@ -450,7 +454,7 @@ export function PlaceDetail({
               href={`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=walking`}
               target="_blank"
               rel="noreferrer"
-              className="flex min-h-13 flex-1 items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float transition hover:bg-primary-darker active:bg-[#175c54]"
+              className="flex min-h-13 flex-1 items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float transition hover:bg-primary-darker active:bg-primary-darker"
             >
               <Navigation size={18} aria-hidden />
               Route dorthin

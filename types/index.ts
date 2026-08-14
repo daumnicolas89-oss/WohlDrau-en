@@ -1,5 +1,9 @@
 export type PlaceType = "playground" | "park" | "other";
 
+/** Feinere Kategorie nur für die Anzeige (Label/Icon), unabhängig von der
+ *  Bewertung. Grünflächen, Wäldchen und Gärten teilen sich den Score-Typ „park". */
+export type PlaceKind = "playground" | "park" | "wood" | "garden";
+
 /** Statische Schatten-Einschätzung eines Ortes (unabhängig von der Uhrzeit). */
 export type ShadeQuality = "good" | "medium" | "poor" | "unknown";
 
@@ -55,6 +59,8 @@ export interface OsmPlace {
   lat: number;
   lng: number;
   type: PlaceType;
+  /** Anzeige-Kategorie (Spielplatz, Grünfläche, Wäldchen, Garten). */
+  kind: PlaceKind;
   tags: PlaceTags;
   shadeInputs: ShadeInputs;
   /** Entfernung zur nächsten Toilette in Metern, falls eine gefunden wurde. */
@@ -146,6 +152,16 @@ export interface Weather {
   windSpeed: number;
   uvIndex: number;
   isDay: boolean;
+  /** WMO-Wettercode (Open-Meteo) – für Schnee, gefrierenden Regen, Reifnebel. */
+  weatherCode: number;
+  /** Schneefall der letzten Stunde in cm. */
+  snowfall: number;
+  /**
+   * UTC-Versatz des Orts in Sekunden (Open-Meteo). Optional, weil alte
+   * gecachte Antworten ihn nicht tragen – dann fällt `weatherAt` auf die
+   * Geräte-Zeitzone zurück (für Nutzer vor Ort identisch).
+   */
+  utcOffsetSeconds?: number;
   /** stündliche Vorschau ab jetzt, für „+30 Min“ und „+1 Std“ */
   hourly: {
     time: string[];

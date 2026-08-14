@@ -5,6 +5,7 @@ import { factChips, mainDriver, scoreWording, shadeWording, statusSentence } fro
 import type { Place } from "@/types";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { ShadeMeter } from "./ShadeMeter";
+import { PlaceKindTag } from "./PlaceKindTag";
 
 /** „Im Grünen, aber kaum Bäume getaggt": der echte Schatten kann höher sein als
  *  gezeigt. Dieser Ehrlichkeits-Hinweis gehört an jede betroffene Karte. */
@@ -67,7 +68,12 @@ export function PlaceCard({
           <h3 className="truncate font-display text-[16px] leading-tight font-semibold text-dark">
             {place.name}
           </h3>
-          <p className="mt-1 truncate text-sm text-muted">
+          <PlaceKindTag
+            kind={place.kind}
+            iconSize={12}
+            className="mt-0.5 text-xs font-medium text-muted"
+          />
+          <p className="mt-0.5 truncate text-sm text-muted">
             {shadeWording(place.shade.state).label} · {formatDistance(distance)}
           </p>
           {wenigBaumdaten && (
@@ -104,6 +110,10 @@ export function PlaceCard({
             <h3 className="font-display text-[19px] leading-snug font-semibold text-dark [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
               {place.name}
             </h3>
+            <PlaceKindTag
+              kind={place.kind}
+              className="mt-1 text-sm font-medium text-muted"
+            />
             <p
               className={`mt-1 text-[15px] leading-tight font-semibold ${TONE_TEXT[bewertung.tone]}`}
             >

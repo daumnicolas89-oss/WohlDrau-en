@@ -1,15 +1,37 @@
 "use client";
 
-import { ChevronDown, CloudOff, MapPin } from "lucide-react";
-import { clothingAdvice, daylightHint } from "@/lib/outdoorTips";
+import { useState } from "react";
+import {
+  AlertTriangle,
+  ChevronDown,
+  CloudOff,
+  MapPin,
+  Shirt,
+  Snowflake,
+  Sun,
+  type LucideIcon,
+} from "lucide-react";
+import { daylightHint } from "@/lib/outdoorTips";
 import { weatherRegime } from "@/lib/regime";
-import { sunTimes } from "@/lib/sun";
+import { heatWarning } from "@/lib/heat";
+import { winterWarning } from "@/lib/winter";
+
+/** Icon + Farbe je Warn-Ton, für den einen Sicherheits-Banner im Kopf. */
+const ALERT_ICON: Record<string, { Icon: LucideIcon; className: string }> = {
+  ice: { Icon: AlertTriangle, className: "text-accent-ink" },
+  heat: { Icon: AlertTriangle, className: "text-accent-ink" },
+  uv: { Icon: Sun, className: "text-accent-ink" },
+  snow: { Icon: Snowflake, className: "text-primary-dark" },
+  frost: { Icon: Snowflake, className: "text-primary-dark" },
+};
+import { isDaylight, sunTimes } from "@/lib/sun";
 import { uvWording, weatherAdvice } from "@/lib/wording";
 import { weatherAt } from "@/lib/weather";
 import type { Weather } from "@/types";
 import type { GeoStatus } from "@/hooks/useGeolocation";
 import { TONE_TEXT } from "@/components/ui/ScoreRing";
 import { Logo } from "./Logo";
+import { OutfitSheet } from "./OutfitSheet";
 import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
 
 function Wert({ label, children }: { label: string; children: React.ReactNode }) {
@@ -45,28 +67,63 @@ export function WeatherHeader({
   manualActive?: boolean;
   onOpenLocation: () => void;
 }) {
+  const [outfitOpen, setOutfitOpen] = useState(false);
   const values = weather ? weatherAt(weather, at) : null;
   const uv = values ? uvWording(values.uvIndex) : null;
+  // `weather.isDay` gilt nur für JETZT. Bei „+30 Min/+1 Std" um den
+  // Sonnenuntergang würde der Kopf sonst den Karten widersprechen, die für
+  // die gewählte Zeit längst „keine Sonne" rechnen – darum Tag/Nacht aus dem
+  // Sonnenstand zur gewählten Zeit ableiten.
+  const dayAt = weather
+    ? origin
+      ? isDaylight(origin.lat, origin.lng, at)
+      : weather.isDay
+    : false;
   const mood =
     weather && values
-      ? skyMood(weather, values.cloudCover, values.precipitationProbability, values.uvIndex)
+      ? skyMood(
+          { ...weather, isDay: dayAt },
+          values.cloudCover,
+          values.precipitationProbability,
+          values.uvIndex,
+        )
       : null;
   const regime =
     weather && values
-      ? weatherRegime(values.apparentTemperature, values.uvIndex, weather.isDay)
+      ? weatherRegime(values.apparentTemperature, values.uvIndex, dayAt)
       : null;
-  const anziehTipp =
+  const outfitParams =
     weather && values
-      ? clothingAdvice({
+      ? {
           apparentTemperature: values.apparentTemperature,
           uvIndex: values.uvIndex,
           precipitationProbability: values.precipitationProbability,
           windSpeed: weather.windSpeed,
-        })
+        }
       : null;
-  const sunset =
-    origin && weather?.isDay ? sunTimes(origin.lat, origin.lng, at).sunset : null;
+  const sunset = origin && dayAt ? sunTimes(origin.lat, origin.lng, at).sunset : null;
   const tageslicht = sunset ? daylightHint(at, sunset) : null;
+  // Sicherheits-Banner aus den aktuellen Werten (nicht der Zeit-Vorschau):
+  // im Winter Glätte/Schnee/Kälte, im Sommer Hitze/UV. Winter hat Vorrang –
+  // beides zugleich gibt es ohnehin nicht.
+  const winter = weather
+    ? winterWarning({
+        temperature: weather.temperature,
+        apparentTemperature: weather.apparentTemperature,
+        weatherCode: weather.weatherCode,
+        snowfall: weather.snowfall,
+        precipitation: weather.precipitation,
+      })
+    : null;
+  const heat = weather
+    ? heatWarning({
+        apparentTemperature: weather.apparentTemperature,
+        uvIndex: weather.uvIndex,
+        isDay: weather.isDay,
+      })
+    : null;
+  const alert = winter ?? heat;
+  const alertMeta = alert ? ALERT_ICON[alert.tone] : null;
 
   return (
     <header
@@ -115,51 +172,80 @@ export function WeatherHeader({
               values.apparentTemperature,
               values.uvIndex,
               values.precipitationProbability,
-              weather.isDay,
+              dayAt,
             )}
           </p>
 
-          {/* Die eingewobenen Helfer: was anziehen, und bei kurzen Tagen wie
-              lange die Sonne noch reicht. */}
-          <div className="mt-3 space-y-1 text-[15px] leading-snug text-dark">
-            {anziehTipp && <p>{anziehTipp}</p>}
-            {tageslicht && <p className="text-muted">{tageslicht}</p>}
+          {/* Sicherheits-Banner: Glätte, Schnee, Kälte – oder Hitze/UV im Sommer.
+              Ruhig, aber deutlich. Er belegt den einzigen Hinweis-Platz des
+              Kopfes (siehe unten). */}
+          {alert && alertMeta && (
+            <div className="mt-3 flex items-start gap-2 rounded-2xl border border-white/70 bg-white/70 p-3 text-sm leading-snug text-dark backdrop-blur">
+              <alertMeta.Icon
+                size={16}
+                aria-hidden
+                className={`mt-0.5 shrink-0 ${alertMeta.className}`}
+              />
+              <span>{alert.text}</span>
+            </div>
+          )}
+
+          {/* Jede Zahl bekommt ihre Bezeichnung, „0 %“ allein ist ein Rätsel.
+              Das Tageslicht gehört zu diesen Werten, nicht zum Anzieh-Knopf. */}
+          <div className="mt-4 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 backdrop-blur">
+            <dl className="flex gap-3">
+              <Wert label="Sonne">
+                {dayAt ? (
+                  <>
+                    <span className={TONE_TEXT[uv.tone]}>{uv.label}</span>{" "}
+                    <span className="font-normal text-muted">
+                      · UV {values.uvIndex.toFixed(1).replace(".", ",")}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    keine{" "}
+                    <span className="font-normal text-muted">
+                      (UV {values.uvIndex.toFixed(1).replace(".", ",")})
+                    </span>
+                  </>
+                )}
+              </Wert>
+              <span aria-hidden className="w-px self-stretch bg-line" />
+              <Wert label="Regen">
+                {Math.round(values.precipitationProbability)} %
+              </Wert>
+              <span aria-hidden className="w-px self-stretch bg-line" />
+              <Wert label="Wind">
+                <span className={regime === "cold" ? "text-accent-ink" : undefined}>
+                  {Math.round(weather.windSpeed)} km/h
+                </span>
+              </Wert>
+            </dl>
+            {tageslicht && (
+              <p className="mt-2 border-t border-line/60 pt-2 text-[13px] text-muted">
+                {tageslicht}
+              </p>
+            )}
           </div>
 
-          {/* Jede Zahl bekommt ihre Bezeichnung, „0 %“ allein ist ein Rätsel. */}
-          <dl className="mt-5 flex gap-3 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 backdrop-blur">
-            <Wert label="Sonne">
-              {weather.isDay ? (
-                <>
-                  <span className={TONE_TEXT[uv.tone]}>{uv.label}</span>{" "}
-                  <span className="font-normal text-muted">
-                    · UV {values.uvIndex.toFixed(1).replace(".", ",")}
-                  </span>
-                </>
-              ) : (
-                <>
-                  keine{" "}
-                  <span className="font-normal text-muted">
-                    (UV {values.uvIndex.toFixed(1).replace(".", ",")})
-                  </span>
-                </>
-              )}
-            </Wert>
-            <span aria-hidden className="w-px self-stretch bg-line" />
-            <Wert label="Regen">
-              {Math.round(values.precipitationProbability)} %
-            </Wert>
-            <span aria-hidden className="w-px self-stretch bg-line" />
-            <Wert label="Wind">
-              <span className={regime === "cold" ? "text-accent-ink" : undefined}>
-                {Math.round(weather.windSpeed)} km/h
-              </span>
-            </Wert>
-          </dl>
+          {/* Der Absprung zum Anzieh-Fenster kommt zuletzt: erst die Lage,
+              dann die Handlung. */}
+          <button
+            type="button"
+            onClick={() => setOutfitOpen(true)}
+            className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/70 bg-white/60 px-4 py-2.5 text-[15px] font-semibold text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
+          >
+            <Shirt size={16} aria-hidden className="text-primary-dark" />
+            Was anziehen?
+          </button>
         </div>
       )}
 
-      {weatherError && (
+      {/* Genau EIN Hinweis-Platz unter dem Kopf: Sicherheit (oben im Werte-Block)
+          schlägt Wetter-Fehler schlägt Standort-Hinweis. Drei gestapelte gelbe
+          Kästen wirken kaputt und liest niemand. */}
+      {!alert && weatherError && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           <CloudOff size={15} aria-hidden className="mt-0.5 shrink-0" />
           <span>
@@ -170,22 +256,31 @@ export function WeatherHeader({
         </p>
       )}
 
-      {geoStatus === "denied" && !manualActive && (
+      {!alert && !weatherError && geoStatus === "denied" && !manualActive && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           <MapPin size={15} aria-hidden className="mt-0.5 shrink-0" />
           <span>
-            Ohne Standortfreigabe zeigen wir eine Beispielstadt. Tippe oben auf den
-            Ortsnamen, um deinen Standort freizugeben oder einen Ort zu suchen.
+            Ohne Standortfreigabe zeigen wir deinen zuletzt bekannten Ort oder
+            eine Beispielstadt. Tippe oben auf den Ortsnamen, um deinen Standort
+            freizugeben oder einen Ort zu suchen.
           </span>
         </p>
       )}
 
-      {geoStatus === "unavailable" && !manualActive && (
+      {!alert && !weatherError && geoStatus === "unavailable" && !manualActive && (
         <p className="mt-3 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           Der Standort lässt sich gerade nicht bestimmen. Im Gebäude oder ohne
           GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
           Ort; über den Ortsnamen oben kannst du es erneut versuchen.
         </p>
+      )}
+
+      {outfitParams && (
+        <OutfitSheet
+          open={outfitOpen}
+          onClose={() => setOutfitOpen(false)}
+          params={outfitParams}
+        />
       )}
     </header>
   );

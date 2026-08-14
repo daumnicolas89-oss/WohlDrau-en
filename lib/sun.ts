@@ -105,6 +105,15 @@ export function sunTimes(lat: number, lng: number, date: Date) {
   return { sunrise: times.sunrise, sunset: times.sunset };
 }
 
+/**
+ * Ist zum Zeitpunkt Tag (Sonne über dem Horizont)? Für die Zeit-Vorschau
+ * („+1 Std") wichtig: `weather.isDay` gilt nur für JETZT – um Sonnenuntergang
+ * widerspräche der Kopf sonst den Karten, die längst „keine Sonne" rechnen.
+ */
+export function isDaylight(lat: number, lng: number, date: Date): boolean {
+  return SunCalc.getPosition(date, lat, lng).altitude > MIN_ALTITUDE_DEG;
+}
+
 /** Länge und Auflösung der Schatten-Vorschau, an einer Stelle, damit die
  *  Anzeige (Balken) und die Entscheidung „lohnt die Vorschau überhaupt?“
  *  nie unterschiedliche Fenster betrachten. */
