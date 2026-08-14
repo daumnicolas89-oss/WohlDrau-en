@@ -64,8 +64,14 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
       setLoading(true);
       setError(null);
       try {
+        // Aufs ~1-km-Raster runden: So fragen alle in derselben Gegend
+        // dieselbe Adresse ab und teilen sich die (am CDN) gecachte Antwort,
+        // statt jeder einzeln den langsamen Overpass-Abruf auszulösen. Die
+        // Entfernung wird ohnehin aus den echten Koordinaten berechnet.
+        const gridLat = lat.toFixed(2);
+        const gridLng = lng.toFixed(2);
         const res = await fetch(
-          `/api/places?lat=${lat}&lng=${lng}&radius=${radius}`,
+          `/api/places?lat=${gridLat}&lng=${gridLng}&radius=${radius}`,
           { signal: controller.signal },
         );
         if (!res.ok) {

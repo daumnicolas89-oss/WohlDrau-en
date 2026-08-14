@@ -15,7 +15,17 @@ function cacheKey(lat: number, lng: number, radius: number) {
 }
 
 function respond(value: FetchPlacesResult, source: string) {
-  return NextResponse.json(value, { headers: { "x-wd-cache": source } });
+  return NextResponse.json(value, {
+    headers: {
+      "x-wd-cache": source,
+      // Der teure Overpass-Abruf soll pro Gegend nur einmal am Tag passieren.
+      // Das CDN hält die Antwort einen Tag frisch und liefert danach bis zu
+      // einer Woche sofort eine leicht veraltete Version, während im
+      // Hintergrund neu geladen wird. Ortsdaten ändern sich kaum, der Schatten
+      // wird ohnehin live im Browser gerechnet.
+      "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800",
+    },
+  });
 }
 
 export async function GET(request: Request) {
