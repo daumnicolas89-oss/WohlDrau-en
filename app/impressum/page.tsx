@@ -48,8 +48,8 @@ export default function ImpressumPage() {
             Telefon: +49 170 5523252
             <br />
             E-Mail:{" "}
-            <a href="mailto:impressum@nicolas-daum.de" className="text-primary-dark underline">
-              impressum@nicolas-daum.de
+            <a href="mailto:impressum@nicolas-daum.ai" className="text-primary-dark underline">
+              impressum@nicolas-daum.ai
             </a>
           </p>
         </Abschnitt>
