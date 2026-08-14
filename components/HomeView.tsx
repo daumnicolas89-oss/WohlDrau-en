@@ -169,6 +169,7 @@ export function HomeView() {
         weather={weather}
         weatherError={weatherMissing}
         at={at}
+        origin={coords}
         locationLabel={locationLabel}
         geoStatus={geoStatus}
         manualActive={!!manual}

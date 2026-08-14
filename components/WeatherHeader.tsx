@@ -1,6 +1,9 @@
 "use client";
 
 import { ChevronDown, CloudOff, MapPin } from "lucide-react";
+import { clothingAdvice, daylightHint } from "@/lib/outdoorTips";
+import { weatherRegime } from "@/lib/regime";
+import { sunTimes } from "@/lib/sun";
 import { uvWording, weatherAdvice } from "@/lib/wording";
 import { weatherAt } from "@/lib/weather";
 import type { Weather } from "@/types";
@@ -24,6 +27,7 @@ export function WeatherHeader({
   weather,
   weatherError = false,
   at,
+  origin,
   locationLabel,
   geoStatus,
   manualActive = false,
@@ -33,6 +37,8 @@ export function WeatherHeader({
   /** Wetter gerade nicht erreichbar, die Orte werden ohne aktuelle Werte geordnet. */
   weatherError?: boolean;
   at: Date;
+  /** Anzeige-Ort, für den Tageslicht-Hinweis (Sonnenuntergang). */
+  origin?: { lat: number; lng: number };
   locationLabel: string;
   geoStatus: GeoStatus;
   /** Ein Ort wurde manuell gewählt, dann sind die GPS-Hinweise unpassend. */
@@ -45,6 +51,22 @@ export function WeatherHeader({
     weather && values
       ? skyMood(weather, values.cloudCover, values.precipitationProbability, values.uvIndex)
       : null;
+  const regime =
+    weather && values
+      ? weatherRegime(values.apparentTemperature, values.uvIndex, weather.isDay)
+      : null;
+  const anziehTipp =
+    weather && values
+      ? clothingAdvice({
+          apparentTemperature: values.apparentTemperature,
+          uvIndex: values.uvIndex,
+          precipitationProbability: values.precipitationProbability,
+          windSpeed: weather.windSpeed,
+        })
+      : null;
+  const sunset =
+    origin && weather?.isDay ? sunTimes(origin.lat, origin.lng, at).sunset : null;
+  const tageslicht = sunset ? daylightHint(at, sunset) : null;
 
   return (
     <header
@@ -97,6 +119,13 @@ export function WeatherHeader({
             )}
           </p>
 
+          {/* Die eingewobenen Helfer: was anziehen, und bei kurzen Tagen wie
+              lange die Sonne noch reicht. */}
+          <div className="mt-3 space-y-1 text-[15px] leading-snug text-dark">
+            {anziehTipp && <p>{anziehTipp}</p>}
+            {tageslicht && <p className="text-muted">{tageslicht}</p>}
+          </div>
+
           {/* Jede Zahl bekommt ihre Bezeichnung, „0 %“ allein ist ein Rätsel. */}
           <dl className="mt-5 flex gap-3 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 backdrop-blur">
             <Wert label="Sonne">
@@ -121,7 +150,11 @@ export function WeatherHeader({
               {Math.round(values.precipitationProbability)} %
             </Wert>
             <span aria-hidden className="w-px self-stretch bg-line" />
-            <Wert label="Wind">{Math.round(weather.windSpeed)} km/h</Wert>
+            <Wert label="Wind">
+              <span className={regime === "cold" ? "text-accent-ink" : undefined}>
+                {Math.round(weather.windSpeed)} km/h
+              </span>
+            </Wert>
           </dl>
         </div>
       )}
