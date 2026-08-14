@@ -58,8 +58,8 @@ export default function DatenschutzPage() {
           </p>
           <p>
             E-Mail:{" "}
-            <a href="mailto:kontakt@kinderleicht.ai" className="text-primary-dark underline">
-              kontakt@kinderleicht.ai
+            <a href="mailto:kontakt@nicolas-daum.ai" className="text-primary-dark underline">
+              kontakt@nicolas-daum.ai
             </a>
             <br />
             <Link href="/impressum" className="text-primary-dark underline">

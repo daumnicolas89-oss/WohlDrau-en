@@ -48,8 +48,8 @@ export default function ImpressumPage() {
             Telefon: +49 170 5523252
             <br />
             E-Mail:{" "}
-            <a href="mailto:kontakt@kinderleicht.ai" className="text-primary-dark underline">
-              kontakt@kinderleicht.ai
+            <a href="mailto:impressum@nicolas-daum.de" className="text-primary-dark underline">
+              impressum@nicolas-daum.de
             </a>
           </p>
         </Abschnitt>
