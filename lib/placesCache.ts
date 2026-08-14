@@ -7,8 +7,11 @@ import type { FetchPlacesResult } from "./osm";
 /**
  * Overpass ist zeitweise sehr langsam, gemessen zwischen 3 und 68 Sekunden für
  * dieselbe Abfrage. Spielplätze wandern aber nicht, deshalb wird das Ergebnis
- * zusätzlich auf die Platte geschrieben: Ein Serverneustart soll den Preis
- * nicht erneut kosten, und bei einem Ausfall gibt es noch etwas zu zeigen.
+ * zusätzlich auf die Platte geschrieben. Ehrlichkeit zur Reichweite: Lokal und
+ * bei `next start` überlebt das einen Neustart; auf Vercel ist tmpdir pro
+ * Instanz und flüchtig – dort ist die tragende Cache-Ebene das CDN, die Platte
+ * hilft nur innerhalb einer warmen Instanz. Der Cache-Key trägt die
+ * Schema-Version (siehe places/route.ts), alte Formate laufen so ins Leere.
  */
 const CACHE_DIR = process.env.WD_CACHE_DIR ?? join(tmpdir(), "wohldraussen-places");
 

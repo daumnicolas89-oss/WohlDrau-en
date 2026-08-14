@@ -146,7 +146,9 @@ export function HomeView() {
     ? manual.label
     : coords.source === "gps"
       ? "Orte in deiner Nähe"
-      : FALLBACK_LABEL;
+      : coords.source === "last-known"
+        ? "Zuletzt bekannter Ort"
+        : FALLBACK_LABEL;
   // Die Orte tragen die Seite. Fällt nur das Wetter aus, bleibt die Liste
   // sichtbar (mit Ersatzwetter geordnet) statt alles wegzublenden, ein
   // Overpass-Fehler dagegen lässt nichts zu zeigen übrig.
@@ -234,7 +236,7 @@ export function HomeView() {
                   ? "Zur Satellitenansicht wechseln"
                   : "Zur Kartenansicht wechseln"
               }
-              className="absolute top-3 right-3 z-[905] flex items-center gap-1.5 rounded-full bg-card/95 px-3.5 py-2 text-sm font-semibold text-dark shadow-card backdrop-blur transition active:scale-95"
+              className="absolute top-3 right-3 z-[905] flex min-h-11 items-center gap-1.5 rounded-full bg-card/95 px-3.5 text-sm font-semibold text-dark shadow-card backdrop-blur transition active:scale-95"
             >
               <Layers size={16} aria-hidden />
               {filters.mapStyle === "map" ? "Satellit" : "Karte"}
@@ -376,7 +378,7 @@ export function HomeView() {
           className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float"
         >
           <Megaphone size={18} aria-hidden />
-          Rückmeldung geben
+          Melden
         </button>
         <button
           type="button"

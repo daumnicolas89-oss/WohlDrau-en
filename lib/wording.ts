@@ -138,7 +138,7 @@ export function amenitySentence(place: Place): string {
   }
   if (tags.fenced === true) teile.push("eingezäunt");
   if (tags.changing_table === true) teile.push("Wickeltisch");
-  if (tags.drinking_water === true) teile.push("Wasser");
+  if (tags.drinking_water === true) teile.push("Trinkwasser");
   if (tags.shelter === true) teile.push("überdachter Bereich");
 
   if (teile.length === 0) return "Zur Ausstattung ist nichts eingetragen";
@@ -157,7 +157,7 @@ export function amenityBreakdownSentence(place: Place): string {
   if (tags.toilet === true) vorhanden.push("Toilette");
   if (tags.fenced === true) vorhanden.push("Zaun");
   if (tags.changing_table === true) vorhanden.push("Wickeltisch");
-  if (tags.drinking_water === true) vorhanden.push("Wasser");
+  if (tags.drinking_water === true) vorhanden.push("Trinkwasser");
   if (tags.shelter === true) vorhanden.push("überdachter Bereich");
 
   const fehlend: string[] = [];
@@ -298,7 +298,7 @@ function vorhandeneAusstattung(place: Place): string {
   if (place.tags.toilet === true) teile.push("Toilette");
   if (place.tags.fenced === true) teile.push("Zaun");
   if (place.tags.changing_table === true) teile.push("Wickeltisch");
-  if (place.tags.drinking_water === true) teile.push("Wasser");
+  if (place.tags.drinking_water === true) teile.push("Trinkwasser");
   return teile.length ? listeMitUnd(teile) : "der Ausstattung";
 }
 

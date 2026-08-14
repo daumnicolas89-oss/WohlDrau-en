@@ -70,8 +70,11 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         // Entfernung wird ohnehin aus den echten Koordinaten berechnet.
         const gridLat = lat.toFixed(2);
         const gridLng = lng.toFixed(2);
+        // v = Schema-Version der Antwort (siehe PLACES_SCHEMA_VERSION in der
+        // Route): neue Version = neue URL = CDN/Service-Worker liefern nie
+        // tagelang alte Objektformen an neuen Client-Code.
         const res = await fetch(
-          `/api/places?lat=${gridLat}&lng=${gridLng}&radius=${radius}`,
+          `/api/places?v=2&lat=${gridLat}&lng=${gridLng}&radius=${radius}`,
           { signal: controller.signal },
         );
         if (!res.ok) {

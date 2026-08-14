@@ -24,10 +24,11 @@ export function FilterChips() {
                 );
               }
             }}
-            className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border border-primary-dark/15 bg-primary-soft px-3 text-sm font-semibold text-primary-dark transition active:scale-95"
+            aria-label={`Filter „${chip.label}“ entfernen`}
+            className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-primary-dark/15 bg-primary-soft px-3 text-sm font-semibold text-primary-dark transition active:scale-95"
           >
             {chip.label}
-            <X size={14} aria-label="Filter entfernen" />
+            <X size={14} aria-hidden />
           </button>
         </li>
       ))}

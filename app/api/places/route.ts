@@ -3,15 +3,29 @@ import { fetchPlaces, type FetchPlacesResult } from "@/lib/osm";
 import { FRESH_MS, readCache, writeCache } from "@/lib/placesCache";
 
 export const runtime = "nodejs";
+// Overpass kann im Worst Case (Retry über beide Spiegel) mehrere Minuten
+// brauchen – ohne dieses Budget killt Vercel die Function vorher und der
+// Stale-Fallback unten käme nie zum Zug.
+export const maxDuration = 120;
 
-const MAX_RADIUS_M = 3000;
+/**
+ * Version des Antwort-Schemas. Bei jeder Formänderung der Orts-Daten (neue
+ * Pflichtfelder o. Ä.) hochzählen: neuer Key = CDN, Disk und Service Worker
+ * liefern sofort frische Form statt tagelang alter Objekte an neuen Code.
+ */
+export const PLACES_SCHEMA_VERSION = 2;
+
+// Größter Filter (2,5 km) + bis zu ~650 m Raster-Versatz des Bbox-Zentrums:
+// erst ab 3500 m ist der äußerste Ring garantiert abgedeckt.
+const MAX_RADIUS_M = 3500;
+const MAX_MEMORY_ENTRIES = 100;
 
 const memory = new Map<string, { at: number; value: FetchPlacesResult }>();
 const inFlight = new Map<string, Promise<FetchPlacesResult>>();
 
 /** Auf ~1 km Raster runden, damit sich Anfragen aus einer Gegend den Cache teilen. */
 function cacheKey(lat: number, lng: number, radius: number) {
-  return `${lat.toFixed(2)}:${lng.toFixed(2)}:${radius}`;
+  return `v${PLACES_SCHEMA_VERSION}:${lat.toFixed(2)}:${lng.toFixed(2)}:${radius}`;
 }
 
 function respond(value: FetchPlacesResult, source: string) {
@@ -62,9 +76,17 @@ export async function GET(request: Request) {
     if (!pending) {
       pending = fetchPlaces(lat, lng, radius);
       inFlight.set(key, pending);
-      pending.finally(() => inFlight.delete(key));
+      // .finally() erzeugt eine NEUE Promise-Kette – ohne .catch() würde ein
+      // Overpass-Fehler hier als unhandled rejection den Prozess treffen,
+      // ausgerechnet wenn unten der Stale-Fallback greifen soll.
+      pending.finally(() => inFlight.delete(key)).catch(() => {});
     }
     const value = await pending;
+    // Alte Einträge deckeln, sonst wächst der Prozess-Cache unbegrenzt.
+    if (memory.size >= MAX_MEMORY_ENTRIES) {
+      const oldest = memory.keys().next().value;
+      if (oldest !== undefined) memory.delete(oldest);
+    }
     memory.set(key, { at: Date.now(), value });
     void writeCache(key, value);
     return respond(value, "miss");

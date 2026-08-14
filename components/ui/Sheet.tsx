@@ -26,7 +26,9 @@ export function Sheet({
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-[1000] bg-dark/45" />
         <Drawer.Content
-          aria-describedby={undefined}
+          // Nur ohne Beschreibung die Verknüpfung kappen – sonst nähme das
+          // auch Screenreadern die vorhandene Drawer.Description weg.
+          {...(description ? {} : { "aria-describedby": undefined })}
           className="fixed inset-x-0 bottom-0 z-[1000] mx-auto flex max-h-[88dvh] max-w-lg flex-col rounded-t-sheet bg-card shadow-float outline-none"
         >
           <div className="mx-auto mt-3 h-1.5 w-10 shrink-0 rounded-full bg-[#d4dade]" />

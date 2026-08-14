@@ -5,7 +5,9 @@
  * - API-Daten: immer aus dem Netz. Ein veralteter Schatten wäre schlimmer als
  *   gar keiner – nur wenn das Netz ausfällt, greifen wir auf die Kopie zurück.
  */
-const VERSION = "v2";
+// Bei jeder Änderung am Datenschema der API-Antworten mit hochzählen –
+// sonst hält der Offline-Cache alte Objektformen unbegrenzt fest.
+const VERSION = "v3";
 const SHELL_CACHE = `wd-shell-${VERSION}`;
 const TILE_CACHE = `wd-tiles-${VERSION}`;
 const DATA_CACHE = `wd-data-${VERSION}`;
@@ -59,7 +61,9 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  if (url.hostname.endsWith("tile.openstreetmap.org")) {
+  // Die Karte lädt ihre Kacheln von CARTO (hell) – nur dieser Host wird
+  // offline vorgehalten. Esri-Luftbilder bewusst nicht (groß, selten nötig).
+  if (url.hostname.endsWith("basemaps.cartocdn.com")) {
     event.respondWith(
       caches.open(TILE_CACHE).then(async (cache) => {
         const cached = await cache.match(request);

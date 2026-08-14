@@ -20,6 +20,14 @@ const MAX_MESSAGE_LENGTH = 140;
 
 const lastPostByIp = new Map<string, number>();
 
+/** Abgelaufene Einträge gelegentlich entsorgen, sonst wächst die Map ewig. */
+function pruneLastPost(now: number) {
+  if (lastPostByIp.size < 500) return;
+  for (const [ip, at] of lastPostByIp) {
+    if (now - at > MIN_INTERVAL_MS) lastPostByIp.delete(ip);
+  }
+}
+
 /**
  * Technische Ursachen gehören ins Log, nicht ins Formular: „TypeError: fetch
  * failed“ hilft niemandem, der gerade am Spielplatz steht.
@@ -72,6 +80,7 @@ export async function POST(request: Request) {
   }
 
   const ip = clientIp(request);
+  pruneLastPost(Date.now());
   const previous = lastPostByIp.get(ip);
   if (previous && Date.now() - previous < MIN_INTERVAL_MS) {
     return NextResponse.json(

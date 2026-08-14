@@ -53,7 +53,7 @@ export function ScoreRing({
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#e5e9eb"
+        stroke="var(--color-line)"
         strokeWidth={stroke}
       />
       <circle

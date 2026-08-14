@@ -68,8 +68,9 @@ export async function GET(request: Request) {
 
     const res = await fetch(url, {
       headers: {
-        // Nominatim verlangt eine aussagekräftige Kennung.
-        "User-Agent": "PlatzDa/0.1 (Standortsuche)",
+        // Nominatim verlangt eine aussagekräftige Kennung MIT Kontakt –
+        // anonyme Absender werden bei Last zuerst gesperrt.
+        "User-Agent": "PlatzDa/0.1 (+https://platzda.app; kontakt@nicolas-daum.ai)",
         "Accept-Language": "de",
       },
       signal: AbortSignal.timeout(8000),
@@ -82,7 +83,16 @@ export async function GET(request: Request) {
       .map((r) => ({ label: shortLabel(r), lat: Number(r.lat), lng: Number(r.lon) }))
       .filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lng));
 
-    return NextResponse.json({ results });
+    return NextResponse.json(
+      { results },
+      {
+        headers: {
+          // Ortsnamen ändern sich nicht: dieselbe Suche soll Nominatim nur
+          // einmal am Tag treffen (Policy verlangt Caching ausdrücklich).
+          "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800",
+        },
+      },
+    );
   } catch (error) {
     console.error("[wohldraussen] geocode:", error);
     return NextResponse.json(

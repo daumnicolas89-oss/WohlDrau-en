@@ -69,20 +69,38 @@ function fromRow(row: Row): PlaceStatus {
   };
 }
 
+/**
+ * Ein Absender zählt pro Ort nur einmal (seine neueste Meldung) – sonst ließe
+ * sich der Community-Wert eines Ortes durch schlichtes Wiederholen hochpumpen.
+ * Erwartet Zeilen neueste zuerst; die Absender-ID bleibt im Server.
+ */
+function newestPerSender<T extends { placeId: string; anonymousId: string | null }>(
+  rows: T[],
+): T[] {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    if (!row.anonymousId) return true;
+    const key = `${row.placeId}:${row.anonymousId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export async function listStatuses(placeIds?: string[]): Promise<PlaceStatus[]> {
   const client = supabase();
   const nowIso = new Date().toISOString();
 
   if (!client) {
     pruneMemory();
-    return memory
-      .filter((r) => !placeIds || placeIds.includes(r.placeId))
-      .map(toPublic);
+    return newestPerSender(
+      memory.filter((r) => !placeIds || placeIds.includes(r.placeId)),
+    ).map(toPublic);
   }
 
   let query = client
     .from(TABLE)
-    .select("id, place_id, status_type, message, created_at, expires_at")
+    .select("id, place_id, status_type, message, created_at, expires_at, anonymous_id")
     .gt("expires_at", nowIso)
     .order("created_at", { ascending: false })
     .limit(1000);
@@ -90,7 +108,12 @@ export async function listStatuses(placeIds?: string[]): Promise<PlaceStatus[]> 
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return (data as Row[]).map(fromRow);
+  const rows = (data as (Row & { anonymous_id: string | null })[]).map((row) => ({
+    row,
+    placeId: row.place_id,
+    anonymousId: row.anonymous_id,
+  }));
+  return newestPerSender(rows).map(({ row }) => fromRow(row));
 }
 
 export interface NewStatus {

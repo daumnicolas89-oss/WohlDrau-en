@@ -9,6 +9,14 @@ export type TimeOffset = 0 | 30 | 60;
 export type ViewMode = "list" | "map";
 export type MapStyle = "map" | "satellite";
 
+/** Eine Quelle für die Zeit-Auswahl – Kopfzeile und Filter zeigen dieselben
+ *  Wahlmöglichkeiten, also müssen sie auch dieselbe Liste benutzen. */
+export const TIME_CHOICES: { value: TimeOffset; label: string }[] = [
+  { value: 0, label: "Jetzt" },
+  { value: 30, label: "In 30 Min" },
+  { value: 60, label: "In 1 Std" },
+];
+
 export interface FilterState {
   timeOffsetMin: TimeOffset;
   maxDistanceM: number;

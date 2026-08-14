@@ -39,6 +39,9 @@ export function ShadeTimeline({
           <div key={index} className="flex-1">
             <div
               className="flex h-20 items-end rounded-lg bg-background"
+              role="img"
+              // title erreicht nur die Maus – das aria-label auch Touch-Reader.
+              aria-label={`${index === 0 ? "Jetzt" : formatTime(at)}: ${shadeShort(shade.state)}`}
               title={`${index === 0 ? "Jetzt" : formatTime(at)}: ${shadeShort(shade.state)}`}
             >
               <div

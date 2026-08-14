@@ -1,11 +1,7 @@
 "use client";
 
 import { formatDistance } from "@/lib/utils";
-import {
-  useFilters,
-  type ShadeRequirement,
-  type TimeOffset,
-} from "@/store/useFilters";
+import { TIME_CHOICES, useFilters, type ShadeRequirement } from "@/store/useFilters";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 
@@ -15,12 +11,6 @@ const SHADE_CHOICES: { value: ShadeRequirement; label: string }[] = [
   { value: "any", label: "Egal" },
   { value: "partial", label: "Etwas" },
   { value: "shady", label: "Viel" },
-];
-
-const TIME_CHOICES: { value: TimeOffset; label: string }[] = [
-  { value: 0, label: "Jetzt" },
-  { value: 30, label: "In 30 Min" },
-  { value: 60, label: "In 1 Std" },
 ];
 
 const DISTANCES = [1000, 1500, 2000, 2500];

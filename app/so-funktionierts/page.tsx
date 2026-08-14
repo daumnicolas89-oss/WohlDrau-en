@@ -54,7 +54,7 @@ export default function SoFunktioniertsPage() {
         So funktioniert PlatzDa
       </h1>
       <p className="mt-2 px-1 text-[15px] leading-relaxed text-muted">
-        PlatzDa zeigt dir, wo es gerade jetzt draußen am angenehmsten ist:
+        PlatzDa zeigt dir, wo es jetzt draußen am angenehmsten ist:
         Spielplätze und Grünflächen in deiner Nähe, mit genug Schatten und allem,
         was zählt.
       </p>
@@ -64,7 +64,7 @@ export default function SoFunktioniertsPage() {
           <p>
             Jeder Ort bekommt einen Wert von 0 bis 100, wie angenehm es dort{" "}
             <strong>gerade</strong> ist. Der Ring zeigt ihn auf einen Blick:
-            grün = angenehm, gelb = mittel, orange = eher ungünstig.
+            grün = angenehm, gelb = mittel, rot = eher ungünstig.
           </p>
           <p>
             Er fasst vier Dinge zusammen: <strong>Schatten</strong> (zählt bei
@@ -119,7 +119,7 @@ export default function SoFunktioniertsPage() {
 
         <Abschnitt Icon={Toilet} titel="Öffentliche Toiletten">
           <p>
-            Über <strong>„Toilette finden“</strong> siehst du öffentliche Toiletten
+            Über <strong>„Öffentliche Toilette suchen“</strong> siehst du öffentliche Toiletten
             in der Nähe, sortiert nach Entfernung, mit Route dorthin.
           </p>
         </Abschnitt>
