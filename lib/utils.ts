@@ -44,6 +44,30 @@ export function offsetMeters(
   };
 }
 
+/**
+ * Liegt der Punkt innerhalb des Polygons? Ray-Casting, planar gerechnet (für
+ * Stadtflächen völlig ausreichend). Beantwortet die Kernfrage „liegt dieser
+ * Ort wirklich in dieser Wald-/Baumfläche?" statt nur in ihrer Bounding-Box.
+ */
+export function pointInPolygon(
+  lat: number,
+  lng: number,
+  ring: { lat: number; lng: number }[],
+): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const yi = ring[i].lat;
+    const xi = ring[i].lng;
+    const yj = ring[j].lat;
+    const xj = ring[j].lng;
+    const crosses =
+      yi > lat !== yj > lat &&
+      lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+    if (crosses) inside = !inside;
+  }
+  return inside;
+}
+
 /** Bounding-Box um einen Punkt mit Radius in Metern → [süd, west, nord, ost] */
 export function bboxAround(
   lat: number,

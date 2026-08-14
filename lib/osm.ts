@@ -1,3 +1,4 @@
+import { coverCanopyAt, type TreeCover } from "./canopy";
 import { bboxAround, haversine, offsetMeters } from "./utils";
 import type {
   NearBuilding,
@@ -43,6 +44,7 @@ interface OverpassElement {
   center?: { lat: number; lon: number };
   bounds?: { minlat: number; minlon: number; maxlat: number; maxlon: number };
   geometry?: { lat: number; lon: number }[];
+  members?: { type: string; ref: number; role: string; geometry?: { lat: number; lon: number }[] }[];
   tags?: Record<string, string>;
 }
 
@@ -65,6 +67,13 @@ out tags center bb;
 out tags center;
 node["natural"="tree"](${b});
 out skel qt;
+(
+  nwr["natural"="wood"](${b});
+  nwr["landuse"="forest"](${b});
+  way["landcover"="trees"](${b});
+  way["natural"="scrub"](${b});
+);
+out tags geom;
 way["building"](${b});
 out ids center;
 way["highway"~"^(residential|living_street|unclassified|tertiary|secondary|pedestrian)$"]["name"](${b});
@@ -390,6 +399,7 @@ export async function fetchPlaces(
   const waters: Point[] = [];
   const trees: Point[] = [];
   const buildings: Point[] = [];
+  const treeCovers: TreeCover[] = [];
   const streetPoints: (Point & { name: string })[] = [];
 
   for (const el of elements) {
@@ -411,6 +421,38 @@ export async function fetchPlaces(
         for (const g of el.geometry) {
           streetPoints.push({ lat: g.lat, lng: g.lon, name: tags.name });
         }
+      }
+      continue;
+    }
+
+    // Baum-Flächen mit Umriss: der Kern der genauen Schatten-Einschätzung.
+    // Nur die Geometrie-Version landet hier; die center+bb-Version von Wald
+    // und Forst läuft weiter unten als benannte Grünfläche.
+    if (
+      (el.geometry || el.members) &&
+      (tags.natural === "wood" ||
+        tags.landuse === "forest" ||
+        tags.landcover === "trees" ||
+        tags.natural === "scrub")
+    ) {
+      const rings: { lat: number; lng: number }[][] = [];
+      // Ways liefern die Fläche direkt, Relationen (große Wälder) als mehrere
+      // Außenrand-Segmente, die zusammen den Rand bilden.
+      if (el.geometry) {
+        rings.push(el.geometry.map((g) => ({ lat: g.lat, lng: g.lon })));
+      }
+      if (el.members) {
+        for (const m of el.members) {
+          if (m.role === "outer" && m.geometry && m.geometry.length >= 2) {
+            rings.push(m.geometry.map((g) => ({ lat: g.lat, lng: g.lon })));
+          }
+        }
+      }
+      if (rings.length > 0) {
+        treeCovers.push({
+          kind: tags.natural === "scrub" ? "medium" : "dense",
+          rings,
+        });
       }
       continue;
     }
@@ -463,7 +505,17 @@ export async function fetchPlaces(
     const treeCount = treeGrid.near(c.lat, c.lng, treeRadius).length;
 
     const effectiveArea = areaM2 ?? Math.PI * treeRadius ** 2;
-    let canopy = Math.min(1, (treeCount * TREE_CANOPY_M2) / Math.max(400, effectiveArea));
+    const pointCanopy = Math.min(
+      1,
+      (treeCount * TREE_CANOPY_M2) / Math.max(400, effectiveArea),
+    );
+    // Echte Baum-Fläche schlägt die Punkt-Zählung: Ein Waldspielplatz liegt in
+    // der Wald-Fläche und ist beschattet, auch ohne einzeln getaggte Bäume. Das
+    // ersetzt das frühere grobe „im-Grünen"-Bodenprovisorium, das offene Parks
+    // fälschlich beschattete.
+    const coverCanopy = coverCanopyAt(c.lat, c.lng, treeCovers);
+    const inCover = coverCanopy > 0;
+    const canopy = Math.max(pointCanopy, coverCanopy);
 
     const inGreen =
       type === "park" ||
@@ -477,12 +529,6 @@ export async function fetchPlaces(
           c.lng <= g.bounds.maxlon + pad
         );
       });
-
-    // In Parks und Wäldern sind längst nicht alle Bäume erfasst.
-    if (inGreen) canopy = Math.max(canopy, treeDataQuality === "low" ? 0.4 : 0.25);
-    if (osmTags.natural === "wood" || osmTags.landuse === "forest") {
-      canopy = Math.max(canopy, 0.8);
-    }
 
     const nearBuildings: NearBuilding[] = buildingGrid
       .near(c.lat, c.lng, BUILDING_SEARCH_RADIUS_M)
@@ -515,7 +561,7 @@ export async function fetchPlaces(
         : undefined;
 
     const confidence = shadeConfidenceFor({
-      isForest: osmTags.natural === "wood" || osmTags.landuse === "forest",
+      isForest: inCover,
       inGreen,
       treeCount,
       areaTreeQuality: treeDataQuality,
