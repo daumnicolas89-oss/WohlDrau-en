@@ -159,10 +159,16 @@ function yesNo(value: string | undefined): boolean | undefined {
   return undefined;
 }
 
-function isAccessible(tags: Record<string, string>): boolean {
-  if (tags.access && ["private", "no", "permit"].includes(tags.access)) return false;
-  if (tags.indoor === "yes") return false;
-  return true;
+/** Hart ausgeschlossen: definitiv gesperrt oder drinnen. */
+function isBlocked(tags: Record<string, string>): boolean {
+  return tags.access === "no" || tags.indoor === "yes";
+}
+
+/** Zugang eingeschränkt (z. B. Schulhof): anzeigen, aber kennzeichnen. Viele
+ *  Schulhöfe sind außerhalb der Schulzeit offen, sie ganz zu verstecken lässt
+ *  echte Spielplätze fehlen. */
+function isRestrictedAccess(tags: Record<string, string>): boolean {
+  return tags.access === "private" || tags.access === "permit";
 }
 
 function fencedFrom(tags: Record<string, string>): boolean | undefined {
@@ -469,7 +475,7 @@ export async function fetchPlaces(
       continue;
     }
     if (tags.leisure === "playground" || tags.leisure === "park") {
-      if (isAccessible(tags)) rawPlaces.push(el);
+      if (!isBlocked(tags)) rawPlaces.push(el);
       if (tags.leisure === "park") greens.push(el);
       continue;
     }
@@ -500,8 +506,11 @@ export async function fetchPlaces(
     const type: PlaceType = osmTags.leisure === "park" ? "park" : "playground";
     const areaM2 = areaOf(el);
     // Suchradius für Bäume: bei Punkt-Objekten pauschal 40 m.
-    const extent = areaM2 ? Math.sqrt(areaM2) / 2 : 40;
-    const treeRadius = Math.min(120, Math.max(35, extent));
+    // Nur Bäume, die wirklich auf dem Platz stehen, sollen zählen. Ein weiter
+    // Umkreis zählte Straßenbäume ringsum mit und ließ offene Plätze fälschlich
+    // schattig wirken. Deshalb am tatsächlichen Ausmaß des Platzes orientieren.
+    const extent = areaM2 ? Math.sqrt(areaM2) / 2 : 25;
+    const treeRadius = Math.min(120, Math.max(12, extent));
     const treeCount = treeGrid.near(c.lat, c.lng, treeRadius).length;
 
     const effectiveArea = areaM2 ?? Math.PI * treeRadius ** 2;
@@ -580,6 +589,7 @@ export async function fetchPlaces(
       age_group: ageGroupFrom(osmTags),
       shelter: yesNo(osmTags.shelter) ?? yesNo(osmTags.covered),
       wheelchair: yesNo(osmTags.wheelchair),
+      restrictedAccess: isRestrictedAccess(osmTags) ? true : undefined,
     };
 
     places.push({

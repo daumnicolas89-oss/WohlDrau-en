@@ -10,6 +10,7 @@ import { ShadeMeter } from "./ShadeMeter";
  *  gezeigt. Dieser Ehrlichkeits-Hinweis gehört an jede betroffene Karte. */
 const WENIG_BAEUME_HINT =
   "Wenige Bäume erfasst, hier kann es schattiger sein als angezeigt.";
+const ZUGANG_HINT = "Zugang evtl. eingeschränkt, z. B. Schulhof.";
 
 /**
  * Die Reihenfolge folgt der Frage im Kopf: Wo ist das? Wie gut ist es dort
@@ -45,6 +46,7 @@ export function PlaceCard({
   const beste = rank === 0;
   const wenigBaumdaten =
     place.shadeInputs.confidence === "low" && place.shadeInputs.inGreen;
+  const eingeschraenkt = place.tags.restrictedAccess === true;
 
   // Ab Platz 2 eine schlanke Zeile: ein klarer Favorit oben, darunter eine
   // ruhige, scanbare Liste, das bricht den „Einheitsbrei" ohne mehr Farbe.
@@ -71,6 +73,11 @@ export function PlaceCard({
           {wenigBaumdaten && (
             <p className="mt-0.5 text-xs leading-snug text-muted">
               {WENIG_BAEUME_HINT}
+            </p>
+          )}
+          {eingeschraenkt && (
+            <p className="mt-0.5 text-xs leading-snug font-medium text-accent-ink">
+              {ZUGANG_HINT}
             </p>
           )}
         </div>
@@ -121,6 +128,11 @@ export function PlaceCard({
           {wenigBaumdaten && (
             <p className="mt-1.5 text-xs leading-relaxed text-muted">
               {WENIG_BAEUME_HINT}
+            </p>
+          )}
+          {eingeschraenkt && (
+            <p className="mt-1.5 text-xs leading-relaxed font-medium text-accent-ink">
+              {ZUGANG_HINT}
             </p>
           )}
         </div>

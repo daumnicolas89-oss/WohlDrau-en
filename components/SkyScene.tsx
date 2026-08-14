@@ -1,16 +1,20 @@
 import type { Weather } from "@/types";
 
-export type SkyMood = "sunny" | "cloudy" | "rainy" | "night";
+export type SkyMood = "sunny" | "dusk" | "cloudy" | "rainy" | "night";
 
-/** Ehrlich: keine strahlende Sonne bei Regen oder nachts. */
+/** Ehrlich: keine strahlende Sonne bei Regen, nachts, oder wenn die Sonne
+ *  tief steht und kaum noch wärmt. Niedriger UV heißt schwache Sonne, das gilt
+ *  abends wie im Winter. */
 export function skyMood(
   weather: Weather,
   cloudCover: number,
   precipProbability: number,
+  uvIndex: number,
 ): SkyMood {
   if (!weather.isDay) return "night";
   if (precipProbability >= 50 || weather.precipitation > 0.1) return "rainy";
   if (cloudCover >= 70) return "cloudy";
+  if (uvIndex < 2) return "dusk";
   return "sunny";
 }
 
@@ -18,6 +22,8 @@ export function skyMood(
 export const SKY_GRADIENT: Record<SkyMood, string> = {
   sunny:
     "radial-gradient(125% 85% at 84% -18%, rgba(249,197,82,0.45), rgba(249,197,82,0) 54%), linear-gradient(176deg, #fde7c6 0%, #f4ecdd 40%, #eaf1ec 72%, var(--color-background) 100%)",
+  dusk:
+    "radial-gradient(120% 95% at 80% 34%, rgba(240,160,86,0.34), rgba(240,160,86,0) 60%), linear-gradient(176deg, #fbe2c2 0%, #f3e8d9 46%, #ecefe9 76%, var(--color-background) 100%)",
   cloudy:
     "linear-gradient(176deg, #e8ece8 0%, #edf0ec 52%, var(--color-background) 100%)",
   rainy:
@@ -46,6 +52,21 @@ export function SkyScene({ mood }: { mood: SkyMood }) {
             <line x1="84" y1="84" x2="94" y2="94" />
             <line x1="94" y1="26" x2="84" y2="36" />
             <line x1="36" y1="84" x2="26" y2="94" />
+          </g>
+        </g>
+      )}
+
+      {mood === "dusk" && (
+        // Tiefe, weiche Sonne: sitzt tiefer, wärmer, nur kurze obere Strahlen,
+        // damit klar ist, dass sie nicht mehr knallt.
+        <g>
+          <circle cx="66" cy="76" r="20" fill="#e79a48" opacity="0.92" />
+          <g stroke="#e79a48" strokeWidth="5" strokeLinecap="round" opacity="0.65">
+            <line x1="66" y1="42" x2="66" y2="52" />
+            <line x1="38" y1="76" x2="48" y2="76" />
+            <line x1="84" y1="76" x2="94" y2="76" />
+            <line x1="45" y1="55" x2="52" y2="62" />
+            <line x1="87" y1="55" x2="80" y2="62" />
           </g>
         </g>
       )}

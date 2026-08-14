@@ -43,7 +43,7 @@ export function WeatherHeader({
   const uv = values ? uvWording(values.uvIndex) : null;
   const mood =
     weather && values
-      ? skyMood(weather, values.cloudCover, values.precipitationProbability)
+      ? skyMood(weather, values.cloudCover, values.precipitationProbability, values.uvIndex)
       : null;
 
   return (

@@ -19,6 +19,8 @@ export interface PlaceTags {
   age_group?: string;
   shelter?: boolean;
   wheelchair?: boolean;
+  /** Zugang laut OSM eingeschränkt (z. B. Schulhof), anzeigen mit Hinweis. */
+  restrictedAccess?: boolean;
 }
 
 /** Gebäude in der Nähe, relativ zum Ort in Metern. Basis für den Gebäudeschatten. */

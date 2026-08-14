@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CloudOff, ExternalLink, Megaphone, Navigation } from "lucide-react";
+import { ArrowLeft, CloudOff, ExternalLink, Info, Megaphone, Navigation } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
 import { formatAge, statusOption } from "@/lib/status";
 import { computeShade, windowHasSun } from "@/lib/sun";
@@ -133,7 +133,7 @@ export function PlaceDetail({
   const heroW = weather ? weatherAt(weather, now) : null;
   const heroMood =
     weather && heroW
-      ? skyMood(weather, heroW.cloudCover, heroW.precipitationProbability)
+      ? skyMood(weather, heroW.cloudCover, heroW.precipitationProbability, heroW.uvIndex)
       : null;
 
   return (
@@ -270,6 +270,17 @@ export function PlaceDetail({
                   Das Wetter ist gerade nicht erreichbar. Schatten und Bewertung
                   beruhen hier auf dem Sonnenstand und einer neutralen Annahme,
                   nicht auf aktuellen Werten.
+                </span>
+              </p>
+            )}
+
+            {place.tags.restrictedAccess && (
+              <p className="flex items-start gap-2 rounded-card border border-accent/50 bg-accent-soft p-3 text-sm leading-relaxed text-accent-ink">
+                <Info size={16} aria-hidden className="mt-0.5 shrink-0" />
+                <span>
+                  Der Zugang ist laut Karte eingeschränkt (z. B. ein Schulhof).
+                  Solche Plätze sind oft nur außerhalb der Schulzeit offen, schau
+                  am besten vorher, ob offen ist.
                 </span>
               </p>
             )}
