@@ -13,7 +13,7 @@ export const maxDuration = 120;
  * Pflichtfelder o. Ä.) hochzählen: neuer Key = CDN, Disk und Service Worker
  * liefern sofort frische Form statt tagelang alter Objekte an neuen Code.
  */
-export const PLACES_SCHEMA_VERSION = 2;
+export const PLACES_SCHEMA_VERSION = 3;
 
 // Größter Filter (2,5 km) + bis zu ~650 m Raster-Versatz des Bbox-Zentrums:
 // erst ab 3500 m ist der äußerste Ring garantiert abgedeckt.

@@ -1,4 +1,4 @@
-import { coverCanopyAt, type TreeCover } from "./canopy";
+import { coverCanopyAt, DENSE_CANOPY, type TreeCover } from "./canopy";
 import { bboxAround, haversine, offsetMeters } from "./utils";
 import type {
   NearBuilding,
@@ -428,6 +428,9 @@ export async function fetchPlaces(
   const trees: Point[] = [];
   const buildings: Point[] = [];
   const treeCovers: TreeCover[] = [];
+  // Umrisse je Wald-Objekt, um den Anzeige-Punkt eines Wäldchens auf die
+  // Fläche zu ziehen, falls die Bbox-Mitte danebenliegt (L-Form, Teilflächen).
+  const coverRingsById = new Map<string, { lat: number; lng: number }[][]>();
   const streetPoints: (Point & { name: string })[] = [];
 
   for (const el of elements) {
@@ -487,6 +490,7 @@ export async function fetchPlaces(
           kind: tags.natural === "scrub" ? "medium" : "dense",
           rings,
         });
+        coverRingsById.set(`${el.type}/${el.id}`, rings);
       }
       continue;
     }
@@ -527,7 +531,7 @@ export async function fetchPlaces(
   const seen = new Set<string>();
 
   for (const el of rawPlaces) {
-    const c = centerOf(el);
+    let c = centerOf(el);
     const osmTags = el.tags!;
     if (!c) continue;
     const id = `${el.type}/${el.id}`;
@@ -558,6 +562,31 @@ export async function fetchPlaces(
           : kind === "park"
             ? "Grünfläche"
             : "Spielplatz";
+
+    // Der Punkt eines Waldes ist die Mitte seines umschließenden Rechtecks –
+    // bei L-Form, langen Streifen (Auwald) oder mehrteiligen Flächen liegt die
+    // oft AUSSERHALB des Waldes (auf der Wiese daneben, im Fluss). Dann rutscht
+    // der Anzeige-Punkt auf den nächstgelegenen Randpunkt der Waldfläche.
+    if (kind === "wood") {
+      const own = coverRingsById.get(id);
+      if (own && coverCanopyAt(c.lat, c.lng, [{ kind: "dense", rings: own }]) === 0) {
+        const lngScale = Math.cos((c.lat * Math.PI) / 180);
+        let best: { lat: number; lng: number } | null = null;
+        let bestD = Infinity;
+        for (const ring of own) {
+          for (const p of ring) {
+            const d =
+              (p.lat - c.lat) ** 2 + ((p.lng - c.lng) * lngScale) ** 2;
+            if (d < bestD) {
+              bestD = d;
+              best = p;
+            }
+          }
+        }
+        if (best) c = { lat: best.lat, lng: best.lng };
+      }
+    }
+
     const areaM2 = areaOf(el);
     // Suchradius für Bäume: bei Punkt-Objekten pauschal 40 m.
     // Nur Bäume, die wirklich auf dem Platz stehen, sollen zählen. Ein weiter
@@ -575,8 +604,13 @@ export async function fetchPlaces(
     // Echte Baum-Fläche schlägt die Punkt-Zählung: Ein Waldspielplatz liegt in
     // der Wald-Fläche und ist beschattet, auch ohne einzeln getaggte Bäume. Das
     // ersetzt das frühere grobe „im-Grünen"-Bodenprovisorium, das offene Parks
-    // fälschlich beschattete.
-    const coverCanopy = coverCanopyAt(c.lat, c.lng, treeCovers);
+    // fälschlich beschattete. Ein Ort, der SELBST als Wald getaggt ist, ist per
+    // Definition baumbedeckt – egal wo genau sein Messpunkt gelandet ist (der
+    // Rand-Punkt eines Multipolygons kann beim Ray-Casting sonst „außen" sein).
+    const coverCanopy = Math.max(
+      coverCanopyAt(c.lat, c.lng, treeCovers),
+      kind === "wood" ? DENSE_CANOPY : 0,
+    );
     const inCover = coverCanopy > 0;
     const canopy = Math.max(pointCanopy, coverCanopy);
 

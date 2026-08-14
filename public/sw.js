@@ -7,7 +7,7 @@
  */
 // Bei jeder Änderung am Datenschema der API-Antworten mit hochzählen –
 // sonst hält der Offline-Cache alte Objektformen unbegrenzt fest.
-const VERSION = "v3";
+const VERSION = "v4";
 const SHELL_CACHE = `wd-shell-${VERSION}`;
 const TILE_CACHE = `wd-tiles-${VERSION}`;
 const DATA_CACHE = `wd-data-${VERSION}`;

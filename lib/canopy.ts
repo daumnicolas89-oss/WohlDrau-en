@@ -9,7 +9,7 @@ export interface TreeCover {
   rings: { lat: number; lng: number }[][];
 }
 
-const DENSE_CANOPY = 0.85;
+export const DENSE_CANOPY = 0.85;
 const MEDIUM_CANOPY = 0.5;
 
 /**
