@@ -50,7 +50,7 @@ export default function DatenschutzPage() {
 
         <Abschnitt titel="Verantwortlicher">
           <p>
-            Nicolas Daum / Kinderleicht.ai
+            Nicolas Daum / PlatzDa.app
             <br />
             Bendestorfer Str. 6
             <br />

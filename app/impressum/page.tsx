@@ -31,7 +31,7 @@ export default function ImpressumPage() {
       <div className="mt-6 space-y-7 text-[15px] leading-relaxed">
         <Abschnitt titel="Angaben gemäß § 5 DDG">
           <p>
-            Nicolas Daum / Kinderleicht.ai
+            Nicolas Daum / PlatzDa.app
             <br />
             Bendestorfer Str. 6
             <br />
@@ -45,7 +45,10 @@ export default function ImpressumPage() {
 
         <Abschnitt titel="Kontakt">
           <p>
-            Telefon: +49 170 5523252
+            Telefon:{" "}
+            <a href="tel:+491705523252" className="text-primary-dark underline">
+              +49 170 5523252
+            </a>
             <br />
             E-Mail:{" "}
             <a href="mailto:impressum@nicolas-daum.ai" className="text-primary-dark underline">
