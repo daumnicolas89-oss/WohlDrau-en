@@ -41,6 +41,29 @@ describe("desiredShade", () => {
 });
 
 describe("scorePlace", () => {
+  it("hebt bei Regenrisiko Orte mit Unterstand nach oben", () => {
+    const rainy = weather({
+      hourly: {
+        time: ["2026-06-21T13:00"],
+        temperature: [18],
+        apparentTemperature: [17],
+        cloudCover: [90],
+        precipitationProbability: [80],
+        uvIndex: [1],
+      },
+    });
+    const ohne = score({}, { weather: rainy });
+    const mit = score({ tags: { shelter: true } }, { weather: rainy });
+    assert.ok(
+      mit.pleasantScore > ohne.pleasantScore,
+      `${mit.pleasantScore} vs ${ohne.pleasantScore}`,
+    );
+    assert.ok(mit.reasons.includes("Unterstand für Regenpausen"), mit.reasons.join());
+    // Ohne Regen kein Sonder-Bonus (nur der kleine Ausstattungs-Punkt).
+    const trocken = score({ tags: { shelter: true } });
+    assert.ok(!trocken.reasons.includes("Unterstand für Regenpausen"));
+  });
+
   it("bevorzugt bei Hitze den schattigen Ort", () => {
     const sunny = score({});
     const shady = score({ shadeInputs: { canopy: 0.85 } });

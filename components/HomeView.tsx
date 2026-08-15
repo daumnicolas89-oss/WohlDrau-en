@@ -2,7 +2,14 @@
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { Layers, Megaphone, SlidersHorizontal, Toilet } from "lucide-react";
+import {
+  ChevronRight,
+  Layers,
+  Megaphone,
+  SlidersHorizontal,
+  Toilet,
+  ToyBrick,
+} from "lucide-react";
 import { selectPlaces } from "@/lib/select";
 import { formatDistance, haversine } from "@/lib/utils";
 import type { PlaceStatusType } from "@/types";
@@ -104,6 +111,20 @@ export function HomeView() {
         .slice(0, 6),
     [places.places, coords.lat, coords.lng],
   );
+
+  // Der „ich will nur kurz raus"-Moment: der nächstgelegene Spielplatz,
+  // unabhängig davon, wie er gerade bewertet ist. Wer auf dem Schulhof um die
+  // Ecke steht, soll ihn hier finden, nicht auf Platz 40 der Liste.
+  const nearestPlayground = useMemo(() => {
+    let best: { place: (typeof places.places)[number]; distance: number } | null =
+      null;
+    for (const p of places.places) {
+      if (p.type !== "playground") continue;
+      const d = haversine(coords.lat, coords.lng, p.lat, p.lng);
+      if (!best || d < best.distance) best = { place: p, distance: d };
+    }
+    return best;
+  }, [places.places, coords.lat, coords.lng]);
 
   const nearestToilets = useMemo(
     () =>
@@ -265,6 +286,34 @@ export function HomeView() {
         {!loading && !error && filters.viewMode === "list" && (
           <div className="space-y-4 p-4 pb-32">
             <FilterChips />
+
+            {/* Direkt zum nächsten Spielplatz – egal wie er bewertet ist.
+                Entfällt, wenn er sowieso als beste Wahl ganz oben steht. */}
+            {nearestPlayground && visible[0]?.id !== nearestPlayground.place.id && (
+              <Link
+                href={
+                  `/ort/${nearestPlayground.place.id}` +
+                  `?lat=${coords.lat.toFixed(5)}&lng=${coords.lng.toFixed(5)}` +
+                  `&plat=${nearestPlayground.place.lat.toFixed(5)}` +
+                  `&plng=${nearestPlayground.place.lng.toFixed(5)}&r=${radius}`
+                }
+                className="flex items-center gap-3 rounded-card border border-line bg-card px-4 py-3 shadow-card transition active:scale-[0.99]"
+              >
+                <ToyBrick size={18} aria-hidden className="shrink-0 text-primary-dark" />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[11px] font-semibold tracking-wide text-muted uppercase">
+                    Nächster Spielplatz
+                  </span>
+                  <span className="flex items-baseline gap-1.5 text-sm font-medium text-dark">
+                    <span className="truncate">{nearestPlayground.place.name}</span>
+                    <span className="shrink-0 text-muted">
+                      · {formatDistance(nearestPlayground.distance)}
+                    </span>
+                  </span>
+                </span>
+                <ChevronRight size={16} aria-hidden className="shrink-0 text-muted" />
+              </Link>
+            )}
 
             {visible.length > 0 ? (
               <>

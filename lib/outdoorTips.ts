@@ -161,15 +161,23 @@ export function outfitFor(
   // Trinken hängt an der echten Hitze, nicht an der alters-verschobenen.
   if (apparentTemperature >= 25) bring.push({ icon: "💧", label: "Wasser" });
 
-  // Höchstens ein Hinweis – der dringendste zuerst.
+  // Das Wärmeempfinden soll immer sichtbar etwas bewirken – nicht nur, wenn
+  // die ±2° zufällig eine Temperaturgrenze überqueren. Ein verfrorenes Kind
+  // bekommt eine Reserve-Schicht eingepackt, ein verschwitztes ein trockenes
+  // Shirt zum Wechseln.
+  if (sensitivity === "chilly") bring.push({ icon: "🧥", label: "Extraschicht" });
+  if (sensitivity === "warm") bring.push({ icon: "🎽", label: "Wechselshirt" });
+
+  // Höchstens ein Hinweis – der dringendste zuerst. Kurze Sätze, keine
+  // verschachtelten Gedankenstrich-Ketten.
   if (age === "baby" && uvIndex >= 3) {
     note =
-      "Unter einem Jahr gehört ein Baby nicht in die pralle Sonne – am besten schützen Schatten und leichte, lange Kleidung; Sonnencreme nur sparsam auf kleine freie Stellen.";
+      "Unter einem Jahr gehört ein Baby nicht in die pralle Sonne. Am besten schützen Schatten und leichte, lange Kleidung. Sonnencreme nur sparsam auf kleine freie Stellen.";
   } else if (age === "baby" && t < 8) {
     note =
-      "Babys bewegen sich wenig und kühlen schnell aus – im Buggy am besten eine Decke dazulegen.";
+      "Babys bewegen sich wenig und kühlen schnell aus. Im Buggy hilft eine Decke zusätzlich.";
   } else if (little && t < 8) {
-    note = "Kleine Kinder frieren schneller – lieber eine Schicht mehr einpacken.";
+    note = "Kleine Kinder frieren schneller. Lieber eine Schicht mehr einpacken.";
   }
 
   return { wear, bring, note };

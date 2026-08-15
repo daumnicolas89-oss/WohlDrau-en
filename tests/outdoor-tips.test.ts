@@ -68,6 +68,27 @@ describe("outfitFor", () => {
     assert.ok(o.note && o.note.includes("Schatten"), o.note);
   });
 
+  it("macht das Wärmeempfinden immer sichtbar: Extraschicht bzw. Wechselshirt", () => {
+    const p = { apparentTemperature: 18, uvIndex: 2, precipitationProbability: 0, windSpeed: 5 };
+    const chilly = outfitFor(p, "kita", "chilly");
+    const neutral = outfitFor(p, "kita", "neutral");
+    const warm = outfitFor(p, "kita", "warm");
+    assert.ok(labels(chilly.bring).includes("Extraschicht"), labels(chilly.bring).join());
+    assert.ok(labels(warm.bring).includes("Wechselshirt"), labels(warm.bring).join());
+    assert.ok(!labels(neutral.bring).includes("Extraschicht"));
+    assert.ok(!labels(neutral.bring).includes("Wechselshirt"));
+  });
+
+  it("schreibt Hinweise als kurze Sätze ohne Gedankenstrich-Ketten", () => {
+    const o = outfitFor(
+      { apparentTemperature: 26, uvIndex: 7, precipitationProbability: 0, windSpeed: 5 },
+      "baby",
+    );
+    assert.ok(o.note, "Baby-Hinweis fehlt");
+    assert.ok(!o.note!.includes("–"), o.note);
+    assert.ok(!o.note!.includes(";"), o.note);
+  });
+
   it("gibt kleinen Kindern schon bei mittlerem UV einen Sonnenhut", () => {
     const p = { apparentTemperature: 20, uvIndex: 3, precipitationProbability: 0, windSpeed: 5 };
     assert.ok(labels(outfitFor(p, "toddler").wear).includes("Sonnenhut"));

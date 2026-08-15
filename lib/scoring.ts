@@ -142,14 +142,23 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     weights,
   };
 
+  // Droht Regen, ist ein Unterstand der einzige echte Unterschied zwischen
+  // Orten – der Regen selbst trifft alle gleich (weatherFactor). Der Bonus
+  // hebt überdachte Orte nach oben, statt nur alles abzuwerten.
+  const rainLikely = w.precipitationProbability >= 50;
+  const shelterBonus = rainLikely && place.tags.shelter === true ? 10 : 0;
+
   const base =
     breakdown.shadeScore * weights.shade +
     breakdown.amenityScore * weights.amenity +
     breakdown.statusScore * weights.status +
-    breakdown.distanceScore * weights.distance;
+    breakdown.distanceScore * weights.distance +
+    shelterBonus;
 
   const reasons: string[] = [];
   const warnings: string[] = [];
+
+  if (shelterBonus > 0) reasons.push("Unterstand für Regenpausen");
 
   if (shade.state === "shady") reasons.push("Viel Schatten");
   else if (shade.state === "partial") reasons.push("Teils schattig");
