@@ -7,6 +7,7 @@ import {
   Layers,
   Megaphone,
   SlidersHorizontal,
+  Star,
   Toilet,
   ToyBrick,
 } from "lucide-react";
@@ -20,7 +21,9 @@ import { radiusForDistance, usePlaces } from "@/hooks/usePlaces";
 import { useStatuses } from "@/hooks/useStatuses";
 import { deriveWeatherState, useWeather } from "@/hooks/useWeather";
 import { SCORE_ERKLAERUNG } from "@/lib/wording";
+import { bestTimeHint, bestTimeToday } from "@/lib/bestTime";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
+import { useFavorites } from "@/store/useFavorites";
 import { useManualLocation } from "@/store/useLocation";
 import { LocationSheet } from "./LocationSheet";
 import { ToiletSheet } from "./ToiletSheet";
@@ -112,6 +115,26 @@ export function HomeView() {
     [places.places, coords.lat, coords.lng],
   );
 
+  const favorites = useFavorites();
+  // Gemerkte Plätze zuerst: die zwei, drei Stammplätze einer Familie gehören
+  // nach oben, mit ihrem aktuellen Wert – der Rest sortiert sich wie gehabt.
+  const { meinePlaetze, uebrige } = useMemo(() => {
+    const meine = visible.filter((p) => favorites.ids.includes(p.id));
+    return {
+      meinePlaetze: meine,
+      uebrige: meine.length > 0
+        ? visible.filter((p) => !favorites.ids.includes(p.id))
+        : visible,
+    };
+  }, [visible, favorites.ids]);
+
+  // „Heute am angenehmsten: 16–18 Uhr" – aus der Stunden-Vorhersage, nur wenn
+  // der Tag wirklich eine bessere Zeit hat (sonst wäre es Rauschen).
+  const besteZeit = useMemo(
+    () => bestTimeHint(weather ? bestTimeToday(weather, coords, now) : null),
+    [weather, coords, now],
+  );
+
   // Der „ich will nur kurz raus"-Moment: der nächstgelegene Spielplatz,
   // unabhängig davon, wie er gerade bewertet ist. Wer auf dem Schulhof um die
   // Ecke steht, soll ihn hier finden, nicht auf Platz 40 der Liste.
@@ -196,6 +219,7 @@ export function HomeView() {
         locationLabel={locationLabel}
         geoStatus={geoStatus}
         manualActive={!!manual}
+        besteZeit={besteZeit}
         onOpenLocation={() => setLocationOpen(true)}
       />
 
@@ -317,6 +341,27 @@ export function HomeView() {
 
             {visible.length > 0 ? (
               <>
+                {/* Die Stammplätze der Familie zuerst, mit aktuellem Wert. */}
+                {meinePlaetze.length > 0 && (
+                  <section aria-label="Meine gemerkten Plätze" className="space-y-3">
+                    <h2 className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
+                      <Star size={12} aria-hidden className="text-accent-ink" />
+                      Meine Plätze
+                    </h2>
+                    {meinePlaetze.map((place) => (
+                      <PlaceCard
+                        key={place.id}
+                        place={place}
+                        origin={coords}
+                        radius={radius}
+                        rank={1}
+                        now={now.getTime()}
+                        favorite
+                      />
+                    ))}
+                  </section>
+                )}
+
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm text-muted">
                     {visible.length} {visible.length === 1 ? "Ort" : "Orte"} in der
@@ -337,7 +382,7 @@ export function HomeView() {
                     </p>
                   </InfoButton>
                 </div>
-                {visible.map((place, index) => (
+                {uebrige.map((place, index) => (
                   <PlaceCard
                     key={place.id}
                     place={place}

@@ -3,7 +3,15 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CloudOff, ExternalLink, Info, Megaphone, Navigation } from "lucide-react";
+import {
+  ArrowLeft,
+  CloudOff,
+  ExternalLink,
+  Info,
+  Megaphone,
+  Navigation,
+  Star,
+} from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
 import { formatAge, statusOption } from "@/lib/status";
 import { computeShade, windowHasSun } from "@/lib/sun";
@@ -18,6 +26,7 @@ import {
   shadeReason,
 } from "@/lib/wording";
 import type { PlaceStatusType } from "@/types";
+import { useFavorites } from "@/store/useFavorites";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
 import { useOnline } from "@/hooks/useOnline";
@@ -90,6 +99,8 @@ export function PlaceDetail({
   const { statuses, report } = useStatuses(useMemo(() => [placeId], [placeId]));
   const now = useNow();
   const online = useOnline();
+  const favorites = useFavorites();
+  const gemerkt = favorites.ids.includes(placeId);
   const [reportOpen, setReportOpen] = useState(false);
 
   const osmPlace = places.places.find((p) => p.id === placeId) ?? null;
@@ -210,6 +221,21 @@ export function PlaceDetail({
             >
               <ArrowLeft size={20} />
             </Link>
+
+            {/* Merken: macht diesen Ort zu einem „Meine Plätze"-Stammplatz,
+                der auf der Startseite oben angepinnt wird. */}
+            <button
+              type="button"
+              onClick={() => favorites.toggle(place.id)}
+              aria-pressed={gemerkt}
+              aria-label={gemerkt ? "Nicht mehr merken" : "Platz merken"}
+              className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
+            >
+              <Star
+                size={20}
+                className={gemerkt ? "fill-accent text-accent" : undefined}
+              />
+            </button>
 
             <div className="relative">
               <h1 className="font-display text-[26px] leading-tight font-bold text-dark">

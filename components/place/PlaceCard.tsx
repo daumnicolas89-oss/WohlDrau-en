@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ChevronRight, Sun } from "lucide-react";
+import { AlertTriangle, ChevronRight, Star, Sun } from "lucide-react";
 import { formatDistance, haversine } from "@/lib/utils";
 import { factChips, mainDriver, scoreWording, shadeWording, statusSentence } from "@/lib/wording";
 import type { Place } from "@/types";
@@ -25,6 +25,7 @@ export function PlaceCard({
   radius,
   rank,
   now,
+  favorite = false,
 }: {
   place: Place;
   origin: { lat: number; lng: number };
@@ -33,6 +34,8 @@ export function PlaceCard({
   /** Platz in der Liste; der erste bekommt eine Auszeichnung. */
   rank: number;
   now: number;
+  /** Gemerkter Platz („Meine Plätze"): kleiner Stern am Namen. */
+  favorite?: boolean;
 }) {
   // Der Link trägt beides: den Standort des Nutzers (für die Entfernung) und
   // den des Ortes (damit die Detailseite gezielt dort nachladen kann).
@@ -65,8 +68,15 @@ export function PlaceCard({
           label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}`}
         />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-display text-[16px] leading-tight font-semibold text-dark">
-            {place.name}
+          <h3 className="flex items-center gap-1.5 font-display text-[16px] leading-tight font-semibold text-dark">
+            {favorite && (
+              <Star
+                size={14}
+                aria-label="Gemerkter Platz"
+                className="shrink-0 fill-accent text-accent"
+              />
+            )}
+            <span className="truncate">{place.name}</span>
           </h3>
           <PlaceKindTag
             kind={place.kind}

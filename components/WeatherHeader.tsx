@@ -53,6 +53,7 @@ export function WeatherHeader({
   locationLabel,
   geoStatus,
   manualActive = false,
+  besteZeit = null,
   onOpenLocation,
 }: {
   weather: Weather | null;
@@ -65,6 +66,8 @@ export function WeatherHeader({
   geoStatus: GeoStatus;
   /** Ein Ort wurde manuell gewählt, dann sind die GPS-Hinweise unpassend. */
   manualActive?: boolean;
+  /** „Heute am angenehmsten: 16–18 Uhr" – berechnet die Startseite. */
+  besteZeit?: string | null;
   onOpenLocation: () => void;
 }) {
   const [outfitOpen, setOutfitOpen] = useState(false);
@@ -222,10 +225,11 @@ export function WeatherHeader({
                 </span>
               </Wert>
             </dl>
-            {tageslicht && (
-              <p className="mt-2 border-t border-line/60 pt-2 text-[13px] text-muted">
-                {tageslicht}
-              </p>
+            {(tageslicht || besteZeit) && (
+              <div className="mt-2 space-y-0.5 border-t border-line/60 pt-2 text-[13px] text-muted">
+                {besteZeit && <p className="font-medium text-dark">{besteZeit}</p>}
+                {tageslicht && <p>{tageslicht}</p>}
+              </div>
             )}
           </div>
 
