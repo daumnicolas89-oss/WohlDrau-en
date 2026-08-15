@@ -148,12 +148,18 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
   const rainLikely = w.precipitationProbability >= 50;
   const shelterBonus = rainLikely && place.tags.shelter === true ? 10 : 0;
 
+  // Eingeschränkter Zugang (Schulhof, Kita): bewusst gelistet, aber ein
+  // öffentlicher Platz nebenan soll bei Gleichstand immer vorne stehen –
+  // meistens kommt man auf den privaten schlicht nicht drauf.
+  const accessMalus = place.tags.restrictedAccess === true ? 5 : 0;
+
   const base =
     breakdown.shadeScore * weights.shade +
     breakdown.amenityScore * weights.amenity +
     breakdown.statusScore * weights.status +
     breakdown.distanceScore * weights.distance +
-    shelterBonus;
+    shelterBonus -
+    accessMalus;
 
   const reasons: string[] = [];
   const warnings: string[] = [];

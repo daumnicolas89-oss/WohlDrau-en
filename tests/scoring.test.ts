@@ -64,6 +64,15 @@ describe("scorePlace", () => {
     assert.ok(!trocken.reasons.includes("Unterstand für Regenpausen"));
   });
 
+  it("reiht bei Gleichstand den öffentlichen Platz vor dem eingeschränkten", () => {
+    const offen = score({});
+    const privat = score({ tags: { restrictedAccess: true } });
+    assert.ok(
+      privat.pleasantScore < offen.pleasantScore,
+      `${privat.pleasantScore} vs ${offen.pleasantScore}`,
+    );
+  });
+
   it("bevorzugt bei Hitze den schattigen Ort", () => {
     const sunny = score({});
     const shady = score({ shadeInputs: { canopy: 0.85 } });
