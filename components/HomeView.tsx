@@ -27,6 +27,7 @@ import { useFavorites } from "@/store/useFavorites";
 import { useManualLocation } from "@/store/useLocation";
 import { LocationSheet } from "./LocationSheet";
 import { ToiletSheet } from "./ToiletSheet";
+import { Welcome } from "./Welcome";
 import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
 import { MapControls } from "./map/MapControls";
@@ -193,11 +194,33 @@ export function HomeView() {
       : coords.source === "last-known"
         ? "Zuletzt bekannter Ort"
         : FALLBACK_LABEL;
-  // Die Orte tragen die Seite. Fällt nur das Wetter aus, bleibt die Liste
-  // sichtbar (mit Ersatzwetter geordnet) statt alles wegzublenden, ein
-  // Overpass-Fehler dagegen lässt nichts zu zeigen übrig.
-  const loading = places.loading || weatherBlocksLoading;
-  const error = places.error;
+  // Die Orte tragen die Seite. Geblockt wird nur, wenn wirklich NICHTS da ist –
+  // liegt der Stand vom letzten Besuch vor, zeigt die Seite ihn sofort und
+  // aktualisiert still im Hintergrund.
+  const loading =
+    (places.loading && places.places.length === 0) || weatherBlocksLoading;
+  const error = places.places.length === 0 ? places.error : null;
+  // Frisch wird noch geladen, aber es gibt schon etwas zu sehen.
+  const refreshing = places.loading && places.places.length > 0;
+
+  // Beim allerersten Öffnen erklärt ein Willkommens-Bildschirm die App – und
+  // überbrückt damit unbemerkt genau die Sekunden, in denen im Hintergrund
+  // schon geladen wird. Wiederkehrer sehen ihn nie.
+  const [welcomed, setWelcomed] = useState(() => {
+    try {
+      return localStorage.getItem("platzda:welcomed") === "1";
+    } catch {
+      return true;
+    }
+  });
+  const startApp = () => {
+    setWelcomed(true);
+    try {
+      localStorage.setItem("platzda:welcomed", "1");
+    } catch {
+      // Privater Modus: dann eben beim nächsten Mal noch einmal.
+    }
+  };
 
   const reload = () => {
     places.reload();
@@ -208,6 +231,8 @@ export function HomeView() {
     if (!reportTarget) return;
     await report(reportTarget.id, type, message);
   }
+
+  if (!welcomed) return <Welcome onStart={startApp} />;
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-lg flex-col bg-background">
@@ -224,6 +249,19 @@ export function HomeView() {
       />
 
       <MapControls />
+
+      {/* Es gibt schon etwas zu sehen, frisch kommt gleich – leise sagen. */}
+      {refreshing && (
+        <p className="mx-4 mt-2 text-center text-xs text-muted" role="status">
+          Wird gerade aktualisiert …
+        </p>
+      )}
+      {!refreshing && places.error && places.places.length > 0 && (
+        <p className="mx-4 mt-2 rounded-2xl bg-accent-soft px-4 py-2.5 text-xs leading-relaxed text-accent-ink">
+          Gerade keine frischen Daten – du siehst den Stand von deinem letzten
+          Besuch.
+        </p>
+      )}
 
       {!loading && !error && (
         <button

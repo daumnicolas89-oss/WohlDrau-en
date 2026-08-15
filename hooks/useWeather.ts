@@ -1,9 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { loadLastVisit, saveLastVisit } from "@/lib/lastVisit";
+import { haversine } from "@/lib/utils";
 import { FALLBACK_WEATHER } from "@/lib/weather";
 import type { Weather } from "@/types";
 import type { Coords } from "./useGeolocation";
+
+/** Letzter Stand fürs Sofort-Anzeigen; Wetter altert schnell, darum kurz. */
+const LAST_WEATHER_KEY = "platzda:lastWeather";
+const LAST_WEATHER_MAX_AGE_MS = 6 * 3_600_000;
+const LAST_WEATHER_NEAR_M = 25_000;
+
+interface CachedWeather {
+  weather: Weather;
+  anchor: { lat: number; lng: number };
+}
 
 export interface UseWeatherResult {
   weather: Weather | null;
@@ -22,7 +34,9 @@ export function deriveWeatherState(wetter: UseWeatherResult) {
   return {
     scoringWeather: wetter.weather ?? FALLBACK_WEATHER,
     weatherMissing: !wetter.weather && !wetter.loading,
-    weatherBlocksLoading: wetter.loading && !wetter.error,
+    // Liegt schon ein (letzter) Wetterstand vor, blockiert das Laden nichts
+    // mehr – die Seite zeigt ihn und tauscht still gegen den frischen.
+    weatherBlocksLoading: wetter.loading && !wetter.error && !wetter.weather,
   };
 }
 
@@ -40,6 +54,22 @@ export function useWeather(coords: Coords): UseWeatherResult {
   const lat = round(coords.lat);
   const lng = round(coords.lng);
 
+  // Sofort-Start: das Wetter vom letzten Besuch (max. 6 Std alt) zeigen,
+  // während das frische lädt. `weatherAt` greift ohnehin die passende Stunde
+  // aus der Vorhersage, ein paar Stunden Alter verkraftet das.
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (hydratedRef.current) return;
+    hydratedRef.current = true;
+    const cached = loadLastVisit<CachedWeather>(LAST_WEATHER_KEY, LAST_WEATHER_MAX_AGE_MS);
+    if (
+      cached &&
+      haversine(cached.anchor.lat, cached.anchor.lng, lat, lng) <= LAST_WEATHER_NEAR_M
+    ) {
+      setWeather(cached.weather);
+    }
+  }, [lat, lng]);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -54,7 +84,12 @@ export function useWeather(coords: Coords): UseWeatherResult {
           const body = await res.json().catch(() => ({}));
           throw new Error(body.error ?? "Wetter nicht verfügbar");
         }
-        setWeather((await res.json()) as Weather);
+        const fresh = (await res.json()) as Weather;
+        setWeather(fresh);
+        saveLastVisit<CachedWeather>(LAST_WEATHER_KEY, {
+          weather: fresh,
+          anchor: { lat, lng },
+        });
       } catch (err) {
         if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : "Wetter nicht verfügbar");

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { loadLastVisit, saveLastVisit } from "@/lib/lastVisit";
 import { haversine } from "@/lib/utils";
 import type { OsmPlace, ShadeConfidence, Toilet } from "@/types";
 import type { Coords } from "./useGeolocation";
@@ -9,6 +10,16 @@ interface PlacesResponse {
   places: OsmPlace[];
   toilets: Toilet[];
   treeDataQuality: ShadeConfidence;
+}
+
+/** Letzter Stand fürs Sofort-Anzeigen beim nächsten Öffnen. */
+const LAST_PLACES_KEY = "platzda:lastPlaces";
+const LAST_PLACES_MAX_AGE_MS = 7 * 24 * 3_600_000;
+/** Nur verwenden, wenn der Nutzer noch ungefähr in derselben Gegend ist. */
+const LAST_PLACES_NEAR_M = 5_000;
+
+interface CachedPlaces extends PlacesResponse {
+  anchor: { lat: number; lng: number };
 }
 
 /**
@@ -57,6 +68,25 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
   }
   const { lat, lng } = anchor;
 
+  // Sofort-Start: den Stand des letzten Besuchs zeigen, während frisch geladen
+  // wird. Nur beim Mount und nur, wenn der Nutzer noch in derselben Gegend ist.
+  // Läuft VOR dem Lade-Effekt; die frische Antwort überschreibt später einfach.
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (hydratedRef.current) return;
+    hydratedRef.current = true;
+    const cached = loadLastVisit<CachedPlaces>(LAST_PLACES_KEY, LAST_PLACES_MAX_AGE_MS);
+    if (
+      cached &&
+      cached.places.length > 0 &&
+      haversine(cached.anchor.lat, cached.anchor.lng, lat, lng) <= LAST_PLACES_NEAR_M
+    ) {
+      setPlaces(cached.places);
+      setToilets(cached.toilets ?? []);
+      setTreeDataQuality(cached.treeDataQuality ?? "medium");
+    }
+  }, [lat, lng]);
+
   useEffect(() => {
     const controller = new AbortController();
 
@@ -85,6 +115,11 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         setPlaces(data.places);
         setToilets(data.toilets ?? []);
         setTreeDataQuality(data.treeDataQuality);
+        // Für den Sofort-Start beim nächsten Öffnen aufheben.
+        saveLastVisit<CachedPlaces>(LAST_PLACES_KEY, {
+          ...data,
+          anchor: { lat, lng },
+        });
       } catch (err) {
         if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : "Etwas ist schiefgelaufen");
