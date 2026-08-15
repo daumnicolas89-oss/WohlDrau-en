@@ -49,7 +49,15 @@ interface OverpassElement {
   tags?: Record<string, string>;
 }
 
-function buildQuery(bbox: [number, number, number, number]): string {
+/**
+ * Statt einer fetten Abfrage zwei, die PARALLEL laufen: „Grün" (Orte, Wälder,
+ * Bäume, Toiletten) und „Stadt" (Gebäude, Straßen). Die Stadt-Hälfte ist in
+ * Ballungsräumen der Transfer-Brocken – parallel geladen zählt nur noch die
+ * langsamere der beiden Hälften, nicht die Summe. Inhaltlich exakt dieselben
+ * Daten wie vorher (`around`-Vorfilter wäre schneller gewesen, ist aber an
+ * den großen Wald-Polygonen in der Orts-Menge gescheitert: >90 s Rechenzeit).
+ */
+function buildGreenQuery(bbox: [number, number, number, number]): string {
   const b = bbox.map((n) => n.toFixed(5)).join(",");
   return `[out:json][timeout:25];
 (
@@ -74,7 +82,12 @@ out skel qt;
   way["landcover"="trees"](${b});
   way["natural"="scrub"](${b});
 );
-out tags geom;
+out tags geom;`;
+}
+
+function buildUrbanQuery(bbox: [number, number, number, number]): string {
+  const b = bbox.map((n) => n.toFixed(5)).join(",");
+  return `[out:json][timeout:25];
 way["building"](${b});
 out ids center;
 way["highway"~"^(residential|living_street|unclassified|tertiary|secondary|pedestrian)$"]["name"](${b});
@@ -109,15 +122,16 @@ async function runOverpass(query: string): Promise<OverpassElement[]> {
           : new Error("Overpass-Zeitbudget aufgebraucht");
       }
       try {
-        const res = await fetch(endpoint, {
-          method: "POST",
+        // GET statt POST, damit Vercels Data Cache die Antwort einen Tag lang
+        // aufheben kann – der überlebt Deploys und Kaltstarts. Vorher leerte
+        // jeder Deploy den CDN-Cache, und alle Gegenden waren wieder langsam.
+        const res = await fetch(`${endpoint}?data=${encodeURIComponent(query)}`, {
           headers: {
-            "Content-Type": "text/plain;charset=UTF-8",
             // Die Overpass-Policy verlangt einen erreichbaren Absender –
             // anonyme User-Agents werden bei Last zuerst gedrosselt/gesperrt.
             "User-Agent": "PlatzDa/0.1 (+https://platzda.app; kontakt@nicolas-daum.ai)",
           },
-          body: query,
+          next: { revalidate: 86_400 },
           signal: AbortSignal.timeout(ENDPOINT_TIMEOUT_MS),
         });
 
@@ -419,7 +433,13 @@ export async function fetchPlaces(
   lng: number,
   radiusM: number,
 ): Promise<FetchPlacesResult> {
-  const elements = await runOverpass(buildQuery(bboxAround(lat, lng, radiusM)));
+  // Beide Hälften parallel: es zählt die langsamere, nicht die Summe.
+  const bbox = bboxAround(lat, lng, radiusM);
+  const [greenElements, urbanElements] = await Promise.all([
+    runOverpass(buildGreenQuery(bbox)),
+    runOverpass(buildUrbanQuery(bbox)),
+  ]);
+  const elements = [...greenElements, ...urbanElements];
 
   const rawPlaces: OverpassElement[] = [];
   const greens: OverpassElement[] = [];
