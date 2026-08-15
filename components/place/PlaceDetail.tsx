@@ -228,7 +228,9 @@ export function PlaceDetail({
               type="button"
               onClick={() => favorites.toggle(place.id)}
               aria-pressed={gemerkt}
-              aria-label={gemerkt ? "Nicht mehr merken" : "Platz merken"}
+              // Label konstant, den Zustand trägt aria-pressed – wechselnde
+              // Labels PLUS pressed lesen sich im Screenreader widersprüchlich.
+              aria-label="Platz merken"
               className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
             >
               <Star

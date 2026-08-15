@@ -81,6 +81,10 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
       cached.places.length > 0 &&
       haversine(cached.anchor.lat, cached.anchor.lng, lat, lng) <= LAST_PLACES_NEAR_M
     ) {
+      // Bewusst setState direkt im Mount-Effekt: Die Hydrierung MUSS nach dem
+      // ersten Render passieren (Server kennt localStorage nicht), und React
+      // bündelt die drei Setzer zu genau einem Zusatz-Render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlaces(cached.places);
       setToilets(cached.toilets ?? []);
       setTreeDataQuality(cached.treeDataQuality ?? "medium");

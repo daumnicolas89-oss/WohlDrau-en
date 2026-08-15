@@ -66,6 +66,9 @@ export function useWeather(coords: Coords): UseWeatherResult {
       cached &&
       haversine(cached.anchor.lat, cached.anchor.lng, lat, lng) <= LAST_WEATHER_NEAR_M
     ) {
+      // Bewusst im Mount-Effekt (siehe usePlaces): nach dem ersten Render,
+      // ein einzelner gebündelter Zusatz-Render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWeather(cached.weather);
     }
   }, [lat, lng]);

@@ -39,18 +39,35 @@ export function bestTimeToday(
   const { time, apparentTemperature, uvIndex, precipitationProbability } =
     weather.hourly;
 
+  // Open-Meteo liefert Orts-Lokalzeit ohne Suffix – gleiche Behandlung wie in
+  // weatherAt: mit dem UTC-Versatz zum echten Zeitpunkt machen, damit auch ein
+  // manuell gewählter Ort in fremder Zeitzone das richtige Fenster bekommt.
+  const off = weather.utcOffsetSeconds;
+  const epochOf = (t: string) =>
+    off === undefined ? new Date(t).getTime() : Date.parse(`${t}Z`) - off * 1000;
+  // Datum und Stunde in ORTS-Zeit (nicht Geräte-Zeit).
+  const placeIso = (epoch: number) =>
+    off === undefined ? null : new Date(epoch + off * 1000).toISOString();
+  const nowIso = placeIso(now.getTime());
+  const heutigerTag = nowIso ? nowIso.slice(0, 10) : null;
+  const nowHour = nowIso ? Number(nowIso.slice(11, 13)) : now.getHours();
+
   const hours: { hour: number; score: number }[] = [];
   for (let i = 0; i < time.length; i++) {
-    const date = new Date(time[i]);
-    if (Number.isNaN(date.getTime())) continue;
+    const epoch = epochOf(time[i]);
+    if (Number.isNaN(epoch)) continue;
     // Nur der heutige Resttag, inklusive der laufenden Stunde.
-    if (date.getTime() < now.getTime() - 3_600_000) continue;
-    if (date.getDate() !== now.getDate()) continue;
+    if (epoch < now.getTime() - 3_600_000) continue;
+    const tag = heutigerTag !== null ? time[i].slice(0, 10) : null;
+    if (tag !== null && tag !== heutigerTag) continue;
+    if (tag === null && new Date(epoch).getDate() !== now.getDate()) continue;
     // Zur Stundenmitte prüfen, ob überhaupt noch Tag ist.
-    if (!isDaylight(origin.lat, origin.lng, new Date(date.getTime() + 1_800_000)))
-      continue;
+    if (!isDaylight(origin.lat, origin.lng, new Date(epoch + 1_800_000))) continue;
     hours.push({
-      hour: date.getHours(),
+      hour:
+        heutigerTag !== null
+          ? Number(time[i].slice(11, 13))
+          : new Date(epoch).getHours(),
       score: comfort(
         apparentTemperature[i] ?? weather.apparentTemperature,
         uvIndex[i] ?? weather.uvIndex,
@@ -80,11 +97,10 @@ export function bestTimeToday(
   if (bestAvg - worst < 12) return null;
 
   const fromHour = hours[best].hour;
-  const nowHour = now.getHours();
   return {
     fromHour,
-    toHour: (fromHour + 2) % 24,
-    nowIsBest: nowHour === fromHour || nowHour === (fromHour + 1) % 24,
+    toHour: fromHour + 2,
+    nowIsBest: nowHour === fromHour || nowHour === fromHour + 1,
   };
 }
 
@@ -92,5 +108,7 @@ export function bestTimeToday(
 export function bestTimeHint(best: BestTime | null): string | null {
   if (!best) return null;
   if (best.nowIsBest) return "Jetzt ist die angenehmste Zeit des Tages.";
-  return `Heute draußen am angenehmsten: ${best.fromHour}–${best.toHour} Uhr.`;
+  // „22–24 Uhr" statt „22–0 Uhr" am späten Sommerabend.
+  const bis = Math.min(best.toHour, 24);
+  return `Heute draußen am angenehmsten: ${best.fromHour}–${bis} Uhr.`;
 }

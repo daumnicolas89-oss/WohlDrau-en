@@ -26,19 +26,19 @@ export function heatWarning(params: {
   if (apparentTemperature >= 35) {
     return {
       tone: "heat",
-      text: "Extreme Hitze – mit kleinen Kindern möglichst im Schatten bleiben und viel trinken.",
+      text: "Extreme Hitze: Mit kleinen Kindern möglichst im Schatten bleiben und viel trinken.",
     };
   }
   if (apparentTemperature >= 31) {
     return {
       tone: "heat",
-      text: "Große Hitze – die pralle Mittagssonne meiden, Schatten suchen und viel trinken.",
+      text: "Große Hitze: Die pralle Mittagssonne meiden, Schatten suchen und viel trinken.",
     };
   }
   if (uvIndex >= 8) {
     return {
       tone: "uv",
-      text: "Sehr hohe UV-Strahlung – Sonnenhut auf, gut eincremen und in den Schatten.",
+      text: "Sehr hohe UV-Strahlung: Sonnenhut auf, gut eincremen und in den Schatten.",
     };
   }
   return null;

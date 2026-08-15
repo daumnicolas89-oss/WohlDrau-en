@@ -246,9 +246,10 @@ export function WeatherHeader({
         </div>
       )}
 
-      {/* Genau EIN Hinweis-Platz unter dem Kopf: Sicherheit (oben im Werte-Block)
-          schlägt Wetter-Fehler schlägt Standort-Hinweis. Drei gestapelte gelbe
-          Kästen wirken kaputt und liest niemand. */}
+      {/* Ein Hinweis-Platz fürs WETTER: die Sicherheits-Warnung (oben im
+          Werte-Block) schlägt den Wetter-Fehler – beides zugleich braucht
+          niemand. Der STANDORT-Hinweis darunter meint etwas anderes und darf
+          nicht wochenlang hinter einer Dauerfrost-Warnung verschwinden. */}
       {!alert && weatherError && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           <CloudOff size={15} aria-hidden className="mt-0.5 shrink-0" />
@@ -260,7 +261,7 @@ export function WeatherHeader({
         </p>
       )}
 
-      {!alert && !weatherError && geoStatus === "denied" && !manualActive && (
+      {!weatherError && geoStatus === "denied" && !manualActive && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           <MapPin size={15} aria-hidden className="mt-0.5 shrink-0" />
           <span>
@@ -271,11 +272,14 @@ export function WeatherHeader({
         </p>
       )}
 
-      {!alert && !weatherError && geoStatus === "unavailable" && !manualActive && (
-        <p className="mt-3 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          Der Standort lässt sich gerade nicht bestimmen. Im Gebäude oder ohne
-          GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
-          Ort; über den Ortsnamen oben kannst du es erneut versuchen.
+      {!weatherError && geoStatus === "unavailable" && !manualActive && (
+        <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
+          <MapPin size={15} aria-hidden className="mt-0.5 shrink-0" />
+          <span>
+            Der Standort lässt sich gerade nicht bestimmen. Im Gebäude oder ohne
+            GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
+            Ort; über den Ortsnamen oben kannst du es erneut versuchen.
+          </span>
         </p>
       )}
 

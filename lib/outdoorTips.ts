@@ -68,7 +68,7 @@ export function clothingAdvice(
   if (t >= 22) lead = "Bei den warmen Temperaturen reichen leichte Sachen.";
   else if (t >= 15)
     lead = "Bei den milden Temperaturen genügen ein Langarm-Shirt und eine leichte Jacke.";
-  else if (t >= 8) lead = "Es ist kühl – ein Pullover und eine Jacke sind jetzt richtig.";
+  else if (t >= 8) lead = "Es ist kühl. Ein Pullover und eine Jacke sind jetzt richtig.";
   else lead = "Bei der Kälte heißt es dick einpacken, am besten mit Mütze.";
 
   // Die wichtigsten Zusätze – als natürlicher zweiter Satz.
@@ -165,7 +165,9 @@ export function outfitFor(
   // die ±2° zufällig eine Temperaturgrenze überqueren. Ein verfrorenes Kind
   // bekommt eine Reserve-Schicht eingepackt, ein verschwitztes ein trockenes
   // Shirt zum Wechseln.
-  if (sensitivity === "chilly") bring.push({ icon: "🧥", label: "Extraschicht" });
+  // 👚 statt 🧥: die Jacken-Zweige nutzen 🧥 – gleiche Icons mit
+  // verschiedenen Labels im selben Fenster wirken wie ein Fehler.
+  if (sensitivity === "chilly") bring.push({ icon: "👚", label: "Extraschicht" });
   if (sensitivity === "warm") bring.push({ icon: "🎽", label: "Wechselshirt" });
 
   // Höchstens ein Hinweis – der dringendste zuerst. Kurze Sätze, keine
@@ -196,5 +198,9 @@ export function daylightHint(now: Date, sunset: Date): string | null {
   if (hoursLeft < 1) {
     return `Nur noch weniger als eine Stunde Tageslicht (bis ${formatTime(sunset)} Uhr).`;
   }
-  return `Noch rund ${Math.round(hoursLeft)} Stunden Tageslicht (bis ${formatTime(sunset)} Uhr).`;
+  const rund = Math.round(hoursLeft);
+  if (rund === 1) {
+    return `Noch rund eine Stunde Tageslicht (bis ${formatTime(sunset)} Uhr).`;
+  }
+  return `Noch rund ${rund} Stunden Tageslicht (bis ${formatTime(sunset)} Uhr).`;
 }

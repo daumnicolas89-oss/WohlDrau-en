@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { selectPlaces } from "@/lib/select";
 import { formatDistance, haversine } from "@/lib/utils";
-import type { PlaceStatusType } from "@/types";
+import type { OsmPlace, PlaceStatusType } from "@/types";
 import { FALLBACK_LABEL, useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
 import { useOnline } from "@/hooks/useOnline";
@@ -140,8 +140,7 @@ export function HomeView() {
   // unabhängig davon, wie er gerade bewertet ist. Wer auf dem Schulhof um die
   // Ecke steht, soll ihn hier finden, nicht auf Platz 40 der Liste.
   const nearestPlayground = useMemo(() => {
-    let best: { place: (typeof places.places)[number]; distance: number } | null =
-      null;
+    let best: { place: OsmPlace; distance: number } | null = null;
     for (const p of places.places) {
       if (p.type !== "playground") continue;
       const d = haversine(coords.lat, coords.lng, p.lat, p.lng);
@@ -218,7 +217,8 @@ export function HomeView() {
     try {
       localStorage.setItem("platzda:welcomed", "1");
     } catch {
-      // Privater Modus: dann eben beim nächsten Mal noch einmal.
+      // Lässt sich das Flag nicht speichern (strenger Privatmodus), erscheint
+      // das Willkommen beim nächsten Öffnen erneut – der kleinere Übel.
     }
   };
 
@@ -250,15 +250,17 @@ export function HomeView() {
 
       <MapControls />
 
-      {/* Es gibt schon etwas zu sehen, frisch kommt gleich – leise sagen. */}
-      {refreshing && (
+      {/* Es gibt schon etwas zu sehen, frisch kommt gleich – leise sagen.
+          Offline übernimmt der Offline-Banner allein, sonst widersprechen
+          sich zwei Hinweise. */}
+      {online && refreshing && (
         <p className="mx-4 mt-2 text-center text-xs text-muted" role="status">
           Wird gerade aktualisiert …
         </p>
       )}
-      {!refreshing && places.error && places.places.length > 0 && (
+      {online && !refreshing && places.error && places.places.length > 0 && (
         <p className="mx-4 mt-2 rounded-2xl bg-accent-soft px-4 py-2.5 text-xs leading-relaxed text-accent-ink">
-          Gerade keine frischen Daten – du siehst den Stand von deinem letzten
+          Gerade keine frischen Daten. Du siehst den Stand von deinem letzten
           Besuch.
         </p>
       )}
@@ -329,17 +331,28 @@ export function HomeView() {
                 sonst steht der Nutzer vor einer leeren Karte mit nur dem
                 eigenen Punkt. */}
             {visible.length === 0 && (
-              <div className="pointer-events-none absolute inset-x-4 top-16 z-[905] mx-auto max-w-sm rounded-card bg-card/95 p-4 text-center shadow-float backdrop-blur">
-                <p className="font-display font-semibold text-dark">
-                  {filteredOut > 0
-                    ? "Nichts passt zu deinen Filtern"
-                    : "Hier ist nichts erfasst"}
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-muted">
-                  {filteredOut > 0
-                    ? "Lockere einen Filter, dann tauchen Orte wieder auf."
-                    : "In diesem Umkreis kennt OpenStreetMap nichts. Mit größerer Entfernung findet sich meist etwas."}
-                </p>
+              <div className="pointer-events-none absolute inset-x-4 top-16 z-[905]">
+                <div className="pointer-events-auto mx-auto max-w-sm rounded-card bg-card/95 p-4 text-center shadow-float backdrop-blur">
+                  <p className="font-display font-semibold text-dark">
+                    {filteredOut > 0
+                      ? "Nichts passt zu deinen Filtern"
+                      : "Hier ist nichts erfasst"}
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">
+                    {filteredOut > 0
+                      ? "Lockere einen Filter, dann tauchen Orte wieder auf."
+                      : "In diesem Umkreis kennt OpenStreetMap nichts. Mit größerer Entfernung findet sich meist etwas."}
+                  </p>
+                  {filteredOut > 0 ? (
+                    <Button onClick={filters.reset} className="mx-auto mt-3">
+                      Filter zurücksetzen
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setFilterOpen(true)} className="mx-auto mt-3">
+                      Entfernung ändern
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -351,7 +364,9 @@ export function HomeView() {
 
             {/* Direkt zum nächsten Spielplatz – egal wie er bewertet ist.
                 Entfällt, wenn er sowieso als beste Wahl ganz oben steht. */}
-            {nearestPlayground && visible[0]?.id !== nearestPlayground.place.id && (
+            {nearestPlayground &&
+              visible[0]?.id !== nearestPlayground.place.id &&
+              !favorites.ids.includes(nearestPlayground.place.id) && (
               <Link
                 href={
                   `/ort/${nearestPlayground.place.id}` +
@@ -363,7 +378,7 @@ export function HomeView() {
               >
                 <ToyBrick size={18} aria-hidden className="shrink-0 text-primary-dark" />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[11px] font-semibold tracking-wide text-muted uppercase">
+                  <span className="block text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
                     Nächster Spielplatz
                   </span>
                   <span className="flex items-baseline gap-1.5 text-sm font-medium text-dark">
@@ -379,11 +394,21 @@ export function HomeView() {
 
             {visible.length > 0 ? (
               <>
+                {/* Gemerkt, aber gerade nicht sichtbar (Entfernung/Filter):
+                    lieber ehrlich sagen als die Sektion wortlos verschwinden
+                    lassen – sonst wirkt das Merken kaputt. */}
+                {favorites.ids.length > 0 && meinePlaetze.length === 0 && (
+                  <p className="px-1 text-xs leading-relaxed text-muted">
+                    Deine gemerkten Plätze liegen außerhalb der eingestellten
+                    Entfernung oder passen nicht zu den Filtern.
+                  </p>
+                )}
+
                 {/* Die Stammplätze der Familie zuerst, mit aktuellem Wert. */}
                 {meinePlaetze.length > 0 && (
                   <section aria-label="Meine gemerkten Plätze" className="space-y-3">
                     <h2 className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
-                      <Star size={12} aria-hidden className="text-accent-ink" />
+                      <Star size={12} aria-hidden className="fill-accent text-accent" />
                       Meine Plätze
                     </h2>
                     {meinePlaetze.map((place) => (
@@ -426,7 +451,11 @@ export function HomeView() {
                     place={place}
                     origin={coords}
                     radius={radius}
-                    rank={index}
+                    // „Beste Wahl gerade" nur, wenn der Ort wirklich der
+                    // Spitzenreiter der GESAMT-Sortierung ist. Ist der ein
+                    // gemerkter Platz, führt er oben die „Meine Plätze"-Sektion
+                    // an – dann trägt hier niemand fälschlich das Banner.
+                    rank={place.id === visible[0]?.id ? 0 : index + 1}
                     now={now.getTime()}
                   />
                 ))}

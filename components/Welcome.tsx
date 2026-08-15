@@ -15,14 +15,14 @@ export function Welcome({ onStart }: { onStart: () => void }) {
           gestreckt und verzerrt. */}
       <Logo className="self-start" />
 
-      <h1 className="mt-8 font-display text-[28px] leading-snug font-bold text-dark">
+      <h1 className="mt-8 font-display text-[26px] leading-snug font-bold text-dark">
         Wo ist es jetzt schön draußen?
       </h1>
 
       <p className="mt-4 text-[16px] leading-relaxed text-dark">
         PlatzDa zeigt dir Spielplätze, Parks und Wäldchen in deiner Nähe. Die
-        App weiß, wo gerade Schatten ist, wie das Wetter wird und was es vor
-        Ort gibt. So findet ihr schnell einen Platz, an dem es sich gut
+        App rechnet aus, wo gerade Schatten ist, wie das Wetter wird und was es
+        vor Ort gibt. So findest du schnell einen Platz, an dem es sich gut
         aushalten lässt.
       </p>
 

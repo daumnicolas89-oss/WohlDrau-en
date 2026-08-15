@@ -33,28 +33,28 @@ export function winterWarning(params: {
   if (FREEZING.has(weatherCode)) {
     return {
       tone: "ice",
-      text: "Gefrierender Regen – Achtung, es kann spiegelglatt sein.",
+      text: "Gefrierender Regen: Es kann spiegelglatt sein.",
     };
   }
   // 2. Schnee.
   if (SNOW.has(weatherCode) || snowfall > 0) {
     return {
       tone: "snow",
-      text: "Es schneit – warm einpacken und auf rutschige Wege achten.",
+      text: "Es schneit. Warm einpacken und auf rutschige Wege achten.",
     };
   }
   // 3. Reifnebel.
   if (weatherCode === RIME_FOG) {
     return {
       tone: "ice",
-      text: "Reifnebel – auf überfrorene, glatte Stellen achten.",
+      text: "Reifnebel: Auf überfrorene, glatte Stellen achten.",
     };
   }
   // 4. Strenge Kälte (gefühlt, inkl. Wind): mit kleinen Kindern nur kurz raus.
   if (apparentTemperature <= -10) {
     return {
       tone: "frost",
-      text: "Strenge Kälte – mit kleinen Kindern nur kurz raus und gut einpacken.",
+      text: "Strenge Kälte: Mit kleinen Kindern nur kurz raus und gut einpacken.",
     };
   }
   // 5. Frost: wo es nass war, kann es glatt sein.
@@ -63,8 +63,8 @@ export function winterWarning(params: {
       tone: "frost",
       text:
         precipitation > 0
-          ? "Frost bei Nässe – gut möglich, dass Wege glatt sind."
-          : "Frost – auf glatte Stellen achten, vor allem im Schatten.",
+          ? "Frost bei Nässe: Gut möglich, dass Wege glatt sind."
+          : "Frost: Auf glatte Stellen achten, vor allem im Schatten.",
     };
   }
   return null;

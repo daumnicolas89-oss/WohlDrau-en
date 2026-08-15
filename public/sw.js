@@ -7,7 +7,7 @@
  */
 // Bei jeder Änderung am Datenschema der API-Antworten mit hochzählen –
 // sonst hält der Offline-Cache alte Objektformen unbegrenzt fest.
-const VERSION = "v5";
+const VERSION = "v6";
 const SHELL_CACHE = `wd-shell-${VERSION}`;
 const TILE_CACHE = `wd-tiles-${VERSION}`;
 const DATA_CACHE = `wd-data-${VERSION}`;
@@ -82,39 +82,12 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   /*
-   * Orte: Cache zuerst, frisch im Hintergrund. Die Rohdaten (Bäume, Gebäude,
-   * Ausstattung) ändern sich praktisch nie – Schatten und Bewertung rechnet
-   * der Client ohnehin live aus Sonnenstand und Wetter. So sieht ein
-   * wiederkehrender Nutzer seine Liste SOFORT statt nach Sekunden; beim
-   * nächsten Besuch ist die Hintergrund-Kopie die frische.
-   * Wetter bleibt bewusst Netz zuerst (das muss aktuell sein).
+   * Orte laufen bewusst durch den generischen Netz-zuerst-Zweig unten: Das
+   * Sofort-Zeigen beim Öffnen erledigt die App selbst (lastVisit-Speicher)
+   * UND tauscht danach gegen die frische Antwort. Ein Cache-zuerst-SW hier
+   * würde genau diese Aktualisierung aushebeln – die App bekäme dauerhaft
+   * den vorletzten Stand und speicherte ihn mit frischem Datum wieder ein.
    */
-  if (url.pathname === "/api/places") {
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open(DATA_CACHE);
-        const cached = await cache.match(request);
-        const network = fetch(request).then((response) => {
-          if (response.ok) cache.put(request, response.clone());
-          return response;
-        });
-        if (cached) {
-          event.waitUntil(network.catch(() => undefined));
-          return cached;
-        }
-        try {
-          return await network;
-        } catch {
-          return new Response(
-            JSON.stringify({ error: "Offline – keine gespeicherten Daten." }),
-            { status: 503, headers: { "Content-Type": "application/json" } },
-          );
-        }
-      })(),
-    );
-    return;
-  }
-
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
       fetch(request)
