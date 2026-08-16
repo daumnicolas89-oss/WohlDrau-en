@@ -248,7 +248,10 @@ export function HomeView() {
         onOpenLocation={() => setLocationOpen(true)}
       />
 
-      <MapControls />
+      <MapControls
+        onRefresh={reload}
+        refreshing={places.loading || wetter.loading}
+      />
 
       {/* Es gibt schon etwas zu sehen, frisch kommt gleich – leise sagen.
           Offline übernimmt der Offline-Banner allein, sonst widersprechen

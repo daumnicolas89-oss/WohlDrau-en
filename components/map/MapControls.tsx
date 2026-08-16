@@ -1,13 +1,21 @@
 "use client";
 
-import { List, MapPin } from "lucide-react";
+import { List, MapPin, RefreshCw } from "lucide-react";
 import { TIME_CHOICES, useFilters } from "@/store/useFilters";
 
 /**
  * Die zwei Entscheidungen, die im Alltag ständig fallen: „wann?“ und
  * „Liste oder Karte?“, deshalb dauerhaft sichtbar statt im Filter versteckt.
+ * Dazu der Neu-laden-Knopf: frische Orte und frisches Wetter mit einem Tipp,
+ * ohne den Browser bemühen zu müssen.
  */
-export function MapControls() {
+export function MapControls({
+  onRefresh,
+  refreshing = false,
+}: {
+  onRefresh?: () => void;
+  refreshing?: boolean;
+}) {
   const filters = useFilters();
 
   return (
@@ -40,6 +48,17 @@ export function MapControls() {
       >
         {filters.viewMode === "list" ? <MapPin size={20} /> : <List size={20} />}
       </button>
+      {onRefresh && (
+        <button
+          type="button"
+          onClick={onRefresh}
+          disabled={refreshing}
+          aria-label="Neu laden"
+          className="flex size-11 items-center justify-center rounded-2xl bg-card text-dark shadow-card disabled:text-muted"
+        >
+          <RefreshCw size={19} className={refreshing ? "animate-spin" : undefined} />
+        </button>
+      )}
     </div>
   );
 }
