@@ -72,8 +72,8 @@ Merke dir eure Stammplätze. Sie stehen beim nächsten Öffnen oben, mit
 ihrem aktuellen Wert.
 
 OHNE KONTO, OHNE TRACKING
-Kein Login, keine Werbung, keine Nutzungsprofile. Dein Standort bleibt
-auf deinem Gerät.
+Kein Login, keine Werbung, keine Nutzungsprofile. Dein Standort dient
+nur der Suche und wird nicht gespeichert.
 
 Orte und Ausstattung stammen von OpenStreetMap, das Wetter von
 Open-Meteo. Der Schatten wird berechnet, nicht gemessen – er ist eine

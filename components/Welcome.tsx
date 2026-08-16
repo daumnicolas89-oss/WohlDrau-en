@@ -31,7 +31,7 @@ export function Welcome({ onStart }: { onStart: () => void }) {
       </Button>
 
       <p className="mt-3 text-center text-xs leading-relaxed text-muted">
-        Dein Standort bleibt auf deinem Gerät.
+        Dein Standort dient nur der Suche und wird nicht gespeichert.
       </p>
     </div>
   );
