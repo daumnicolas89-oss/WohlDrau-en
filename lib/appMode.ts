@@ -8,9 +8,14 @@
  */
 export const IS_APP_SHELL = process.env.NEXT_PUBLIC_APP_SHELL === "1";
 
-/** In der App-Hülle gehen alle Datenabrufe an die echte Domain. */
+/**
+ * In der App-Hülle gehen alle Datenabrufe an die echte Domain – bewusst mit
+ * `www`: platzda.app leitet mit 308 dorthin um, und eine Umleitung mitten im
+ * Datenabruf kostet nicht nur Zeit, sie lässt auch CORS-Anfragen scheitern.
+ */
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE ?? (IS_APP_SHELL ? "https://platzda.app" : "");
+  process.env.NEXT_PUBLIC_API_BASE ??
+  (IS_APP_SHELL ? "https://www.platzda.app" : "");
 
 export function apiUrl(path: string): string {
   return `${API_BASE}${path}`;

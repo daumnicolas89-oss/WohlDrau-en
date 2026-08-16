@@ -53,10 +53,12 @@ try {
     env: {
       ...process.env,
       NEXT_PUBLIC_APP_SHELL: "1",
-      // Für lokale Tests der Hülle überschreibbar, z. B.
+      // Mit `www`: platzda.app leitet mit 308 dorthin um, und eine Umleitung
+      // mitten im Datenabruf lässt CORS-Anfragen der App scheitern.
+      // Für lokale Tests überschreibbar, z. B.
       // NEXT_PUBLIC_API_BASE=http://localhost:3000 npm run build:app
       NEXT_PUBLIC_API_BASE:
-        process.env.NEXT_PUBLIC_API_BASE ?? "https://platzda.app",
+        process.env.NEXT_PUBLIC_API_BASE ?? "https://www.platzda.app",
     },
   });
   console.log("App-Hülle fertig: ./out");
