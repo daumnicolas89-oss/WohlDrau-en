@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { placeHref } from "@/lib/appMode";
 import { AlertTriangle, ChevronRight, Star, Sun } from "lucide-react";
 import { formatDistance, haversine } from "@/lib/utils";
 import { factChips, mainDriver, scoreWording, shadeWording, statusSentence } from "@/lib/wording";
@@ -39,9 +40,11 @@ export function PlaceCard({
 }) {
   // Der Link trägt beides: den Standort des Nutzers (für die Entfernung) und
   // den des Ortes (damit die Detailseite gezielt dort nachladen kann).
-  const href =
-    `/ort/${place.id}?lat=${origin.lat.toFixed(5)}&lng=${origin.lng.toFixed(5)}` +
-    `&plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}&r=${radius}`;
+  const href = placeHref(
+    place.id,
+    `lat=${origin.lat.toFixed(5)}&lng=${origin.lng.toFixed(5)}` +
+      `&plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}&r=${radius}`,
+  );
 
   const bewertung = scoreWording(place.pleasantScore);
   const grund = mainDriver(place);

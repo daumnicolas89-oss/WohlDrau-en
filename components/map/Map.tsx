@@ -1,5 +1,7 @@
 "use client";
 
+import { placeHref } from "@/lib/appMode";
+
 import { useEffect, useMemo } from "react";
 import { CircleMarker, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { useRouter } from "next/navigation";
@@ -94,7 +96,7 @@ export default function Map({
           eventHandlers={{
             click: () =>
               router.push(
-                `/ort/${place.id}?${originQuery}` +
+                placeHref(place.id, originQuery) +
                   `&plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}&r=${radius}`,
               ),
           }}

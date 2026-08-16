@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { anonymousId } from "@/lib/utils";
+import { apiUrl } from "@/lib/appMode";
 import type { PlaceStatus, PlaceStatusType } from "@/types";
 
 export interface UseStatusesResult {
@@ -24,7 +25,7 @@ export function useStatuses(placeIds: string[]): UseStatusesResult {
     if (!key) return;
     const controller = new AbortController();
 
-    fetch(`/api/status?placeIds=${encodeURIComponent(key)}`, {
+    fetch(apiUrl(`/api/status?placeIds=${encodeURIComponent(key)}`), {
       signal: controller.signal,
     })
       .then((res) => (res.ok ? res.json() : null))
@@ -48,7 +49,7 @@ export function useStatuses(placeIds: string[]): UseStatusesResult {
 
   const report = useCallback(
     async (placeId: string, type: PlaceStatusType, message?: string) => {
-      const res = await fetch("/api/status", {
+      const res = await fetch(apiUrl("/api/status"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

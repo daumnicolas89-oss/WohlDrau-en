@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { loadLastVisit, saveLastVisit } from "@/lib/lastVisit";
+import { apiUrl } from "@/lib/appMode";
 import { haversine } from "@/lib/utils";
 import { FALLBACK_WEATHER } from "@/lib/weather";
 import type { Weather } from "@/types";
@@ -80,7 +81,7 @@ export function useWeather(coords: Coords): UseWeatherResult {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/weather?lat=${lat}&lng=${lng}`, {
+        const res = await fetch(apiUrl(`/api/weather?lat=${lat}&lng=${lng}`), {
           signal: controller.signal,
         });
         if (!res.ok) {

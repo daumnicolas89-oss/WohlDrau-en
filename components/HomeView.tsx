@@ -23,6 +23,7 @@ import { deriveWeatherState, useWeather } from "@/hooks/useWeather";
 import { SCORE_ERKLAERUNG } from "@/lib/wording";
 import { bestTimeHint, bestTimeToday } from "@/lib/bestTime";
 import { rainNowcast } from "@/lib/rainNowcast";
+import { placeHref } from "@/lib/appMode";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
 import { useFavorites } from "@/store/useFavorites";
 import { useManualLocation } from "@/store/useLocation";
@@ -379,12 +380,12 @@ export function HomeView() {
               visible[0]?.id !== nearestPlayground.place.id &&
               !favorites.ids.includes(nearestPlayground.place.id) && (
               <Link
-                href={
-                  `/ort/${nearestPlayground.place.id}` +
-                  `?lat=${coords.lat.toFixed(5)}&lng=${coords.lng.toFixed(5)}` +
-                  `&plat=${nearestPlayground.place.lat.toFixed(5)}` +
-                  `&plng=${nearestPlayground.place.lng.toFixed(5)}&r=${radius}`
-                }
+                href={placeHref(
+                  nearestPlayground.place.id,
+                  `lat=${coords.lat.toFixed(5)}&lng=${coords.lng.toFixed(5)}` +
+                    `&plat=${nearestPlayground.place.lat.toFixed(5)}` +
+                    `&plng=${nearestPlayground.place.lng.toFixed(5)}&r=${radius}`,
+                )}
                 className="flex items-center gap-3 rounded-card border border-line bg-card px-4 py-3 shadow-card transition active:scale-[0.99]"
               >
                 <ToyBrick size={18} aria-hidden className="shrink-0 text-primary-dark" />

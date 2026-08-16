@@ -1,5 +1,7 @@
 "use client";
 
+import { apiUrl } from "@/lib/appMode";
+
 import { useState } from "react";
 import { Crosshair, Search } from "lucide-react";
 import { Sheet } from "@/components/ui/Sheet";
@@ -46,7 +48,7 @@ export function LocationSheet({
     setError(null);
     setSearched(true);
     try {
-      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+      const res = await fetch(apiUrl(`/api/geocode?q=${encodeURIComponent(q)}`));
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Suche fehlgeschlagen");
       setResults(data.results ?? []);

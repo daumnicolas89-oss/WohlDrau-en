@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { loadLastVisit, saveLastVisit } from "@/lib/lastVisit";
+import { apiUrl } from "@/lib/appMode";
 import { haversine } from "@/lib/utils";
 import type { OsmPlace, ShadeConfidence, Toilet } from "@/types";
 import type { Coords } from "./useGeolocation";
@@ -108,7 +109,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         // Route): neue Version = neue URL = CDN/Service-Worker liefern nie
         // tagelang alte Objektformen an neuen Client-Code.
         const res = await fetch(
-          `/api/places?v=4&lat=${gridLat}&lng=${gridLng}&radius=${radius}`,
+          apiUrl(`/api/places?v=4&lat=${gridLat}&lng=${gridLng}&radius=${radius}`),
           { signal: controller.signal },
         );
         if (!res.ok) {

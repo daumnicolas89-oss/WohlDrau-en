@@ -13,7 +13,8 @@
     "icons": "node scripts/generate-icons.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test \"tests/**/*.test.ts\"",
-    "tokens": "node scripts/export-tokens.mjs"
+    "tokens": "node scripts/export-tokens.mjs",
+    "build:app": "node scripts/build-app-shell.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
