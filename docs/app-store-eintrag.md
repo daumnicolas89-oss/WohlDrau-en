@@ -20,12 +20,19 @@ Schattige Plätze für Kinder
 
 ## Kategorie
 
-- **Primär:** Reisen
-- **Sekundär:** Wetter
+- **Primär:** Lifestyle
+- **Sekundär:** Reisen
 
-*(Begründung: „Reisen" enthält Orts- und Ausflugsfinder. „Wetter" passt zum
-Kern, ist aber als Hauptkategorie zu eng — dort konkurrierst du mit reinen
-Wetter-Apps und wirkst unvollständig.)*
+*(Begründung: Eltern- und Familien-Apps leben im App Store unter Lifestyle —
+eine Kategorie „Familie" gibt es dort nicht. Wenn Apple je eine Sammlung wie
+„Apps für Familien" kuratiert, wird aus Lifestyle ausgewählt. „Reisen" als
+zweite Kategorie fängt die Suche nach „Orte in der Nähe entdecken" mit ab.*
+
+**Achtung, Falle:** Die Kategorie **„Kinder" auf keinen Fall wählen.** Sie
+gilt für Apps, die Kinder selbst bedienen, und löst Apples strenges
+Kinder-Sonderregime aus: externe Links (unser „Route dorthin") nur hinter
+einer Eltern-Sperre, verschärfte Datenschutzprüfung, längeres Review.
+PlatzDa bedienen Eltern — die App gehört dort nicht hin.)*
 
 ## Beschreibung
 
