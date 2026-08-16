@@ -16,7 +16,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ungültige Anfrage" }, { status: 400 });
   }
 
-  if (typeof statusId !== "string" || statusId.length === 0 || statusId.length > 64) {
+  // Beitrags-Kennungen sind UUIDs. Alles andere gar nicht erst zur Datenbank
+  // durchreichen – das spart einen Fehlerpfad und hält das Log sauber.
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (typeof statusId !== "string" || !UUID.test(statusId)) {
     return NextResponse.json({ error: "Ungültige Meldung" }, { status: 400 });
   }
 
