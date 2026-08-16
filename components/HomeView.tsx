@@ -253,10 +253,19 @@ export function HomeView() {
     await report(reportTarget.id, type, message);
   }
 
+  const istKarte = !loading && !error && filters.viewMode === "map";
+
   if (!welcomed) return <Welcome onStart={startApp} />;
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col bg-background">
+    <div
+      className={`mx-auto flex max-w-lg flex-col bg-background ${
+        // Im Kartenmodus füllt die Karte den Rest des Bildschirms – dafür
+        // braucht die Kette eine feste Höhe, und die Seite selbst scrollt
+        // nicht (gescrollt wird in der Karte).
+        istKarte ? "h-dvh overflow-hidden" : "min-h-dvh"
+      }`}
+    >
       <WeatherHeader
         weather={weather}
         weatherError={weatherMissing}
@@ -266,6 +275,7 @@ export function HomeView() {
         geoStatus={geoStatus}
         manualActive={!!manual}
         besteZeit={besteZeit}
+        kompakt={istKarte}
         regenRadar={regenRadar}
         onOpenLocation={() => setLocationOpen(true)}
       />
@@ -309,7 +319,7 @@ export function HomeView() {
         </p>
       )}
 
-      <main className="relative flex-1">
+      <main className="relative flex flex-1 flex-col">
         {!loading && error && (
           <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
             <p className="font-display text-lg font-semibold text-dark">
@@ -329,7 +339,7 @@ export function HomeView() {
         {loading && <PlacesLoading hero />}
 
         {!loading && !error && filters.viewMode === "map" && (
-          <div className="relative h-[calc(100dvh-16rem)] min-h-[22rem] w-full overflow-hidden">
+          <div className="relative min-h-[26rem] w-full flex-1 overflow-hidden">
             <Map
               places={visible}
               origin={coords}

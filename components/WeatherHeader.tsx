@@ -64,6 +64,7 @@ export function WeatherHeader({
   manualActive = false,
   besteZeit = null,
   regenRadar = null,
+  kompakt = false,
   onOpenLocation,
 }: {
   weather: Weather | null;
@@ -80,6 +81,11 @@ export function WeatherHeader({
   besteZeit?: string | null;
   /** „Regen zieht auf …" aus dem 15-Minuten-Radar, berechnet die Startseite. */
   regenRadar?: string | null;
+  /**
+   * Kartenansicht: nur Logo, Ort und eine Zeile Wetter. Eine Karte, die erst
+   * nach einer halben Bildschirmhöhe anfängt, ist keine Karte.
+   */
+  kompakt?: boolean;
   onOpenLocation: () => void;
 }) {
   const [outfitOpen, setOutfitOpen] = useState(false);
@@ -142,7 +148,7 @@ export function WeatherHeader({
 
   return (
     <header
-      className="sky-hero relative overflow-hidden px-4 pt-[max(1.15rem,calc(env(safe-area-inset-top)+0.75rem))] pb-6"
+      className={`sky-hero relative overflow-hidden px-4 pt-[max(1.15rem,calc(env(safe-area-inset-top)+0.75rem))] ${kompakt ? "pb-3" : "pb-6"}`}
       style={mood ? { background: SKY_GRADIENT[mood] } : undefined}
     >
       {mood && <SkyScene mood={mood} />}
@@ -166,7 +172,23 @@ export function WeatherHeader({
         </button>
       </div>
 
-      {values && weather && uv && (
+      {kompakt && values && (
+        <p className="relative mt-2 flex items-baseline gap-2 text-sm text-dark">
+          <span className="font-display text-xl font-bold tabular-nums">
+            {Math.round(values.temperature)}°
+          </span>
+          <span className="truncate text-muted">
+            {weatherAdvice(
+              values.apparentTemperature,
+              values.uvIndex,
+              values.precipitationProbability,
+              dayAt,
+            )}
+          </span>
+        </p>
+      )}
+
+      {!kompakt && values && weather && uv && (
         <div className="relative mt-5">
           <div className="flex items-start gap-2">
             <span className="font-display text-[52px] leading-[0.9] font-bold tracking-tight text-dark tabular-nums">
@@ -265,7 +287,7 @@ export function WeatherHeader({
           Werte-Block) schlägt den Wetter-Fehler – beides zugleich braucht
           niemand. Der STANDORT-Hinweis darunter meint etwas anderes und darf
           nicht wochenlang hinter einer Dauerfrost-Warnung verschwinden. */}
-      {!alert && weatherError && (
+      {!kompakt && !alert && weatherError && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           <CloudOff size={15} aria-hidden className="mt-0.5 shrink-0" />
           <span>
@@ -276,7 +298,7 @@ export function WeatherHeader({
         </p>
       )}
 
-      {!weatherError && geoStatus === "denied" && !manualActive && (
+      {!kompakt && !weatherError && geoStatus === "denied" && !manualActive && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           <MapPin size={15} aria-hidden className="mt-0.5 shrink-0" />
           <span>
@@ -287,7 +309,7 @@ export function WeatherHeader({
         </p>
       )}
 
-      {!weatherError && geoStatus === "unavailable" && !manualActive && (
+      {!kompakt && !weatherError && geoStatus === "unavailable" && !manualActive && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
           <MapPin size={15} aria-hidden className="mt-0.5 shrink-0" />
           <span>
