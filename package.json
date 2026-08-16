@@ -17,6 +17,9 @@
     "build:app": "node scripts/build-app-shell.mjs"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@supabase/supabase-js": "^2.112.3",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.31.0",
