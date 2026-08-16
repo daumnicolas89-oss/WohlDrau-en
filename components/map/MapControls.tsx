@@ -60,7 +60,7 @@ export function MapControls({
           aria-label="Neu laden"
           className="flex size-11 items-center justify-center rounded-2xl bg-card text-dark shadow-card transition duration-200 active:scale-95 disabled:opacity-60 disabled:active:scale-100"
         >
-          <RefreshCw size={19} className={refreshing ? "animate-spin" : undefined} />
+          <RefreshCw size={20} className={refreshing ? "animate-spin" : undefined} />
         </button>
       )}
     </div>

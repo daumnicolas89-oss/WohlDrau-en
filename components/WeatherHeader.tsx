@@ -168,7 +168,7 @@ export function WeatherHeader({
             className={`shrink-0 text-primary-dark ${geoStatus === "locating" ? "animate-pulse" : ""}`}
           />
           <span className="truncate">{locationLabel}</span>
-          <ChevronDown size={15} aria-hidden className="shrink-0 text-muted" />
+          <ChevronDown size={16} aria-hidden className="shrink-0 text-muted" />
         </button>
       </div>
 
@@ -289,7 +289,7 @@ export function WeatherHeader({
           nicht wochenlang hinter einer Dauerfrost-Warnung verschwinden. */}
       {!kompakt && !alert && weatherError && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          <CloudOff size={15} aria-hidden className="mt-0.5 shrink-0" />
+          <CloudOff size={16} aria-hidden className="mt-0.5 shrink-0" />
           <span>
             Das Wetter ist gerade nicht erreichbar. Die Orte sind trotzdem da,
             nach Schatten und Nähe geordnet, nur ohne aktuelle Grad- und
@@ -300,7 +300,7 @@ export function WeatherHeader({
 
       {!kompakt && !weatherError && geoStatus === "denied" && !manualActive && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          <MapPin size={15} aria-hidden className="mt-0.5 shrink-0" />
+          <MapPin size={16} aria-hidden className="mt-0.5 shrink-0" />
           <span>
             Ohne Standortfreigabe zeigen wir deinen zuletzt bekannten Ort oder
             eine Beispielstadt. Tippe oben auf den Ortsnamen, um deinen Standort
@@ -311,7 +311,7 @@ export function WeatherHeader({
 
       {!kompakt && !weatherError && geoStatus === "unavailable" && !manualActive && (
         <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          <MapPin size={15} aria-hidden className="mt-0.5 shrink-0" />
+          <MapPin size={16} aria-hidden className="mt-0.5 shrink-0" />
           <span>
             Der Standort lässt sich gerade nicht bestimmen. Im Gebäude oder ohne
             GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte

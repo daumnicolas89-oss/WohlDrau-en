@@ -15,7 +15,7 @@ export const kindLabel = (kind: PlaceKind) => META[kind]?.label ?? "";
 export function PlaceKindTag({
   kind,
   className,
-  iconSize = 13,
+  iconSize = 14,
 }: {
   kind: PlaceKind;
   className?: string;
@@ -28,7 +28,7 @@ export function PlaceKindTag({
   const { label, Icon } = meta;
   return (
     <span className={`inline-flex items-center gap-1 ${className ?? ""}`}>
-      <Icon size={iconSize} aria-hidden className="shrink-0" />
+      <Icon size={iconSize} aria-hidden className="shrink-0 -translate-y-px" />
       {label}
     </span>
   );

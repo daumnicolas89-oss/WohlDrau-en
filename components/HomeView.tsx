@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronRight,
   Layers,
+  MapPinOff,
   Megaphone,
   SlidersHorizontal,
   Star,
@@ -31,6 +32,7 @@ import { useManualLocation } from "@/store/useLocation";
 import { LocationSheet } from "./LocationSheet";
 import { ToiletSheet } from "./ToiletSheet";
 import { Welcome } from "./Welcome";
+import { EmptyState } from "./ui/EmptyState";
 import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
 import { MapControls } from "./map/MapControls";
@@ -367,26 +369,29 @@ export function HomeView() {
                 eigenen Punkt. */}
             {visible.length === 0 && (
               <div className="pointer-events-none absolute inset-x-4 top-16 z-[905]">
-                <div className="pointer-events-auto mx-auto max-w-sm rounded-card bg-card/95 p-4 text-center shadow-float backdrop-blur">
-                  <p className="font-display text-lg font-semibold text-dark">
-                    {filteredOut > 0
-                      ? "Nichts passt zu deinen Filtern"
-                      : "Hier ist nichts erfasst"}
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed text-muted">
-                    {filteredOut > 0
-                      ? "Lockere einen Filter, dann tauchen Orte wieder auf."
-                      : "In diesem Umkreis kennt OpenStreetMap nichts. Mit größerer Entfernung findet sich meist etwas."}
-                  </p>
-                  {filteredOut > 0 ? (
-                    <Button onClick={filters.reset} className="mx-auto mt-3">
-                      Filter zurücksetzen
-                    </Button>
-                  ) : (
-                    <Button onClick={() => setFilterOpen(true)} className="mx-auto mt-3">
-                      Entfernung ändern
-                    </Button>
-                  )}
+                <div className="pointer-events-auto mx-auto max-w-sm rounded-card bg-card/95 shadow-float backdrop-blur">
+                  <EmptyState
+                    className="px-5 py-6"
+                    Icon={filteredOut > 0 ? SlidersHorizontal : MapPinOff}
+                    titel={
+                      filteredOut > 0
+                        ? "Nichts passt zu deinen Filtern"
+                        : "Hier ist nichts erfasst"
+                    }
+                    text={
+                      filteredOut > 0
+                        ? "Lockere einen Filter, dann tauchen Orte wieder auf."
+                        : "In diesem Umkreis kennt OpenStreetMap nichts. Mit größerer Entfernung findet sich meist etwas."
+                    }
+                  >
+                    {filteredOut > 0 ? (
+                      <Button onClick={filters.reset}>Filter zurücksetzen</Button>
+                    ) : (
+                      <Button onClick={() => setFilterOpen(true)}>
+                        Entfernung ändern
+                      </Button>
+                    )}
+                  </EmptyState>
                 </div>
               </div>
             )}
@@ -411,7 +416,7 @@ export function HomeView() {
                 )}
                 className="flex items-center gap-3 rounded-card border border-line bg-card px-4 py-3 shadow-card transition active:scale-[0.99]"
               >
-                <ToyBrick size={18} aria-hidden className="shrink-0 text-primary-dark" />
+                <ToyBrick size={20} aria-hidden className="shrink-0 text-primary-dark" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
                     Nächster Spielplatz
@@ -443,7 +448,7 @@ export function HomeView() {
                 {meinePlaetze.length > 0 && (
                   <section aria-label="Meine gemerkten Plätze" className="space-y-3">
                     <h2 className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
-                      <Star size={12} aria-hidden className="fill-accent text-accent" />
+                      <Star size={14} aria-hidden className="fill-accent text-accent" />
                       Meine Plätze
                     </h2>
                     {meinePlaetze.map((place) => (
@@ -510,28 +515,34 @@ export function HomeView() {
                 )}
               </>
             ) : (
-              <div className="rounded-card bg-card p-6 text-center shadow-card">
-                <p className="font-display text-lg font-semibold text-dark">
-                  {filteredOut > 0 ? "Nichts passt zu deinen Filtern" : "Hier ist nichts erfasst"}
-                </p>
-                <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
-                  {filteredOut > 0
-                    ? filteredOut === 1
-                      ? "In der Nähe liegt 1 Ort, den deine Filter gerade aussortieren. Ein Kriterium weniger bringt ihn zurück."
-                      : `In der Nähe liegen ${filteredOut} Orte, die deine Filter gerade aussortieren. Ein Kriterium weniger bringt sie zurück.`
-                    : "In diesem Umkreis kennt OpenStreetMap keinen Spielplatz und keine Grünfläche. Mit größerer Entfernung findet sich meist etwas."}
-                </p>
+              <div className="rounded-card bg-card shadow-card">
+                <EmptyState
+                  Icon={filteredOut > 0 ? SlidersHorizontal : MapPinOff}
+                  titel={
+                    filteredOut > 0
+                      ? "Nichts passt zu deinen Filtern"
+                      : "Hier ist nichts erfasst"
+                  }
+                  text={
+                    filteredOut > 0
+                      ? filteredOut === 1
+                        ? "In der Nähe liegt 1 Ort, den deine Filter gerade aussortieren. Ein Kriterium weniger bringt ihn zurück."
+                        : `In der Nähe liegen ${filteredOut} Orte, die deine Filter gerade aussortieren. Ein Kriterium weniger bringt sie zurück.`
+                      : "In diesem Umkreis kennt OpenStreetMap keinen Spielplatz und keine Grünfläche. Mit größerer Entfernung findet sich meist etwas."
+                  }
+                >
                 {/* Ohne aussortierte Orte hilft Zurücksetzen nicht, dann muss
                     der Umkreis größer werden. */}
                 {filteredOut > 0 ? (
-                  <Button onClick={filters.reset} className="mx-auto mt-4">
+                  <Button onClick={filters.reset}>
                     Filter zurücksetzen
                   </Button>
                 ) : (
-                  <Button onClick={() => setFilterOpen(true)} className="mx-auto mt-4">
+                  <Button onClick={() => setFilterOpen(true)}>
                     Entfernung ändern
                   </Button>
                 )}
+                </EmptyState>
               </div>
             )}
 
@@ -587,7 +598,7 @@ export function HomeView() {
           onClick={() => setReportPickerOpen(true)}
           className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float transition duration-200 active:scale-95"
         >
-          <Megaphone size={18} aria-hidden />
+          <Megaphone size={20} aria-hidden />
           Melden
         </button>
         <button
@@ -595,7 +606,7 @@ export function HomeView() {
           onClick={() => setFilterOpen(true)}
           className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-primary-dark px-5 font-semibold text-white shadow-float transition duration-200 active:scale-95"
         >
-          <SlidersHorizontal size={18} aria-hidden />
+          <SlidersHorizontal size={20} aria-hidden />
           Filter
           {filterCount > 0 && (
             <span className="rounded-full bg-white/25 px-2 py-0.5 text-xs">

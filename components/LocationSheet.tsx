@@ -86,7 +86,7 @@ export function LocationSheet({
         className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-line px-4 text-left font-semibold text-dark transition active:bg-background"
       >
         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-dark">
-          <Crosshair size={18} />
+          <Crosshair size={20} />
         </span>
         {geoStatus === "locating" ? "Standort wird bestimmt …" : "Meinen Standort verwenden"}
       </button>
@@ -115,7 +115,7 @@ export function LocationSheet({
 
       <form onSubmit={search} className="mt-4 flex gap-2">
         <div className="flex flex-1 items-center gap-2 rounded-2xl border border-line bg-background px-3 focus-within:border-primary">
-          <Search size={18} aria-hidden className="shrink-0 text-muted" />
+          <Search size={20} aria-hidden className="shrink-0 text-muted" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}

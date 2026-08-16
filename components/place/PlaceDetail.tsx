@@ -39,6 +39,7 @@ import { useStatuses } from "@/hooks/useStatuses";
 import { deriveWeatherState, useWeather } from "@/hooks/useWeather";
 import { ReportStatusModal } from "@/components/status/ReportStatusModal";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { InfoButton } from "@/components/ui/InfoButton";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { SkyScene, skyMood, SKY_GRADIENT } from "@/components/SkyScene";
@@ -323,7 +324,7 @@ export function PlaceDetail({
           <section className="space-y-4 px-4 pt-4">
             {weatherMissing && (
               <p className="flex items-start gap-2 rounded-card border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-                <CloudOff size={15} aria-hidden className="mt-0.5 shrink-0" />
+                <CloudOff size={16} aria-hidden className="mt-0.5 shrink-0" />
                 <span>
                   Das Wetter ist gerade nicht erreichbar. Schatten und Bewertung
                   beruhen hier auf dem Sonnenstand und einer neutralen Annahme,
@@ -500,17 +501,23 @@ export function PlaceDetail({
                           aria-label="Diesen Beitrag melden"
                           className="-m-2 flex size-11 shrink-0 items-center justify-center rounded-full text-muted transition duration-200 active:scale-95"
                         >
-                          <Flag size={15} aria-hidden />
+                          <Flag size={16} aria-hidden />
                         </button>
                       </li>
                     );
                   })}
                 </ul>
               ) : (
-                <p className="text-[15px] text-muted">
-                  Noch nichts gemeldet. Wenn du dort bist, hilft eine kurze
-                  Rückmeldung den nächsten Eltern.
-                </p>
+                <EmptyState
+                  className="px-2 py-4"
+                  Icon={Megaphone}
+                  titel="Noch nichts gemeldet"
+                  text="Wenn du dort bist, hilft eine kurze Rückmeldung den nächsten Eltern."
+                >
+                  <Button onClick={() => setReportOpen(true)}>
+                    Jetzt melden
+                  </Button>
+                </EmptyState>
               )}
             </div>
 
@@ -521,7 +528,7 @@ export function PlaceDetail({
               className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-card text-sm font-semibold text-muted shadow-card"
             >
               Auf der Karte ansehen
-              <ExternalLink size={15} aria-hidden />
+              <ExternalLink size={16} aria-hidden />
             </a>
           </section>
 
@@ -532,7 +539,7 @@ export function PlaceDetail({
               aria-label="Rückmeldung zu diesem Ort geben"
               className="flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float transition hover:bg-background active:scale-95"
             >
-              <Megaphone size={18} aria-hidden />
+              <Megaphone size={20} aria-hidden />
               Melden
             </button>
             <a
@@ -541,7 +548,7 @@ export function PlaceDetail({
               rel="noreferrer"
               className="flex min-h-13 flex-1 items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float transition hover:bg-primary-darker active:bg-primary-darker"
             >
-              <Navigation size={18} aria-hidden />
+              <Navigation size={20} aria-hidden />
               Route dorthin
             </a>
           </div>

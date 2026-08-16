@@ -83,7 +83,7 @@ export function PlaceCard({
           </h3>
           <PlaceKindTag
             kind={place.kind}
-            iconSize={12}
+            iconSize={14}
             className="mt-0.5 text-xs font-medium text-muted"
           />
           <p className="mt-0.5 truncate text-sm text-muted">
@@ -101,7 +101,7 @@ export function PlaceCard({
             </p>
           )}
         </div>
-        <ChevronRight size={18} aria-hidden className="shrink-0 text-muted" />
+        <ChevronRight size={20} aria-hidden className="shrink-0 text-muted" />
       </Link>
     );
   }
@@ -113,7 +113,7 @@ export function PlaceCard({
     >
       {beste && (
         <p className="flex items-center gap-1.5 bg-accent-soft px-4 py-2 text-[11px] font-semibold tracking-[0.14em] text-accent-ink uppercase">
-          <Sun size={13} aria-hidden />
+          <Sun size={14} aria-hidden />
           Beste Wahl gerade
         </p>
       )}
@@ -185,7 +185,7 @@ export function PlaceCard({
             }`}
           >
             {meldung.tone === "bad" && (
-              <AlertTriangle size={15} aria-hidden className="mt-0.5 shrink-0" />
+              <AlertTriangle size={16} aria-hidden className="mt-0.5 shrink-0" />
             )}
             Andere Eltern haben {meldung.text}
           </p>
@@ -193,7 +193,7 @@ export function PlaceCard({
 
         {!meldung && place.warnings.length > 0 && (
           <p className="mt-4 flex items-start gap-1.5 border-t border-line pt-3.5 text-sm font-medium text-warning-ink">
-            <AlertTriangle size={15} aria-hidden className="mt-0.5 shrink-0" />
+            <AlertTriangle size={16} aria-hidden className="mt-0.5 shrink-0" />
             {place.warnings[0]}
           </p>
         )}
