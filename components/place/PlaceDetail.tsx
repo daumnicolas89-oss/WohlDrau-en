@@ -251,18 +251,19 @@ export function PlaceDetail({
               <PlaceKindTag kind={place.kind} className="font-medium" />
             </p>
 
-            {/* Die Antwort auf „soll ich hin?“, groß, in Worten, mit Zahl. */}
+            {/* Die Seite führt entlang der Eltern-Fragen. Die erste steht
+                wörtlich da – und Ring plus Wort sind die Antwort. */}
             <div className="mt-5 flex items-center gap-4">
               <ScoreRing
                 score={place.pleasantScore}
                 tone={bewertung.tone}
                 size={92}
-                label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}`}
+                label={`Lohnt es sich gerade? ${bewertung.label}, ${place.pleasantScore} von 100.`}
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-1">
                   <p className="text-[11px] font-semibold tracking-wide text-muted uppercase">
-                    Angenehm jetzt
+                    Lohnt es sich gerade?
                   </p>
                   <InfoButton
                     title="Wie kommt dieser Wert zustande?"
@@ -325,11 +326,25 @@ export function PlaceDetail({
               name={place.name}
             />
 
-            {/* Schatten: Aussage, Balken, Begründung, Ausblick. */}
+            {/* Schatten: Aussage, Balken, Begründung, Ausblick. Wie es
+                gerechnet wird, steht im Info-Knopf, nicht im Fließtext. */}
             <div className="rounded-card bg-card p-5 shadow-card">
-              <h2 className="mb-3 font-display font-semibold text-dark">
-                Sonne und Schatten
-              </h2>
+              <div className="mb-3 flex items-start justify-between gap-2">
+                <h2 className="font-display font-semibold text-dark">
+                  Wie sonnig ist es dort?
+                </h2>
+                <InfoButton title="Woher weiß die App das?">
+                  <p>
+                    Der Schatten wird aus dem Sonnenstand, den in OpenStreetMap
+                    erfassten Bäumen und den Gebäuden ringsum berechnet. Es ist
+                    eine Schätzung, keine Messung vor Ort.
+                  </p>
+                  <p>
+                    Je mehr Bäume in einer Gegend erfasst sind, desto genauer
+                    wird sie. Ein Blick aufs Luftbild oben hilft im Zweifel.
+                  </p>
+                </InfoButton>
+              </div>
               <ShadeMeter
                 state={place.shade.state}
                 shadeIndex={place.shade.index}
@@ -369,7 +384,9 @@ export function PlaceDetail({
 
             <div className="rounded-card bg-card p-5 shadow-card">
               <div className="mb-1 flex items-start justify-between gap-2">
-                <h2 className="font-display font-semibold text-dark">Ausstattung</h2>
+                <h2 className="font-display font-semibold text-dark">
+                  Was gibt es vor Ort?
+                </h2>
                 <InfoButton title="Woher kommen diese Angaben?">
                   <p>
                     Die Ausstattung stammt aus OpenStreetMap, einer freien Karte,
@@ -413,7 +430,7 @@ export function PlaceDetail({
 
             <div className="rounded-card bg-card p-5 shadow-card">
               <h2 className="mb-1 font-display font-semibold text-dark">
-                Was andere Eltern melden
+                Was sagen andere Eltern?
               </h2>
               <p className="mb-3 text-sm text-muted">
                 Meldungen der letzten drei Stunden.

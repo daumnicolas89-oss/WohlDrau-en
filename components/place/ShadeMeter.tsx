@@ -72,8 +72,7 @@ export function ShadeMeter({
 
           {size === "lg" && (
             <p className="mt-1.5 text-xs text-muted">
-              Geschätzt {prozent} % der Fläche liegen im Schatten, berechnet aus
-              Sonnenstand, erfassten Bäumen und Gebäuden, keine Messung vor Ort.
+              Geschätzt {prozent} % der Fläche liegen gerade im Schatten.
             </p>
           )}
         </>
