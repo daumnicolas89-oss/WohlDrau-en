@@ -22,6 +22,7 @@ import { useStatuses } from "@/hooks/useStatuses";
 import { deriveWeatherState, useWeather } from "@/hooks/useWeather";
 import { SCORE_ERKLAERUNG } from "@/lib/wording";
 import { bestTimeHint, bestTimeToday } from "@/lib/bestTime";
+import { rainNowcast } from "@/lib/rainNowcast";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
 import { useFavorites } from "@/store/useFavorites";
 import { useManualLocation } from "@/store/useLocation";
@@ -136,6 +137,12 @@ export function HomeView() {
     [weather, coords, now],
   );
 
+  // Das Regen-Radar-Gefühl: „zieht auf" / „hört auf" für die nächsten 90 Min.
+  const regenRadar = useMemo(
+    () => (weather ? rainNowcast(weather, now) : null),
+    [weather, now],
+  );
+
   // Der „ich will nur kurz raus"-Moment: der nächstgelegene Spielplatz,
   // unabhängig davon, wie er gerade bewertet ist. Wer auf dem Schulhof um die
   // Ecke steht, soll ihn hier finden, nicht auf Platz 40 der Liste.
@@ -245,6 +252,7 @@ export function HomeView() {
         geoStatus={geoStatus}
         manualActive={!!manual}
         besteZeit={besteZeit}
+        regenRadar={regenRadar}
         onOpenLocation={() => setLocationOpen(true)}
       />
 

@@ -1,4 +1,5 @@
-import { coverCanopyAt, DENSE_CANOPY, type TreeCover } from "./canopy";
+import { coverCanopyAt, coverInfoAt, DENSE_CANOPY, type LeafType, type TreeCover } from "./canopy";
+import { attachHorizons } from "./terrain";
 import { bboxAround, haversine, offsetMeters } from "./utils";
 import type {
   NearBuilding,
@@ -38,7 +39,7 @@ const TOILET_MAX_DISTANCE_M = 150;
 const WATER_MAX_DISTANCE_M = 120;
 
 interface OverpassElement {
-  type: "node" | "way" | "relation";
+  type: "node" | "way" | "relation" | "gebaeude";
   id: number;
   lat?: number;
   lon?: number;
@@ -57,6 +58,13 @@ interface OverpassElement {
  * Daten wie vorher (`around`-Vorfilter wäre schneller gewesen, ist aber an
  * den großen Wald-Polygonen in der Orts-Menge gescheitert: >90 s Rechenzeit).
  */
+function leafTypeFrom(value: string | undefined): LeafType | undefined {
+  if (value === "needleleaved") return "needle";
+  if (value === "broadleaved") return "broad";
+  if (value === "mixed") return "mixed";
+  return undefined;
+}
+
 function buildGreenQuery(bbox: [number, number, number, number]): string {
   const b = bbox.map((n) => n.toFixed(5)).join(",");
   return `[out:json][timeout:25];
@@ -87,11 +95,29 @@ out tags geom;`;
 
 function buildUrbanQuery(bbox: [number, number, number, number]): string {
   const b = bbox.map((n) => n.toFixed(5)).join(",");
+  // Der convert-Block liefert echte Gebäudehöhen (height/building:levels) als
+  // schlanke Elemente mit genau zwei Feldern – volle Tags wären doppelt so
+  // schwer. Gebäude ohne Höhen-Tags behalten die Standard-Annahme.
   return `[out:json][timeout:25];
 way["building"](${b});
 out ids center;
+(
+  way["building"]["building:levels"](${b});
+  way["building"]["height"](${b});
+);
+convert gebaeude ::id=id(),lvl=t["building:levels"],h=t["height"],::geom=center(geom());
+out geom;
 way["highway"~"^(residential|living_street|unclassified|tertiary|secondary|pedestrian)$"]["name"](${b});
 out tags geom;`;
+}
+
+/** Höhe aus OSM-Tags: `height` in Metern schlägt Geschosse × 3 m. */
+export function buildingHeightFrom(tags: { h?: string; lvl?: string }): number | null {
+  const h = Number.parseFloat(tags.h ?? "");
+  if (Number.isFinite(h) && h > 0) return Math.min(80, Math.max(3, h));
+  const lvl = Number.parseFloat(tags.lvl ?? "");
+  if (Number.isFinite(lvl) && lvl > 0) return Math.min(80, Math.max(3, lvl * 3));
+  return null;
 }
 
 /** Overpass antwortet mit 429/504, wenn gerade kein Slot frei ist. Das ist
@@ -446,7 +472,8 @@ export async function fetchPlaces(
   const toilets: (Point & { tags: Record<string, string>; id: string })[] = [];
   const waters: Point[] = [];
   const trees: Point[] = [];
-  const buildings: Point[] = [];
+  const buildings: (Point & { id: number; h?: number })[] = [];
+  const buildingHeights = new Map<number, number>();
   const treeCovers: TreeCover[] = [];
   // Umrisse je Wald-Objekt, um den Anzeige-Punkt eines Wäldchens auf die
   // Fläche zu ziehen, falls die Bbox-Mitte danebenliegt (L-Form, Teilflächen).
@@ -454,6 +481,12 @@ export async function fetchPlaces(
   const streetPoints: (Point & { name: string })[] = [];
 
   for (const el of elements) {
+    // Schlanke Höhen-Elemente aus dem convert-Block der Stadt-Abfrage.
+    if (el.type === "gebaeude") {
+      const h = buildingHeightFrom(el.tags ?? {});
+      if (h !== null) buildingHeights.set(el.id, h);
+      continue;
+    }
     const tags = el.tags;
     if (!tags) {
       // Ohne Tags kommen genau zwei Sorten an: Bäume (`out skel`) und
@@ -461,7 +494,7 @@ export async function fetchPlaces(
       if (el.type === "node" && typeof el.lat === "number" && typeof el.lon === "number") {
         trees.push({ lat: el.lat, lng: el.lon });
       } else if (el.center) {
-        buildings.push({ lat: el.center.lat, lng: el.center.lon });
+        buildings.push({ lat: el.center.lat, lng: el.center.lon, id: el.id });
       }
       continue;
     }
@@ -509,6 +542,7 @@ export async function fetchPlaces(
         treeCovers.push({
           kind: tags.natural === "scrub" ? "medium" : "dense",
           rings,
+          leaf: leafTypeFrom(tags.leaf_type),
         });
         coverRingsById.set(`${el.type}/${el.id}`, rings);
       }
@@ -537,6 +571,12 @@ export async function fetchPlaces(
       greens.push(el);
       if (!isBlocked(tags)) rawPlaces.push(el);
     }
+  }
+
+  // Echte Höhen (falls getaggt) an die Gebäude heften.
+  for (const b of buildings) {
+    const h = buildingHeights.get(b.id);
+    if (h !== undefined) b.h = h;
   }
 
   const treeGrid = new Grid(trees);
@@ -627,12 +667,21 @@ export async function fetchPlaces(
     // fälschlich beschattete. Ein Ort, der SELBST als Wald getaggt ist, ist per
     // Definition baumbedeckt – egal wo genau sein Messpunkt gelandet ist (der
     // Rand-Punkt eines Multipolygons kann beim Ray-Casting sonst „außen" sein).
+    const coverInfo = coverInfoAt(c.lat, c.lng, treeCovers);
     const coverCanopy = Math.max(
-      coverCanopyAt(c.lat, c.lng, treeCovers),
+      coverInfo.canopy,
       kind === "wood" ? DENSE_CANOPY : 0,
     );
     const inCover = coverCanopy > 0;
     const canopy = Math.max(pointCanopy, coverCanopy);
+    // Nadel-, Laub- oder Mischwald: eigenes Tag des Ortes schlägt die Fläche,
+    // in der er liegt. Entscheidet, ob der Schatten den Winter übersteht.
+    const canopyLeaf =
+      kind === "wood"
+        ? (leafTypeFrom(osmTags.leaf_type) ?? coverInfo.leaf)
+        : coverCanopy >= pointCanopy
+          ? coverInfo.leaf
+          : undefined;
 
     const inGreen =
       type === "park" ||
@@ -651,7 +700,11 @@ export async function fetchPlaces(
       .near(c.lat, c.lng, BUILDING_SEARCH_RADIUS_M)
       .map((b) => {
         const { dx, dy } = offsetMeters(c.lat, c.lng, b.lat, b.lng);
-        return { dx: Math.round(dx), dy: Math.round(dy), h: DEFAULT_BUILDING_HEIGHT_M };
+        return {
+          dx: Math.round(dx),
+          dy: Math.round(dy),
+          h: Math.round(b.h ?? DEFAULT_BUILDING_HEIGHT_M),
+        };
       })
       .sort((a, b) => Math.hypot(a.dx, a.dy) - Math.hypot(b.dx, b.dy))
       .slice(0, MAX_BUILDINGS_PER_PLACE);
@@ -710,6 +763,7 @@ export async function fetchPlaces(
       tags,
       shadeInputs: {
         canopy: Number(canopy.toFixed(3)),
+        canopyLeaf,
         treeCount,
         inGreen,
         areaM2: areaM2 ? Math.round(areaM2) : null,
@@ -787,6 +841,10 @@ export async function fetchPlaces(
     changingTable: yesNo(t.tags.changing_table),
     fee: yesNo(t.tags.fee),
   }));
+
+  // Gelände-Horizont für Bergschatten (in Tälern verschwindet die Sonne früh).
+  // Fehler-tolerant: klappt es nicht, rechnen die Orte wie bisher ohne Gelände.
+  await attachHorizons(deduped);
 
   return { places: deduped, toilets: publicToilets, treeDataQuality };
 }

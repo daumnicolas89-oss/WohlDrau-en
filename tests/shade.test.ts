@@ -94,3 +94,51 @@ describe("Saison der Baumkronen", () => {
     assert.ok(Math.abs(juni.fromCanopy - juli.fromCanopy) < 0.05);
   });
 });
+
+describe("Bergschatten (Gelände-Horizont)", () => {
+  it("verschattet den Platz, wenn die Sonne hinter dem Hügel steht", () => {
+    // Horizont: 70° Richtung Süden (Achtel 4) – mittags steht die Sonne
+    // dort bei ~65° und ist damit hinter dem Berg.
+    const ort = place({
+      shadeInputs: { horizon: [0, 0, 0, 0, 70, 0, 0, 0] },
+    });
+    const result = computeShade(ort, NOON, 0);
+    assert.equal(result.fromTerrain, 1);
+    assert.equal(result.state, "shady");
+    assert.equal(result.index, 1);
+  });
+
+  it("lässt die Sonne durch, wenn sie über dem Horizont steht", () => {
+    const ort = place({
+      shadeInputs: { horizon: [0, 0, 0, 0, 20, 0, 0, 0] },
+    });
+    const result = computeShade(ort, NOON, 0);
+    assert.equal(result.fromTerrain, undefined);
+    assert.equal(result.state, "sunny");
+  });
+
+  it("ohne Horizont-Daten ändert sich nichts (Flachland, alte Caches)", () => {
+    const result = computeShade(place(), NOON, 0);
+    assert.equal(result.fromTerrain, undefined);
+  });
+});
+
+describe("Nadel- vs. Laubwald im Winter", () => {
+  it("hält Nadelwald ganzjährig dicht, Laubwald wird kahl", () => {
+    const winter = new Date(2026, 0, 21, 13, 0);
+    const nadel = computeShade(
+      place({ shadeInputs: { canopy: 0.85, canopyLeaf: "needle" } }),
+      winter,
+      0,
+    );
+    const laub = computeShade(
+      place({ shadeInputs: { canopy: 0.85, canopyLeaf: "broad" } }),
+      winter,
+      0,
+    );
+    assert.ok(
+      nadel.fromCanopy > laub.fromCanopy * 1.8,
+      `Nadel ${nadel.fromCanopy} sollte deutlich über Laub ${laub.fromCanopy} liegen`,
+    );
+  });
+});

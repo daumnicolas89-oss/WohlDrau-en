@@ -55,9 +55,15 @@ function buildingShade(
  * der Winter-Sonnensuche zu Unrecht abgewertet. Der Nadelwald-Anteil ist in
  * den Daten (noch) nicht unterscheidbar, darum ein vorsichtiger Mischwert.
  */
-function leafFactor(date: Date): number {
+function leafFactor(date: Date, leaf?: "needle" | "broad" | "mixed"): number {
+  if (leaf === "needle") return 1; // Nadelwald bleibt ganzjährig dicht
   const monat = date.getMonth(); // 0 = Januar
-  if (monat >= 10 || monat <= 2) return 0.55; // November bis März
+  if (monat >= 10 || monat <= 2) {
+    // November bis März: Laub kahl, Mischwald halb, Unbekanntes vorsichtig.
+    if (leaf === "broad") return 0.45;
+    if (leaf === "mixed") return 0.75;
+    return 0.55;
+  }
   if (monat === 3 || monat === 9) return 0.8; // April und Oktober (Übergang)
   return 1;
 }
@@ -66,7 +72,7 @@ function leafFactor(date: Date): number {
 function canopyShade(place: OsmPlace, altitudeDeg: number, date: Date): number {
   return clamp(
     place.shadeInputs.canopy *
-      leafFactor(date) *
+      leafFactor(date, place.shadeInputs.canopyLeaf) *
       (0.45 + 0.55 * Math.sin(altitudeDeg * DEG)),
   );
 }
@@ -95,6 +101,25 @@ export function computeShade(
       fromBuildings: 0,
       fromClouds: 0,
     };
+  }
+
+  // Bergschatten: Steht die Sonne flacher als der Gelände-Horizont in ihrer
+  // Richtung, liegt der Platz komplett im Schatten des Hügels – real z. B.
+  // abends in Alpentälern, lange vor dem rechnerischen Sonnenuntergang.
+  const horizon = place.shadeInputs.horizon;
+  if (horizon && horizon.length === 8) {
+    const oktant = Math.round((((pos.azimuth % 360) + 360) % 360) / 45) % 8;
+    if (altitudeDeg < (horizon[oktant] ?? 0)) {
+      return {
+        index: 1,
+        state: "shady",
+        sunAltitudeDeg: altitudeDeg,
+        fromCanopy: 0,
+        fromBuildings: 0,
+        fromClouds: clamp(cloudCoverPercent / 100) * 0.85,
+        fromTerrain: 1,
+      };
+    }
   }
 
   const fromClouds = clamp(cloudCoverPercent / 100) * 0.85;

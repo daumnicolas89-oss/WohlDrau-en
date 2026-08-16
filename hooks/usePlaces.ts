@@ -108,7 +108,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         // Route): neue Version = neue URL = CDN/Service-Worker liefern nie
         // tagelang alte Objektformen an neuen Client-Code.
         const res = await fetch(
-          `/api/places?v=3&lat=${gridLat}&lng=${gridLng}&radius=${radius}`,
+          `/api/places?v=4&lat=${gridLat}&lng=${gridLng}&radius=${radius}`,
           { signal: controller.signal },
         );
         if (!res.ok) {

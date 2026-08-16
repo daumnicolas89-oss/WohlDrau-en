@@ -54,6 +54,7 @@ export function WeatherHeader({
   geoStatus,
   manualActive = false,
   besteZeit = null,
+  regenRadar = null,
   onOpenLocation,
 }: {
   weather: Weather | null;
@@ -68,6 +69,8 @@ export function WeatherHeader({
   manualActive?: boolean;
   /** „Heute am angenehmsten: 16–18 Uhr" – berechnet die Startseite. */
   besteZeit?: string | null;
+  /** „Regen zieht auf …" aus dem 15-Minuten-Radar, berechnet die Startseite. */
+  regenRadar?: string | null;
   onOpenLocation: () => void;
 }) {
   const [outfitOpen, setOutfitOpen] = useState(false);
@@ -225,8 +228,11 @@ export function WeatherHeader({
                 </span>
               </Wert>
             </dl>
-            {(tageslicht || besteZeit) && (
+            {(tageslicht || besteZeit || regenRadar) && (
               <div className="mt-2 space-y-0.5 border-t border-line/60 pt-2 text-[13px] text-muted">
+                {regenRadar && (
+                  <p className="font-semibold text-accent-ink">{regenRadar}</p>
+                )}
                 {besteZeit && <p className="font-medium text-dark">{besteZeit}</p>}
                 {tageslicht && <p>{tageslicht}</p>}
               </div>

@@ -1,5 +1,8 @@
 export type TreeCoverKind = "dense" | "medium";
 
+/** Nadelwald bleibt im Winter dicht, Laubwald wird kahl. */
+export type LeafType = "needle" | "broad" | "mixed";
+
 /** Eine Baum-Fläche aus OpenStreetMap: Wald/Forst/`landcover=trees` sind dicht,
  *  Gebüsch (`natural=scrub`) ist mittel. `rings` ist der Umriss als eine oder
  *  mehrere Linien, weil große Wälder als Relation (Multipolygon) aus mehreren
@@ -7,6 +10,7 @@ export type TreeCoverKind = "dense" | "medium";
 export interface TreeCover {
   kind: TreeCoverKind;
   rings: { lat: number; lng: number }[][];
+  leaf?: LeafType;
 }
 
 export const DENSE_CANOPY = 0.85;
@@ -45,11 +49,25 @@ export function coverCanopyAt(
   lng: number,
   covers: TreeCover[],
 ): number {
+  return coverInfoAt(lat, lng, covers).canopy;
+}
+
+/** Wie coverCanopyAt, liefert aber auch den Laubtyp der stärksten Fläche mit. */
+export function coverInfoAt(
+  lat: number,
+  lng: number,
+  covers: TreeCover[],
+): { canopy: number; leaf?: LeafType } {
   let best = 0;
+  let leaf: LeafType | undefined;
   for (const cover of covers) {
     if (insideRings(lat, lng, cover.rings)) {
-      best = Math.max(best, cover.kind === "dense" ? DENSE_CANOPY : MEDIUM_CANOPY);
+      const value = cover.kind === "dense" ? DENSE_CANOPY : MEDIUM_CANOPY;
+      if (value > best) {
+        best = value;
+        leaf = cover.leaf;
+      }
     }
   }
-  return best;
+  return { canopy: best, leaf };
 }

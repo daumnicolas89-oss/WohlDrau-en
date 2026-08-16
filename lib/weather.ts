@@ -24,6 +24,10 @@ interface OpenMeteoResponse {
     precipitation_probability: (number | null)[];
     uv_index: (number | null)[];
   };
+  minutely_15?: {
+    time: string[];
+    precipitation: (number | null)[];
+  };
 }
 
 export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
@@ -39,6 +43,9 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
     "temperature_2m,apparent_temperature,cloud_cover,precipitation_probability,uv_index",
   );
   url.searchParams.set("forecast_days", "2");
+  // 15-Minuten-Niederschlag (radar-gestützt) für das „Regen zieht auf"-Gefühl.
+  url.searchParams.set("minutely_15", "precipitation");
+  url.searchParams.set("forecast_minutely_15", "12");
   url.searchParams.set("timezone", "auto");
 
   const res = await fetch(url, { signal: AbortSignal.timeout(15_000) });
@@ -64,6 +71,12 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
     weatherCode: data.current.weather_code ?? 0,
     snowfall: data.current.snowfall ?? 0,
     utcOffsetSeconds: data.utc_offset_seconds,
+    minutely15: data.minutely_15
+      ? {
+          time: data.minutely_15.time,
+          precipitation: data.minutely_15.precipitation.map((v) => v ?? 0),
+        }
+      : undefined,
     hourly: {
       time: slice(data.hourly.time),
       temperature: slice(data.hourly.temperature_2m),

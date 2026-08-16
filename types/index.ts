@@ -43,6 +43,11 @@ export type ShadeConfidence = "high" | "medium" | "low";
 export interface ShadeInputs {
   /** 0..1 – geschätzter Kronendeckungsgrad */
   canopy: number;
+  /** Laubtyp der prägenden Baumfläche: Nadelwald bleibt im Winter dicht. */
+  canopyLeaf?: "needle" | "broad" | "mixed";
+  /** Gelände-Horizont in Grad je Himmelsrichtungs-Achtel (N, NO, O, …):
+   *  steht die Sonne flacher, verschattet der Hügel den Platz. */
+  horizon?: number[];
   treeCount: number;
   /** liegt in oder an einer Grünfläche */
   inGreen: boolean;
@@ -89,6 +94,8 @@ export interface ShadeResult {
   fromCanopy: number;
   fromBuildings: number;
   fromClouds: number;
+  /** 1, wenn ein Hügel/Berg die Sonne gerade komplett verdeckt. */
+  fromTerrain?: number;
 }
 
 /** Die vier Bestandteile des „Angenehm jetzt“-Scores, jeweils 0–100. */
@@ -162,6 +169,11 @@ export interface Weather {
    * Geräte-Zeitzone zurück (für Nutzer vor Ort identisch).
    */
   utcOffsetSeconds?: number;
+  /** 15-Minuten-Niederschlag der nächsten ~3 Stunden, radar-gestützt. */
+  minutely15?: {
+    time: string[];
+    precipitation: number[];
+  };
   /** stündliche Vorschau ab jetzt, für „+30 Min“ und „+1 Std“ */
   hourly: {
     time: string[];
