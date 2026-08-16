@@ -143,6 +143,12 @@ export interface PlaceStatus {
   placeId: string;
   type: PlaceStatusType;
   message?: string;
+  /**
+   * Kurzer Streuwert der Absender-Kennung: erlaubt „diesen Verfasser nicht
+   * mehr anzeigen", ohne die Kennung selbst preiszugeben oder jemanden
+   * identifizierbar zu machen.
+   */
+  authorKey?: string;
   /** ISO */
   createdAt: string;
   /** ISO */

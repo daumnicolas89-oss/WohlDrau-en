@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Die App-Hülle bündelt denselben Code noch einmal in ios/ – geprüft
+    // wird die Quelle, nicht das Erzeugnis.
+    "ios/**",
   ]),
 ]);
 

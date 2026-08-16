@@ -112,3 +112,34 @@ create trigger place_status_rate_limit
 -- fällt der Server auf den öffentlichen zurück und beide Schritte würden das
 -- Melden lahmlegen – deshalb erst NACH gesetztem Schlüssel ausführen.
 -- ---------------------------------------------------------------------------
+
+-- ---------------------------------------------------------------------------
+-- Melden anstößiger Beiträge (Apple-Richtlinie 1.2 für nutzergenerierte
+-- Inhalte). Ab zwei unabhängigen Meldungen verschwindet ein Beitrag für alle,
+-- bis er ohnehin nach drei Stunden gelöscht wird.
+-- Einmalig im SQL-Editor ausführen.
+-- ---------------------------------------------------------------------------
+
+alter table public.place_status
+  add column if not exists reports smallint not null default 0;
+
+-- Gemeldete Beiträge sind sofort nicht mehr öffentlich lesbar.
+drop policy if exists "gueltige Meldungen sind oeffentlich" on public.place_status;
+create policy "gueltige Meldungen sind oeffentlich"
+  on public.place_status for select
+  using (expires_at > now() and reports < 2);
+
+-- Zählt eine Meldung hoch. `security definer`, damit anonyme Clients melden
+-- können, ohne Schreibrechte auf der Tabelle zu haben.
+create or replace function public.report_place_status(target uuid)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update public.place_status
+     set reports = least(reports + 1, 32767)
+   where id = target and expires_at > now();
+$$;
+
+grant execute on function public.report_place_status(uuid) to anon, authenticated;

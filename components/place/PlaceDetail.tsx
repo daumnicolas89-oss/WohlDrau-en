@@ -10,6 +10,7 @@ import {
   Info,
   Megaphone,
   Navigation,
+  Flag,
   Star,
 } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
@@ -27,6 +28,8 @@ import {
 } from "@/lib/wording";
 import type { PlaceStatusType } from "@/types";
 import { useFavorites } from "@/store/useFavorites";
+import { useModeration } from "@/store/useModeration";
+import { apiUrl } from "@/lib/appMode";
 import { routeUrl, tick } from "@/lib/native";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
@@ -103,6 +106,18 @@ export function PlaceDetail({
   const favorites = useFavorites();
   const gemerkt = favorites.ids.includes(placeId);
   const [reportOpen, setReportOpen] = useState(false);
+  const moderation = useModeration();
+
+  /** Melden: sofort ausblenden, Verfasser blockieren, Server informieren. */
+  function meldeBeitrag(status: { id: string; authorKey?: string }) {
+    moderation.hide(status.id);
+    if (status.authorKey) moderation.block(status.authorKey);
+    void fetch(apiUrl("/api/status/report"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ statusId: status.id }),
+    }).catch(() => undefined);
+  }
 
   const osmPlace = places.places.find((p) => p.id === placeId) ?? null;
 
@@ -116,6 +131,12 @@ export function PlaceDetail({
       now: now.getTime(),
     });
   }, [osmPlace, scoringWeather, statuses, placeId, now, viewer.lat, viewer.lng]);
+
+  // Was jemand gemeldet oder blockiert hat, sieht er nicht mehr – sofort,
+  // ohne auf den Server zu warten.
+  const sichtbareMeldungen = (place?.lastStatuses ?? []).filter(
+    (s) => !moderation.isHidden(s.id, s.authorKey),
+  );
 
   /** Wie sieht es in einer Stunde aus? Beantwortet „lohnt es sich später eher?“ */
   const ausblick = useMemo(() => {
@@ -441,9 +462,9 @@ export function PlaceDetail({
               <p className="mb-3 text-sm text-muted">
                 Meldungen der letzten drei Stunden.
               </p>
-              {place.lastStatuses.length > 0 ? (
+              {sichtbareMeldungen.length > 0 ? (
                 <ul className="space-y-3">
-                  {place.lastStatuses.map((status) => {
+                  {sichtbareMeldungen.map((status) => {
                     const option = statusOption(status.type);
                     return (
                       <li key={status.id} className="flex items-start gap-2.5">
@@ -456,18 +477,31 @@ export function PlaceDetail({
                                 : "bg-muted"
                           }`}
                         />
-                        <span className="text-[15px]">
+                        <span className="min-w-0 flex-1 text-[15px]">
                           <span className="font-medium text-dark">{option.label}</span>
                           <span className="text-muted">
                             {" · "}
                             {formatAge(status.createdAt, now.getTime())}
                           </span>
                           {status.message && (
-                            <span className="mt-0.5 block text-sm text-muted">
+                            <span
+                              data-selectable
+                              className="mt-0.5 block text-sm text-muted"
+                            >
                               „{status.message}“
                             </span>
                           )}
                         </span>
+                        {/* Anstößiges lässt sich mit einem Tipp loswerden –
+                            sofort für dich, ab zwei Meldungen für alle. */}
+                        <button
+                          type="button"
+                          onClick={() => meldeBeitrag(status)}
+                          aria-label="Diesen Beitrag melden"
+                          className="-m-2 flex size-11 shrink-0 items-center justify-center rounded-full text-muted transition duration-200 active:scale-95"
+                        >
+                          <Flag size={15} aria-hidden />
+                        </button>
                       </li>
                     );
                   })}

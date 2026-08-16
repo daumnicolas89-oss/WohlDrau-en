@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { expiresAtFor } from "./status";
 import type { PlaceStatus, PlaceStatusType } from "@/types";
@@ -31,6 +32,19 @@ interface MemoryRow extends PlaceStatus {
 
 const memory: MemoryRow[] = [];
 
+/**
+ * Aus der Absender-Kennung wird ein kurzer Streuwert. Damit kann jemand
+ * „diesen Verfasser nicht mehr anzeigen" wählen, ohne dass die Kennung selbst
+ * das Gerät verlässt. Nicht umkehrbar, kein Personenbezug.
+ */
+function authorKeyOf(anonymousId: string | null | undefined): string | undefined {
+  if (!anonymousId) return undefined;
+  return createHash("sha256")
+    .update(`platzda:${anonymousId}`)
+    .digest("hex")
+    .slice(0, 12);
+}
+
 /** Die Absender-ID bleibt im Server, nach außen geht nur die Meldung. */
 function toPublic(row: MemoryRow): PlaceStatus {
   return {
@@ -38,6 +52,7 @@ function toPublic(row: MemoryRow): PlaceStatus {
     placeId: row.placeId,
     type: row.type,
     message: row.message,
+    authorKey: authorKeyOf(row.anonymousId),
     createdAt: row.createdAt,
     expiresAt: row.expiresAt,
   };
@@ -58,12 +73,13 @@ interface Row {
   expires_at: string;
 }
 
-function fromRow(row: Row): PlaceStatus {
+function fromRow(row: Row, anonymousId?: string | null): PlaceStatus {
   return {
     id: row.id,
     placeId: row.place_id,
     type: row.status_type,
     message: row.message ?? undefined,
+    authorKey: authorKeyOf(anonymousId),
     createdAt: row.created_at,
     expiresAt: row.expires_at,
   };
@@ -113,7 +129,7 @@ export async function listStatuses(placeIds?: string[]): Promise<PlaceStatus[]> 
     placeId: row.place_id,
     anonymousId: row.anonymous_id,
   }));
-  return newestPerSender(rows).map(({ row }) => fromRow(row));
+  return newestPerSender(rows).map(({ row }) => fromRow(row, row.anonymous_id));
 }
 
 export interface NewStatus {
@@ -179,4 +195,20 @@ export async function recentReportCount(
     .gte("created_at", since);
   if (error) throw new Error(error.message);
   return count ?? 0;
+}
+
+/**
+ * Meldet einen Beitrag als anstößig. Ab zwei Meldungen blendet die
+ * Datenbank-Regel ihn für alle aus (siehe supabase/schema.sql).
+ * Ohne Datenbank (Speicher-Betrieb) wird er sofort entfernt.
+ */
+export async function reportStatus(statusId: string): Promise<void> {
+  const client = supabase();
+  if (!client) {
+    const index = memory.findIndex((r) => r.id === statusId);
+    if (index >= 0) memory.splice(index, 1);
+    return;
+  }
+  const { error } = await client.rpc("report_place_status", { target: statusId });
+  if (error) throw new Error(error.message);
 }
