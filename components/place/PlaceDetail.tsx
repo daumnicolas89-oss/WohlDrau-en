@@ -27,6 +27,7 @@ import {
 } from "@/lib/wording";
 import type { PlaceStatusType } from "@/types";
 import { useFavorites } from "@/store/useFavorites";
+import { routeUrl, tick } from "@/lib/native";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
 import { useOnline } from "@/hooks/useOnline";
@@ -226,7 +227,10 @@ export function PlaceDetail({
                 der auf der Startseite oben angepinnt wird. */}
             <button
               type="button"
-              onClick={() => favorites.toggle(place.id)}
+              onClick={() => {
+                tick();
+                favorites.toggle(place.id);
+              }}
               aria-pressed={gemerkt}
               // Label konstant, den Zustand trägt aria-pressed – wechselnde
               // Labels PLUS pressed lesen sich im Screenreader widersprüchlich.
@@ -498,7 +502,7 @@ export function PlaceDetail({
               Melden
             </button>
             <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=walking`}
+              href={routeUrl(place.lat, place.lng)}
               target="_blank"
               rel="noreferrer"
               className="flex min-h-13 flex-1 items-center justify-center gap-2 rounded-full bg-primary-dark font-semibold text-white shadow-float transition hover:bg-primary-darker active:bg-primary-darker"

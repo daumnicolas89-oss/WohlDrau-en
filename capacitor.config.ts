@@ -16,6 +16,17 @@ const config: CapacitorConfig = {
     // Langdrücken auf einen Link soll keine Safari-Vorschau öffnen.
     allowsLinkPreview: false,
   },
+  plugins: {
+    // Die Tastatur soll die WebView verkleinern, sonst verdeckt sie das
+    // Suchfeld im Standort-Fenster statt es hochzuschieben.
+    Keyboard: { resize: "native", resizeOnFullScreen: true },
+    // Der Marken-Start bleibt stehen, bis die Oberfläche wirklich da ist.
+    SplashScreen: {
+      launchAutoHide: false,
+      backgroundColor: "#f6f3ec",
+      showSpinner: false,
+    },
+  },
 };
 
 export default config;

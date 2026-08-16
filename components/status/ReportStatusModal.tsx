@@ -1,5 +1,7 @@
 "use client";
 
+import { erfolg } from "@/lib/native";
+
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { STATUS_OPTIONS } from "@/lib/status";
@@ -40,6 +42,7 @@ export function ReportStatusModal({
     setError(null);
     try {
       await onSubmit(type, message);
+      erfolg();
       // Kurz „Danke“ zeigen, statt das Sheet wortlos verschwinden zu lassen.
       setDone(true);
       window.setTimeout(onClose, 1600);

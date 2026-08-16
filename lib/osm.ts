@@ -36,6 +36,9 @@ const TREE_CANOPY_M2 = 80;
 const LOCAL_TREES_CONFIDENT = 8;
 const LOCAL_TREES_SPARSE = 3;
 const TOILET_MAX_DISTANCE_M = 150;
+/** Ein Unterstand nützt nur, wenn er wirklich am Platz steht, nicht zwei
+ *  Straßen weiter – darum enger gefasst als die Toiletten-Suche. */
+const SHELTER_MAX_DISTANCE_M = 80;
 const WATER_MAX_DISTANCE_M = 120;
 
 interface OverpassElement {
@@ -78,6 +81,7 @@ function buildGreenQuery(bbox: [number, number, number, number]): string {
 out tags center bb;
 (
   node["amenity"="toilets"](${b});
+  nwr["amenity"="shelter"](${b});
   node["amenity"="drinking_water"](${b});
   node["amenity"="water_point"](${b});
 );
@@ -471,6 +475,7 @@ export async function fetchPlaces(
   const greens: OverpassElement[] = [];
   const toilets: (Point & { tags: Record<string, string>; id: string })[] = [];
   const waters: Point[] = [];
+  const shelters: Point[] = [];
   const trees: Point[] = [];
   const buildings: (Point & { id: number; h?: number })[] = [];
   const buildingHeights = new Map<number, number>();
@@ -556,6 +561,11 @@ export async function fetchPlaces(
       toilets.push({ ...c, tags, id: `${el.type}/${el.id}` });
       continue;
     }
+    if (tags.amenity === "shelter") {
+      // Wartehäuschen an der Bushaltestelle helfen beim Spielen nicht.
+      if (tags.shelter_type !== "public_transport") shelters.push(c);
+      continue;
+    }
     if (tags.amenity === "drinking_water" || tags.amenity === "water_point") {
       waters.push(c);
       continue;
@@ -582,6 +592,7 @@ export async function fetchPlaces(
   const treeGrid = new Grid(trees);
   const buildingGrid = new Grid(buildings);
   const toiletGrid = new Grid(toilets);
+  const shelterGrid = new Grid(shelters);
   const waterGrid = new Grid(waters);
 
   const treeDataQuality: ShadeConfidence =
@@ -748,7 +759,15 @@ export async function fetchPlaces(
       shade: shadeQuality(canopy, confidence),
       surface: osmTags.surface,
       age_group: ageGroupFrom(osmTags),
-      shelter: yesNo(osmTags.shelter) ?? yesNo(osmTags.covered),
+      // Unterstand: entweder am Ort selbst getaggt oder als eigenes
+      // OSM-Objekt (amenity=shelter) direkt daneben – Letzteres ist der
+      // Normalfall und fehlte bisher komplett.
+      shelter:
+        yesNo(osmTags.shelter) ??
+        yesNo(osmTags.covered) ??
+        (shelterGrid.near(c.lat, c.lng, SHELTER_MAX_DISTANCE_M).length > 0
+          ? true
+          : undefined),
       wheelchair: yesNo(osmTags.wheelchair),
       restrictedAccess: isRestrictedAccess(osmTags) ? true : undefined,
     };

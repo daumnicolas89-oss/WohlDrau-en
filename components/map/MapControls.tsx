@@ -2,6 +2,7 @@
 
 import { List, MapPin, RefreshCw } from "lucide-react";
 import { TIME_CHOICES, useFilters } from "@/store/useFilters";
+import { tick } from "@/lib/native";
 
 /**
  * Die zwei Entscheidungen, die im Alltag ständig fallen: „wann?“ und
@@ -30,7 +31,10 @@ export function MapControls({
               key={choice.value}
               type="button"
               aria-pressed={active}
-              onClick={() => filters.set("timeOffsetMin", choice.value)}
+              onClick={() => {
+                tick();
+                filters.set("timeOffsetMin", choice.value);
+              }}
               className={`min-h-11 flex-1 rounded-xl text-sm font-semibold transition ${
                 active ? "bg-card text-dark shadow-card" : "text-muted active:bg-card/60"
               }`}

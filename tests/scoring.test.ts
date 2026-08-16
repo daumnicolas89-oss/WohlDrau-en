@@ -73,6 +73,27 @@ describe("scorePlace", () => {
     );
   });
 
+  it("wertet den Unterstand auch bei Hitze und Kälte, mit passendem Grund", () => {
+    const wetter = (t: number, regen: number) =>
+      weather({
+        hourly: {
+          time: ["2026-06-21T13:00"],
+          temperature: [t],
+          apparentTemperature: [t],
+          cloudCover: [40],
+          precipitationProbability: [regen],
+          uvIndex: [3],
+        },
+      });
+    const hitze = score({ tags: { shelter: true } }, { weather: wetter(30, 0) });
+    assert.ok(hitze.reasons.some((r) => /Schatten/.test(r)), hitze.reasons.join());
+    const kaelte = score({ tags: { shelter: true } }, { weather: wetter(2, 0) });
+    assert.ok(kaelte.reasons.some((r) => /Windschutz/.test(r)), kaelte.reasons.join());
+    // Mildes, trockenes Wetter: kein Sonder-Bonus, kein Grund-Satz.
+    const mild = score({ tags: { shelter: true } }, { weather: wetter(18, 0) });
+    assert.ok(!mild.reasons.some((r) => /Unterstand/.test(r)), mild.reasons.join());
+  });
+
   it("bevorzugt bei Hitze den schattigen Ort", () => {
     const sunny = score({});
     const shady = score({ shadeInputs: { canopy: 0.85 } });

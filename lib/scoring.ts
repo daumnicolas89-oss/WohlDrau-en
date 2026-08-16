@@ -142,11 +142,24 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     weights,
   };
 
-  // Droht Regen, ist ein Unterstand der einzige echte Unterschied zwischen
-  // Orten – der Regen selbst trifft alle gleich (weatherFactor). Der Bonus
-  // hebt überdachte Orte nach oben, statt nur alles abzuwerten.
+  // Ein Unterstand zählt das ganze Jahr, nur aus verschiedenen Gründen:
+  // bei Regen als Dach, bei praller Hitze als Schattenplatz zum Durchatmen,
+  // bei Kälte als Windschutz für die Pause. Wenn das Wetter egal ist, ist er
+  // nur ein normales Ausstattungsmerkmal (steckt schon im amenityScore).
+  const hatUnterstand = place.tags.shelter === true;
   const rainLikely = w.precipitationProbability >= 50;
-  const shelterBonus = rainLikely && place.tags.shelter === true ? 10 : 0;
+  const heiss = w.apparentTemperature >= 28;
+  const kalt = w.apparentTemperature <= 4;
+  const shelterGrund = !hatUnterstand
+    ? null
+    : rainLikely
+      ? "Unterstand für Regenpausen"
+      : heiss
+        ? "Unterstand für eine Pause im Schatten"
+        : kalt
+          ? "Unterstand als Windschutz für die Pause"
+          : null;
+  const shelterBonus = shelterGrund ? 10 : 0;
 
   // Eingeschränkter Zugang (Schulhof, Kita): bewusst gelistet, aber ein
   // öffentlicher Platz nebenan soll bei Gleichstand immer vorne stehen –
@@ -164,7 +177,7 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
   const reasons: string[] = [];
   const warnings: string[] = [];
 
-  if (shelterBonus > 0) reasons.push("Unterstand für Regenpausen");
+  if (shelterGrund) reasons.push(shelterGrund);
 
   if (shade.state === "shady") reasons.push("Viel Schatten");
   else if (shade.state === "partial") reasons.push("Teils schattig");

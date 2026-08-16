@@ -3,7 +3,10 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { NavTracker } from "@/components/NavTracker";
-import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import {
+  ServiceWorkerRegistration,
+  SplashHide,
+} from "@/components/ServiceWorkerRegistration";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -47,6 +50,7 @@ export default function RootLayout({
         {children}
         <NavTracker />
         <ServiceWorkerRegistration />
+        <SplashHide />
       </body>
     </html>
   );
