@@ -7,7 +7,7 @@ export function Logo({ className = "" }: { className?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/platzda-logo.webp"
+      src="/platzda-logo.png"
       alt="PlatzDa"
       className={`h-11 w-auto ${className}`}
     />
