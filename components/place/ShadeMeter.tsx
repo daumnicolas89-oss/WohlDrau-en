@@ -30,7 +30,7 @@ export function ShadeMeter({
   /** Kennzeichnet den Wert als Schätzung, auf der Karte, wo der Platz fehlt. */
   estimateHint?: boolean;
 }) {
-  const wording = shadeWording(state);
+  const wording = shadeWording(state, shadeIndex);
   const Icon = ICONS[state];
   const tone: Tone = wording.tone;
   const prozent = Math.round(shadeIndex * 100);

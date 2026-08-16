@@ -84,7 +84,8 @@ export function PlaceCard({
             className="mt-0.5 text-xs font-medium text-muted"
           />
           <p className="mt-0.5 truncate text-sm text-muted">
-            {shadeWording(place.shade.state).label} · {formatDistance(distance)}
+            {shadeWording(place.shade.state, place.shade.index).label} ·{" "}
+            {formatDistance(distance)}
           </p>
           {wenigBaumdaten && (
             <p className="mt-0.5 text-xs leading-snug text-muted">

@@ -66,12 +66,26 @@ const SCHATTEN_WORTE: Record<ShadeState, Wording> = {
   "no-sun": { label: "Keine Sonne mehr", tone: "neutral" },
 };
 
-export function shadeWording(state: ShadeState): Wording {
+/** Ab dieser Deckung sagt „sonnig" ehrlicherweise „überwiegend", nicht „voll". */
+const UEBERWIEGEND_AB = 0.15;
+
+/**
+ * `index` (0..1, Schatten-Anteil) verfeinert die Beschriftung: Ein Platz mit
+ * einem Drittel Schatten ist nicht „voll in der Sonne" – das widerspräche der
+ * Prozentzahl direkt darunter und dem, was Eltern vor Ort sehen.
+ */
+export function shadeWording(state: ShadeState, index?: number): Wording {
+  if (state === "sunny" && index !== undefined && index >= UEBERWIEGEND_AB) {
+    return { label: "Überwiegend in der Sonne", tone: "bad" };
+  }
   return SCHATTEN_WORTE[state];
 }
 
 /** Kurzform für die Karte, wo der Platz knapp ist. */
-export function shadeShort(state: ShadeState): string {
+export function shadeShort(state: ShadeState, index?: number): string {
+  if (state === "sunny" && index !== undefined && index >= UEBERWIEGEND_AB) {
+    return "Meist sonnig";
+  }
   return {
     shady: "Viel Schatten",
     partial: "Teils sonnig",
@@ -232,13 +246,13 @@ export interface Driver {
 function schattenGrund(state: Place["shade"]["state"]): string {
   switch (state) {
     case "no-sun":
-      return "Vor allem, weil die Sonne hier keine Rolle mehr spielt.";
+      return "Die Sonne ist unter, jetzt zählt nur noch, was der Platz bietet.";
     case "shady":
-      return "Vor allem, weil es hier gerade viel Schatten gibt.";
+      return "Hier gibt es gerade viel Schatten.";
     case "partial":
-      return "Vor allem, weil es hier genug schattige Ecken gibt.";
+      return "Hier gibt es auch jetzt schattige Ecken.";
     default:
-      return "Vor allem, weil die Sonne gerade gut auszuhalten ist.";
+      return "Die Sonne ist gerade mild, Schatten braucht es kaum.";
   }
 }
 
@@ -264,32 +278,32 @@ export function mainDriver(place: Place): Driver {
     return { text: "Alles im Mittelfeld, nichts sticht heraus.", tone: "neutral" };
   }
 
+  // Klartext über den PLATZ, nicht über die Punkte-Mechanik: Sätze wie
+  // „Bremst vor allem …" haben echte Eltern schlicht nicht verstanden.
   switch (staerkster.key) {
     case "shade":
       return positiv
         ? { text: schattenGrund(place.shade.state), tone: "good" }
-        : { text: "Bremst vor allem: kaum Schatten bei dieser Sonne.", tone: "bad" };
+        : { text: "Bei dieser Sonne gibt es hier kaum Schatten.", tone: "bad" };
     case "amenity":
       return positiv
-        ? { text: `Punktet vor allem mit: ${vorhandeneAusstattung(place)}.`, tone: "good" }
+        ? { text: `Hier gibt es ${vorhandeneAusstattung(place)}.`, tone: "good" }
         : {
-            text: "Bremst vor allem: zur Ausstattung ist wenig eingetragen.",
+            text: "Über die Ausstattung hier ist wenig bekannt. Vor Ort kann es mehr geben.",
             tone: "bad",
           };
     case "status": {
       const meldung = statusSentence(place.lastStatuses);
       if (!meldung) return { text: "Alles im Mittelfeld.", tone: "neutral" };
       return {
-        text: positiv
-          ? `Andere Eltern haben ${meldung.text}.`
-          : `Bremst vor allem eine Meldung: ${meldung.text}.`,
+        text: `Andere Eltern haben ${meldung.text}.`,
         tone: positiv ? "good" : "bad",
       };
     }
     default:
       return positiv
-        ? { text: "Vor allem, weil es gleich um die Ecke liegt.", tone: "good" }
-        : { text: "Bremst vor allem der weite Weg.", tone: "bad" };
+        ? { text: "Es liegt gleich um die Ecke.", tone: "good" }
+        : { text: "Es liegt ein ganzes Stück entfernt.", tone: "bad" };
   }
 }
 
