@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
+  ChevronDown,
   ChevronRight,
   Layers,
   Megaphone,
@@ -42,6 +43,9 @@ import { InfoButton } from "./ui/InfoButton";
 import { Sheet } from "./ui/Sheet";
 import { WeatherHeader } from "./WeatherHeader";
 
+/** Erst zehn Orte, dann auf Wunsch mehr – eine endlose Liste hilft niemandem. */
+const LISTE_SCHRITT = 10;
+
 const Map = dynamic(() => import("./map/Map"), {
   ssr: false,
   loading: () => <div className="size-full animate-pulse bg-[#eef1f2]" />,
@@ -80,6 +84,15 @@ export function HomeView() {
   const online = useOnline();
 
   const [filterOpen, setFilterOpen] = useState(false);
+  const [sichtbar, setSichtbar] = useState(LISTE_SCHRITT);
+  // Neuer Ort oder anderer Umkreis: wieder oben mit zehn anfangen, sonst
+  // bleibt eine weit ausgeklappte Liste aus der alten Gegend stehen.
+  const listenKontext = `${coords.lat.toFixed(2)}:${coords.lng.toFixed(2)}:${filters.maxDistanceM}`;
+  const [letzterKontext, setLetzterKontext] = useState(listenKontext);
+  if (letzterKontext !== listenKontext) {
+    setLetzterKontext(listenKontext);
+    setSichtbar(LISTE_SCHRITT);
+  }
   const [locationOpen, setLocationOpen] = useState(false);
   const [toiletOpen, setToiletOpen] = useState(false);
   const [reportPickerOpen, setReportPickerOpen] = useState(false);
@@ -457,7 +470,7 @@ export function HomeView() {
                     </p>
                   </InfoButton>
                 </div>
-                {uebrige.map((place, index) => (
+                {uebrige.slice(0, sichtbar).map((place, index) => (
                   <PlaceCard
                     key={place.id}
                     place={place}
@@ -471,6 +484,20 @@ export function HomeView() {
                     now={now.getTime()}
                   />
                 ))}
+
+                {/* Eine endlose Liste erschlägt. Die ersten zehn beantworten
+                    die Frage fast immer; der Rest kommt auf Wunsch. */}
+                {uebrige.length > sichtbar && (
+                  <button
+                    type="button"
+                    onClick={() => setSichtbar((n) => n + LISTE_SCHRITT)}
+                    className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-card border border-line bg-card text-sm font-semibold text-primary-dark shadow-card transition active:scale-[0.99]"
+                  >
+                    Weitere {Math.min(LISTE_SCHRITT, uebrige.length - sichtbar)} Orte
+                    anzeigen
+                    <ChevronDown size={16} aria-hidden />
+                  </button>
+                )}
               </>
             ) : (
               <div className="rounded-card bg-card p-6 text-center shadow-card">
