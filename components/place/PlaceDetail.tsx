@@ -151,7 +151,7 @@ export function PlaceDetail({
   return (
     <div className="mx-auto min-h-dvh max-w-lg bg-background pb-28">
       {!(place && bewertung) && (
-        <div className="px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1">
+        <div className="px-4 pt-[max(0.75rem,calc(env(safe-area-inset-top)+0.5rem))] pb-1">
           <Link
             href="/"
             onClick={goBack}
@@ -208,7 +208,7 @@ export function PlaceDetail({
       {place && bewertung && (
         <>
           <header
-            className="sky-hero relative overflow-hidden px-5 pt-[max(4rem,calc(env(safe-area-inset-top)+3.5rem))] pb-6"
+            className="sky-hero relative overflow-hidden px-4 pt-[max(4rem,calc(env(safe-area-inset-top)+3.5rem))] pb-6"
             style={heroMood ? { background: SKY_GRADIENT[heroMood] } : undefined}
           >
             {heroMood && <SkyScene mood={heroMood} />}
@@ -217,7 +217,7 @@ export function PlaceDetail({
               href="/"
               onClick={goBack}
               aria-label="Zurück zur Übersicht"
-              className="absolute left-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
+              className="absolute left-4 top-[max(1rem,calc(env(safe-area-inset-top)+0.5rem))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
             >
               <ArrowLeft size={20} />
             </Link>
@@ -231,7 +231,7 @@ export function PlaceDetail({
               // Label konstant, den Zustand trägt aria-pressed – wechselnde
               // Labels PLUS pressed lesen sich im Screenreader widersprüchlich.
               aria-label="Platz merken"
-              className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
+              className="absolute right-4 top-[max(1rem,calc(env(safe-area-inset-top)+0.5rem))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
             >
               <Star
                 size={20}
@@ -240,7 +240,7 @@ export function PlaceDetail({
             </button>
 
             <div className="relative">
-              <h1 className="font-display text-[26px] leading-tight font-bold text-dark">
+              <h1 className="font-display text-2xl leading-tight font-bold text-balance text-dark">
               {place.name}
             </h1>
             <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm text-muted">
@@ -330,7 +330,7 @@ export function PlaceDetail({
                 gerechnet wird, steht im Info-Knopf, nicht im Fließtext. */}
             <div className="rounded-card bg-card p-5 shadow-card">
               <div className="mb-3 flex items-start justify-between gap-2">
-                <h2 className="font-display font-semibold text-dark">
+                <h2 className="font-display text-lg font-semibold text-dark">
                   Wie sonnig ist es dort?
                 </h2>
                 <InfoButton title="Woher weiß die App das?">
@@ -367,7 +367,7 @@ export function PlaceDetail({
 
             {sonneImFenster && (
               <div className="rounded-card bg-card p-5 shadow-card">
-                <h2 className="mb-1 font-display font-semibold text-dark">
+                <h2 className="mb-1 font-display text-lg font-semibold text-dark">
                   Wie lange hält der Schatten?
                 </h2>
                 <p className="mb-3 text-sm text-muted">
@@ -386,7 +386,7 @@ export function PlaceDetail({
 
             <div className="rounded-card bg-card p-5 shadow-card">
               <div className="mb-1 flex items-start justify-between gap-2">
-                <h2 className="font-display font-semibold text-dark">
+                <h2 className="font-display text-lg font-semibold text-dark">
                   Was gibt es vor Ort?
                 </h2>
                 <InfoButton title="Woher kommen diese Angaben?">
@@ -431,7 +431,7 @@ export function PlaceDetail({
             </div>
 
             <div className="rounded-card bg-card p-5 shadow-card">
-              <h2 className="mb-1 font-display font-semibold text-dark">
+              <h2 className="mb-1 font-display text-lg font-semibold text-dark">
                 Was sagen andere Eltern?
               </h2>
               <p className="mb-3 text-sm text-muted">

@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDarkContent</string>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>PlatzDa zeigt dir Spielplätze und Parks in deiner Nähe. Dafür braucht die App deinen Standort – er bleibt auf deinem Gerät.</string>
   <key>CAPACITOR_DEBUG</key>
@@ -51,7 +55,7 @@
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<string>arm64</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>

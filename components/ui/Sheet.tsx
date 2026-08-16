@@ -42,7 +42,7 @@ export function Sheet({
               </Drawer.Description>
             )}
           </div>
-          <div className="hide-scrollbar flex-1 overflow-y-auto border-t border-line px-5 py-4">
+          <div className="hide-scrollbar flex-1 overflow-y-auto overscroll-contain border-t border-line px-5 pt-4 pb-[max(1rem,calc(env(safe-area-inset-bottom)+0.5rem))]">
             {children}
           </div>
           {footer && (

@@ -8,6 +8,8 @@ export function Logo({ className = "" }: { className?: string }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/platzda-logo.png"
+      width={720}
+      height={209}
       alt="PlatzDa"
       className={`h-11 w-auto ${className}`}
     />

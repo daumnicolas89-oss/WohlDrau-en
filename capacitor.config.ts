@@ -10,8 +10,11 @@ const config: CapacitorConfig = {
   appName: "PlatzDa",
   webDir: "out",
   ios: {
-    // Heller Seitenhintergrund hinter der WebView, passend zum App-Design.
-    backgroundColor: "#f6f4ee",
+    // Exakt --color-background aus globals.css: ein Ton daneben wäre beim
+    // Start als kurzer Farbsprung sichtbar.
+    backgroundColor: "#f6f3ec",
+    // Langdrücken auf einen Link soll keine Safari-Vorschau öffnen.
+    allowsLinkPreview: false,
   },
 };
 

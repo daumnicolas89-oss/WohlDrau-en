@@ -294,7 +294,7 @@ export function HomeView() {
         <button
           type="button"
           onClick={() => setToiletOpen(true)}
-          className="mx-4 mt-3 flex items-center justify-center gap-2 rounded-full border border-line bg-card py-2.5 text-sm font-semibold text-dark shadow-card transition active:scale-[0.99]"
+          className="mx-4 mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-card text-sm font-semibold text-dark shadow-card transition duration-200 active:scale-[0.98]"
         >
           <Toilet size={16} aria-hidden className="text-primary-dark" />
           Öffentliche Toilette suchen
@@ -358,7 +358,7 @@ export function HomeView() {
             {visible.length === 0 && (
               <div className="pointer-events-none absolute inset-x-4 top-16 z-[905]">
                 <div className="pointer-events-auto mx-auto max-w-sm rounded-card bg-card/95 p-4 text-center shadow-float backdrop-blur">
-                  <p className="font-display font-semibold text-dark">
+                  <p className="font-display text-lg font-semibold text-dark">
                     {filteredOut > 0
                       ? "Nichts passt zu deinen Filtern"
                       : "Hier ist nichts erfasst"}
@@ -384,7 +384,7 @@ export function HomeView() {
         )}
 
         {!loading && !error && filters.viewMode === "list" && (
-          <div className="space-y-4 p-4 pb-32">
+          <div className="animate-fade-in space-y-4 p-4 pb-32">
             <FilterChips />
 
             {/* Direkt zum nächsten Spielplatz – egal wie er bewertet ist.
@@ -575,7 +575,7 @@ export function HomeView() {
         <button
           type="button"
           onClick={() => setReportPickerOpen(true)}
-          className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float"
+          className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float transition duration-200 active:scale-95"
         >
           <Megaphone size={18} aria-hidden />
           Melden
@@ -583,7 +583,7 @@ export function HomeView() {
         <button
           type="button"
           onClick={() => setFilterOpen(true)}
-          className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-primary-dark px-5 font-semibold text-white shadow-float"
+          className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-primary-dark px-5 font-semibold text-white shadow-float transition duration-200 active:scale-95"
         >
           <SlidersHorizontal size={18} aria-hidden />
           Filter

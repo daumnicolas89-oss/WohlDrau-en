@@ -62,7 +62,7 @@ export function PlaceCard({
     return (
       <Link
         href={href}
-        className="flex items-center gap-3.5 rounded-card bg-card p-4 shadow-card transition hover:shadow-float active:scale-[0.99]"
+        className="flex items-center gap-3.5 rounded-card bg-card p-4 shadow-card transition duration-200 active:scale-[0.98]"
       >
         <ScoreRing
           score={place.pleasantScore}
@@ -71,7 +71,7 @@ export function PlaceCard({
           label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}`}
         />
         <div className="min-w-0 flex-1">
-          <h3 className="flex items-center gap-1.5 font-display text-[16px] leading-tight font-semibold text-dark">
+          <h3 className="flex items-center gap-1.5 font-display text-[15px] leading-tight font-semibold text-dark">
             {favorite && (
               <Star
                 size={14}
@@ -109,19 +109,19 @@ export function PlaceCard({
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-card bg-gradient-to-b from-[#fff6e4] to-card shadow-card ring-1 ring-[#eec97a]/60 transition hover:shadow-float active:scale-[0.99]"
+      className="group block overflow-hidden rounded-card bg-gradient-to-b from-[#fff6e4] to-card shadow-card ring-1 ring-[#eec97a]/60 transition duration-200 active:scale-[0.98]"
     >
       {beste && (
-        <p className="flex items-center gap-1.5 bg-accent-soft px-5 py-2 text-[11px] font-semibold tracking-[0.14em] text-accent-ink uppercase">
+        <p className="flex items-center gap-1.5 bg-accent-soft px-4 py-2 text-[11px] font-semibold tracking-[0.14em] text-accent-ink uppercase">
           <Sun size={13} aria-hidden />
           Beste Wahl gerade
         </p>
       )}
 
-      <div className="p-5">
+      <div className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h3 className="font-display text-[19px] leading-snug font-semibold text-dark [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
+            <h3 className="font-display text-lg leading-snug font-semibold text-dark [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
               {place.name}
             </h3>
             <PlaceKindTag

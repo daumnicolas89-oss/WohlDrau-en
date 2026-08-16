@@ -19,10 +19,10 @@ export function MapControls({
   const filters = useFilters();
 
   return (
-    <div className="sticky top-0 z-[900] flex items-center gap-2 bg-background/80 px-4 py-2.5 backdrop-blur-md">
+    <div className="sticky top-[env(safe-area-inset-top)] z-[900] flex items-center gap-2 bg-background/80 px-4 py-2.5 backdrop-blur-md">
       {/* Gleiche Bauart wie die Umschalter in Filter- und Anzieh-Fenster:
           heller Einleger, aktive Wahl als weiße Karte mit Schatten. */}
-      <div className="flex flex-1 gap-1 rounded-2xl border border-line bg-background p-1 shadow-card">
+      <div className="flex flex-1 gap-1 rounded-2xl border border-line bg-background p-1">
         {TIME_CHOICES.map((choice) => {
           const active = filters.timeOffsetMin === choice.value;
           return (
@@ -44,7 +44,7 @@ export function MapControls({
         type="button"
         onClick={() => filters.setViewMode(filters.viewMode === "list" ? "map" : "list")}
         aria-label={filters.viewMode === "list" ? "Karte anzeigen" : "Liste anzeigen"}
-        className="flex size-11 items-center justify-center rounded-2xl bg-card text-dark shadow-card"
+        className="flex size-11 items-center justify-center rounded-2xl bg-card text-dark shadow-card transition duration-200 active:scale-95"
       >
         {filters.viewMode === "list" ? <MapPin size={20} /> : <List size={20} />}
       </button>
@@ -54,7 +54,7 @@ export function MapControls({
           onClick={onRefresh}
           disabled={refreshing}
           aria-label="Neu laden"
-          className="flex size-11 items-center justify-center rounded-2xl bg-card text-dark shadow-card disabled:text-muted"
+          className="flex size-11 items-center justify-center rounded-2xl bg-card text-dark shadow-card transition duration-200 active:scale-95 disabled:opacity-60 disabled:active:scale-100"
         >
           <RefreshCw size={19} className={refreshing ? "animate-spin" : undefined} />
         </button>

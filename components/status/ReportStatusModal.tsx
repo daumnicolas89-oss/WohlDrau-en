@@ -66,7 +66,7 @@ export function ReportStatusModal({
           <span className="flex size-14 items-center justify-center rounded-full bg-primary-soft text-primary-dark">
             <Check size={28} aria-hidden />
           </span>
-          <p className="text-[15px] text-muted">
+          <p className="text-base text-muted">
             Anonym gespeichert, ganz ohne Anmeldung.
           </p>
         </div>

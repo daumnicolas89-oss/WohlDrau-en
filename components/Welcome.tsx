@@ -10,7 +10,7 @@ import { Button } from "./ui/Button";
  */
 export function Welcome({ onStart }: { onStart: () => void }) {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center bg-background px-6 py-10">
+    <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center bg-background px-4 pt-[max(2.5rem,calc(env(safe-area-inset-top)+1rem))] pb-10">
       {/* self-start: Als Flex-Kind würde das Bild sonst auf volle Breite
           gestreckt und verzerrt. */}
       <Logo className="self-start" />

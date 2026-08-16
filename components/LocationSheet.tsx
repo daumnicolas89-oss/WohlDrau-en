@@ -121,7 +121,7 @@ export function LocationSheet({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Stadt oder Ort suchen …"
             aria-label="Ort suchen"
-            className="min-h-12 w-full bg-transparent text-[15px] outline-none"
+            className="min-h-12 w-full bg-transparent text-base outline-none"
           />
         </div>
         <button

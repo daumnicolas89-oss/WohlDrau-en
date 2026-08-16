@@ -65,7 +65,7 @@ export function ShadeMeter({
             aria-label={`Geschätzt ${prozent} Prozent der Fläche liegen im Schatten`}
           >
             <div
-              className="h-full rounded-full transition-[width]"
+              className="h-full rounded-full transition-[width] duration-500 ease-out"
               style={{ width: `${Math.max(3, prozent)}%`, background: TONE_COLORS[tone] }}
             />
           </div>

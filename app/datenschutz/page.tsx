@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 function Abschnitt({ titel, children }: { titel: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="font-display font-semibold text-dark">{titel}</h2>
+      <h2 className="font-display text-lg font-semibold text-dark">{titel}</h2>
       <div className="mt-2 space-y-2 text-muted">{children}</div>
     </section>
   );
@@ -17,7 +17,7 @@ function Abschnitt({ titel, children }: { titel: string; children: React.ReactNo
 
 export default function DatenschutzPage() {
   return (
-    <div className="mx-auto min-h-dvh max-w-lg bg-background px-5 pb-16 pt-[max(1rem,env(safe-area-inset-top))]">
+    <div className="mx-auto min-h-dvh max-w-lg bg-background px-4 pb-16 pt-[max(1rem,env(safe-area-inset-top))]">
       <Link
         href="/"
         className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary-dark"

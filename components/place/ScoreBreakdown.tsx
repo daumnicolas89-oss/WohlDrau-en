@@ -26,7 +26,7 @@ export function ScoreBreakdown({
 
   return (
     <details className="group rounded-card bg-card shadow-card">
-      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-display font-semibold text-dark [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-display text-lg font-semibold text-dark [&::-webkit-details-marker]:hidden">
         Wie kommt dieser Wert zustande?
         <ChevronDown
           size={20}
@@ -52,7 +52,7 @@ export function ScoreBreakdown({
 
             <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-line">
               <div
-                className="h-full rounded-full"
+                className="h-full rounded-full transition-[width] duration-500 ease-out"
                 style={{
                   width: `${Math.max(3, row.value)}%`,
                   background: TONE_COLORS[row.tone],

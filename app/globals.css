@@ -99,12 +99,31 @@ body {
 
 body {
   font-family: var(--font-sans);
+  /* Zahlen wechseln im Minutentakt (Uhrzeit, Grad, Werte). Ohne feste
+     Ziffernbreite zappelt bei jedem Tick die halbe Oberfläche. */
+  font-variant-numeric: tabular-nums;
 }
 
-/* Draußen wird getippt, nicht gezielt: keine Verzögerung, kein Zoom-Ruckeln. */
-button,
-a {
+/*
+ * Damit sich die App auf dem iPhone wie eine App anfühlt und nicht wie eine
+ * Website im Rahmen: kein graues Aufblitzen beim Tippen, kein Lupen-Menü beim
+ * Langdrücken, keine Textmarkierung auf Knöpfen und Karten.
+ */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
   touch-action: manipulation;
+}
+
+/* Nur echter Inhalt darf markiert werden – etwa eine Eltern-Meldung, die
+   jemand kopieren möchte. */
+input,
+textarea,
+[data-selectable] {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 @utility safe-bottom {

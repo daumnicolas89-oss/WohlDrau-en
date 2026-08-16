@@ -34,9 +34,18 @@ import { Logo } from "./Logo";
 import { OutfitSheet } from "./OutfitSheet";
 import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
 
-function Wert({ label, children }: { label: string; children: React.ReactNode }) {
+function Wert({
+  label,
+  children,
+  breit = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  /** Die Sonne-Spalte trägt „keine (UV 0,0)" und braucht mehr Platz als „28 %". */
+  breit?: boolean;
+}) {
   return (
-    <div className="flex-1">
+    <div className={`min-w-0 ${breit ? "flex-[1.5]" : "flex-1"}`}>
       <dt className="text-[11px] font-medium tracking-wide text-muted uppercase">
         {label}
       </dt>
@@ -133,7 +142,7 @@ export function WeatherHeader({
 
   return (
     <header
-      className="sky-hero relative overflow-hidden px-5 pt-[max(1.15rem,env(safe-area-inset-top))] pb-6"
+      className="sky-hero relative overflow-hidden px-4 pt-[max(1.15rem,calc(env(safe-area-inset-top)+0.75rem))] pb-6"
       style={mood ? { background: SKY_GRADIENT[mood] } : undefined}
     >
       {mood && <SkyScene mood={mood} />}
@@ -160,7 +169,7 @@ export function WeatherHeader({
       {values && weather && uv && (
         <div className="relative mt-5">
           <div className="flex items-start gap-2">
-            <span className="font-display text-[64px] leading-[0.9] font-bold tracking-tight text-dark tabular-nums">
+            <span className="font-display text-[52px] leading-[0.9] font-bold tracking-tight text-dark tabular-nums">
               {Math.round(values.temperature)}
             </span>
             <span className="mt-1 font-display text-2xl font-semibold text-dark/70">
@@ -173,7 +182,7 @@ export function WeatherHeader({
 
           {/* Der emotionale Kern: ein Satz, der sagt, worauf es jetzt ankommt –
               deshalb als Überschrift, nicht als Fußnote. */}
-          <p className="mt-4 font-display text-[22px] leading-snug font-semibold text-dark">
+          <p className="mt-4 font-display text-2xl leading-snug font-semibold text-balance text-dark">
             {weatherAdvice(
               values.apparentTemperature,
               values.uvIndex,
@@ -200,7 +209,7 @@ export function WeatherHeader({
               Das Tageslicht gehört zu diesen Werten, nicht zum Anzieh-Knopf. */}
           <div className="mt-4 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 backdrop-blur">
             <dl className="flex gap-3">
-              <Wert label="Sonne">
+              <Wert label="Sonne" breit>
                 {dayAt ? (
                   <>
                     <span className={TONE_TEXT[uv.tone]}>{uv.label}</span>{" "}
@@ -217,11 +226,11 @@ export function WeatherHeader({
                   </>
                 )}
               </Wert>
-              <span aria-hidden className="w-px self-stretch bg-line" />
+              <span aria-hidden className="w-px self-stretch bg-dark/12" />
               <Wert label="Regen">
                 {Math.round(values.precipitationProbability)} %
               </Wert>
-              <span aria-hidden className="w-px self-stretch bg-line" />
+              <span aria-hidden className="w-px self-stretch bg-dark/12" />
               <Wert label="Wind">
                 <span className={regime === "cold" ? "text-accent-ink" : undefined}>
                   {Math.round(weather.windSpeed)} km/h
