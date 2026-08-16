@@ -341,7 +341,9 @@ export function PlaceDetail({
                   </p>
                   <p>
                     Je mehr Bäume in einer Gegend erfasst sind, desto genauer
-                    wird sie. Ein Blick aufs Luftbild oben hilft im Zweifel.
+                    wird sie. Von November bis März rechnen wir Baumkronen
+                    lichter, weil Laubbäume dann kahl sind. Ein Blick aufs
+                    Luftbild oben hilft im Zweifel.
                   </p>
                 </InfoButton>
               </div>

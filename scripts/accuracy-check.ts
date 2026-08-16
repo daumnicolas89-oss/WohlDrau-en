@@ -171,13 +171,14 @@ function place(overrides: Partial<OsmPlace["shadeInputs"]> = {}): OsmPlace {
     `index=${bare.index.toFixed(3)}, state=${bare.state}`,
   );
 
-  // Tiefe Sonne (Winter): Kronen schirmen schlechter, Wald bleibt aber der
-  // schattigste Ort — Index muss sinken, nicht auf 0 springen.
+  // Tiefe Sonne UND kahle Laubbäume (Leaf-Faktor 0,55): Der Winterwald schirmt
+  // deutlich schlechter — muss klar unter dem Sommerwert liegen, aber nicht 0
+  // (Äste und Nadelbaum-Anteil bleiben).
   const winterNoon = new Date(Date.UTC(2026, 11, 21, 11, 15));
   const forestWinter = computeShade(place({ canopy: 0.85 }), winterNoon, 0);
   check(
-    "Wald bei flacher Wintersonne: weniger Deckung als im Sommer, nicht 0",
-    forestWinter.fromCanopy > 0.3 && forestWinter.fromCanopy < forest.fromCanopy,
+    "Wald im Winter: kahle Kronen + flache Sonne = deutlich weniger Deckung",
+    forestWinter.fromCanopy > 0.15 && forestWinter.fromCanopy < forest.fromCanopy * 0.6,
     `Winter=${forestWinter.fromCanopy.toFixed(3)} vs. Sommer=${forest.fromCanopy.toFixed(3)}`,
   );
 }

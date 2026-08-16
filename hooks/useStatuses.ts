@@ -16,6 +16,7 @@ export interface UseStatusesResult {
 
 export function useStatuses(placeIds: string[]): UseStatusesResult {
   const [statuses, setStatuses] = useState<PlaceStatus[]>([]);
+  const [nonce, setNonce] = useState(0);
   // Die Liste selbst ändert sich bei jedem Render, nur ihr Inhalt zählt.
   const key = placeIds.slice(0, 300).join(",");
 
@@ -33,7 +34,17 @@ export function useStatuses(placeIds: string[]): UseStatusesResult {
       .catch(() => undefined);
 
     return () => controller.abort();
-  }, [key]);
+  }, [key, nonce]);
+
+  // Meldungen sind die schnellstlebigen Daten der App („gerade sehr voll").
+  // Alle 2 Minuten still nachschauen, solange die App sichtbar ist – so
+  // erscheint eine frische Meldung, ohne dass jemand neu laden muss.
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") setNonce((n) => n + 1);
+    }, 2 * 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const report = useCallback(
     async (placeId: string, type: PlaceStatusType, message?: string) => {

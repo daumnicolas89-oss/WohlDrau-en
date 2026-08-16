@@ -74,3 +74,23 @@ describe("computeShade", () => {
     assert.equal(result.index, 1);
   });
 });
+
+describe("Saison der Baumkronen", () => {
+  it("rechnet denselben Wald im Winter deutlich lichter als im Sommer", () => {
+    const ort = place({ shadeInputs: { canopy: 0.85 } });
+    const sommer = computeShade(ort, new Date(2026, 5, 21, 13, 0), 0);
+    const winter = computeShade(ort, new Date(2026, 0, 21, 13, 0), 0);
+    assert.ok(
+      winter.fromCanopy < sommer.fromCanopy * 0.6,
+      `Winter ${winter.fromCanopy} sollte klar unter Sommer ${sommer.fromCanopy} liegen`,
+    );
+    assert.ok(winter.fromCanopy > 0.1, "Äste schirmen weiterhin etwas ab");
+  });
+
+  it("lässt den Hochsommer unverändert voll belaubt", () => {
+    const ort = place({ shadeInputs: { canopy: 0.85 } });
+    const juni = computeShade(ort, new Date(2026, 5, 21, 13, 0), 0);
+    const juli = computeShade(ort, new Date(2026, 6, 21, 13, 0), 0);
+    assert.ok(Math.abs(juni.fromCanopy - juli.fromCanopy) < 0.05);
+  });
+});

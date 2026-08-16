@@ -49,10 +49,25 @@ function buildingShade(
   return clamp((1 - open) * damping);
 }
 
+/**
+ * Laubbäume sind im Winter kahl und werfen nur noch Ast-Schatten. Ohne diesen
+ * Faktor gälte ein Buchenhain im Januar als „viel Schatten" – und würde bei
+ * der Winter-Sonnensuche zu Unrecht abgewertet. Der Nadelwald-Anteil ist in
+ * den Daten (noch) nicht unterscheidbar, darum ein vorsichtiger Mischwert.
+ */
+function leafFactor(date: Date): number {
+  const monat = date.getMonth(); // 0 = Januar
+  if (monat >= 10 || monat <= 2) return 0.55; // November bis März
+  if (monat === 3 || monat === 9) return 0.8; // April und Oktober (Übergang)
+  return 1;
+}
+
 /** Kronen schirmen am besten ab, wenn die Sonne hoch steht. */
-function canopyShade(place: OsmPlace, altitudeDeg: number): number {
+function canopyShade(place: OsmPlace, altitudeDeg: number, date: Date): number {
   return clamp(
-    place.shadeInputs.canopy * (0.45 + 0.55 * Math.sin(altitudeDeg * DEG)),
+    place.shadeInputs.canopy *
+      leafFactor(date) *
+      (0.45 + 0.55 * Math.sin(altitudeDeg * DEG)),
   );
 }
 
@@ -83,7 +98,7 @@ export function computeShade(
   }
 
   const fromClouds = clamp(cloudCoverPercent / 100) * 0.85;
-  const fromCanopy = canopyShade(place, altitudeDeg);
+  const fromCanopy = canopyShade(place, altitudeDeg, date);
   const fromBuildings = buildingShade(place, altitudeDeg, pos.azimuth);
 
   const index = clamp(

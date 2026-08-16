@@ -105,6 +105,16 @@ export function useWeather(coords: Coords): UseWeatherResult {
     return () => controller.abort();
   }, [lat, lng, nonce]);
 
+  // Wetter altert: alle 10 Minuten (die Cache-Dauer des Servers) still
+  // nachladen, solange die App sichtbar ist. Wer sie eine Stunde offen hat,
+  // schaut nie auf verstaubte Grade.
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") setNonce((n) => n + 1);
+    }, 10 * 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const reload = useCallback(() => setNonce((n) => n + 1), []);
 
   return { weather, loading, error, reload };
