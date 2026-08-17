@@ -47,7 +47,13 @@ function readLastKnown(): Coords | null {
   }
 }
 
-export function useGeolocation() {
+/**
+ * @param enabled Erst fragen, wenn der Nutzer weiß, wofür. Beim allerersten
+ *   Öffnen liegt der Willkommens-Bildschirm noch davor; auf dem iPhone ist
+ *   die Standortabfrage ein blockierender Systemdialog, der den Erklärtext
+ *   verdeckt. Er erscheint deshalb erst nach „Los geht's".
+ */
+export function useGeolocation(enabled = true) {
   const [coords, setCoords] = useState<Coords>(
     () => readLastKnown() ?? FALLBACK_COORDS,
   );
@@ -79,9 +85,9 @@ export function useGeolocation() {
   }, []);
 
   useEffect(() => {
-    if (!available()) return;
+    if (!enabled || !available()) return;
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, OPTIONS);
-  }, [handleSuccess, handleError]);
+  }, [enabled, handleSuccess, handleError]);
 
   /** Erneuter Versuch, z. B. nachdem die Freigabe im Browser erteilt wurde. */
   const locate = useCallback(() => {

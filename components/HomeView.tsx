@@ -75,7 +75,30 @@ function ToiletButton({
 
 export function HomeView() {
   const filters = useFilters();
-  const geo = useGeolocation();
+  // Beim allerersten Öffnen erklärt ein Willkommens-Bildschirm die App – und
+  // überbrückt damit unbemerkt genau die Sekunden, in denen im Hintergrund
+  // schon geladen wird. Wiederkehrer sehen ihn nie.
+  const [welcomed, setWelcomed] = useState(() => {
+    try {
+      return localStorage.getItem("platzda:welcomed") === "1";
+    } catch {
+      return true;
+    }
+  });
+
+  // Der Standort wird erst nach „Los geht's" erfragt: Auf dem iPhone ist das
+  // ein Systemdialog, der sonst über dem Erklärtext liegt und ihn verdeckt.
+  const geo = useGeolocation(welcomed);
+
+  const startApp = () => {
+    setWelcomed(true);
+    try {
+      localStorage.setItem("platzda:welcomed", "1");
+    } catch {
+      // Lässt sich das Flag nicht speichern (strenger Privatmodus), erscheint
+      // das Willkommen beim nächsten Öffnen erneut – der kleinere Übel.
+    }
+  };
   const { manual, setManual } = useManualLocation();
   const geoStatus = geo.status;
   // Ein manuell gewählter Ort überstimmt GPS, so funktioniert die Suche und
@@ -260,26 +283,6 @@ export function HomeView() {
   const error = places.places.length === 0 ? places.error : null;
   // Frisch wird noch geladen, aber es gibt schon etwas zu sehen.
   const refreshing = places.loading && places.places.length > 0;
-
-  // Beim allerersten Öffnen erklärt ein Willkommens-Bildschirm die App – und
-  // überbrückt damit unbemerkt genau die Sekunden, in denen im Hintergrund
-  // schon geladen wird. Wiederkehrer sehen ihn nie.
-  const [welcomed, setWelcomed] = useState(() => {
-    try {
-      return localStorage.getItem("platzda:welcomed") === "1";
-    } catch {
-      return true;
-    }
-  });
-  const startApp = () => {
-    setWelcomed(true);
-    try {
-      localStorage.setItem("platzda:welcomed", "1");
-    } catch {
-      // Lässt sich das Flag nicht speichern (strenger Privatmodus), erscheint
-      // das Willkommen beim nächsten Öffnen erneut – der kleinere Übel.
-    }
-  };
 
   const reload = () => {
     places.reload();
