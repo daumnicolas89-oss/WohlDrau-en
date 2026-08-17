@@ -55,6 +55,7 @@ export function PlaceCard({
   // Der Link trägt beides: den Standort des Nutzers (für die Entfernung) und
   // den des Ortes (damit die Detailseite gezielt dort nachladen kann).
   const spaeter = zeitLabel !== undefined && zeitLabel !== "gerade";
+  const vorlaeufig = place.preliminary === true;
   const href = placeHref(
     place.id,
     `lat=${origin.lat.toFixed(5)}&lng=${origin.lng.toFixed(5)}` +
@@ -64,7 +65,7 @@ export function PlaceCard({
       // statt wie ein Fehler auszusehen (56 in der Liste, 40 im Kopf).
       // In der Zeitvorschau entfällt er: Die Detailseite rechnet für JETZT,
       // ein Später-Wert würde die Erklärung („Wetter aktualisiert") erlügen.
-      (spaeter ? "" : `&ls=${place.pleasantScore}`),
+      (spaeter || vorlaeufig ? "" : `&ls=${place.pleasantScore}`),
   );
 
   const bewertung = scoreWording(place.pleasantScore);
@@ -72,9 +73,6 @@ export function PlaceCard({
   const meldung = statusSentence(place.lastStatuses, now);
   const chips = factChips(place);
   const beste = rank === 0;
-  // Schnellstart: Der Ort ist echt, seine Bewertung noch nicht. Dann zeigt
-  // die Zeile Name, Art und Entfernung – und sagt ehrlich, was noch rechnet.
-  const vorlaeufig = place.preliminary === true;
   const wenigBaumdaten =
     place.shadeInputs.confidence === "low" && place.shadeInputs.inGreen;
   const eingeschraenkt = place.tags.restrictedAccess === true;
@@ -106,7 +104,7 @@ export function PlaceCard({
               <span aria-hidden className="text-dark/30">·</span>
               {formatDistance(distance)}
             </p>
-            <p className="mt-0.5 truncate text-xs text-muted italic">
+            <p className="mt-0.5 text-xs leading-snug text-muted italic">
               Schatten und Bewertung werden berechnet …
             </p>
           </div>

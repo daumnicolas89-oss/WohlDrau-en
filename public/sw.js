@@ -7,7 +7,7 @@
  */
 // Bei jeder Änderung am Datenschema der API-Antworten mit hochzählen –
 // sonst hält der Offline-Cache alte Objektformen unbegrenzt fest.
-const VERSION = "v9";
+const VERSION = "v10";
 const SHELL_CACHE = `wd-shell-${VERSION}`;
 const TILE_CACHE = `wd-tiles-${VERSION}`;
 const DATA_CACHE = `wd-data-${VERSION}`;
@@ -156,12 +156,20 @@ self.addEventListener("fetch", (event) => {
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();
-            caches.open(SHELL_CACHE).then((cache) => cache.put(request, copy));
+            // Unter dem PFAD ablegen, nicht der vollen URL: Detail-Links
+            // tragen GPS-Koordinaten auf fünf Stellen – sonst wäre jeder
+            // Aufruf desselben Platzes ein neuer Eintrag, für immer. Die
+            // Identität steckt bei /ort/ im Pfad, bei /platz/ ist die Hülle
+            // ohnehin gleich. Dazu ein Deckel gegen wochenlanges Wachsen.
+            caches.open(SHELL_CACHE).then((cache) => {
+              cache.put(new Request(url.pathname), copy);
+              trimCache(SHELL_CACHE, 60);
+            });
           }
           return response;
         })
         .catch(async () => {
-          const besucht = await caches.match(request, { ignoreSearch: true });
+          const besucht = await caches.match(new Request(url.pathname), { ignoreSearch: true });
           if (besucht) return besucht;
           if (url.pathname === "/") {
             const huelle = await caches.match("/");

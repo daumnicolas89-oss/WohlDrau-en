@@ -162,7 +162,11 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
   // 20 % Gewicht JEDEN Wert zur Mitte staucht – deshalb drängte sich in
   // München alles bei 42–54. Gibt es nichts zu melden, zählt der Teil
   // nichts, und die drei echten Teile teilen sich sein Gewicht.
-  if (fresh.length === 0) {
+  // Nur Meldungen mit echter Aussage zählen für die Gewichtsentscheidung:
+  // Eine neutrale „Sonstiges"-Meldung würde sonst den 50er-Anker aktivieren
+  // und den Platz 5 Punkte unter den identischen Nachbarn drücken.
+  const wirksameMeldungen = fresh.filter((s) => STATUS_IMPACT[s.type] !== 0);
+  if (wirksameMeldungen.length === 0) {
     const f = 1 / (1 - weights.status);
     weights.shade *= f;
     weights.amenity *= f;
@@ -176,7 +180,7 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     statusScore: statusScoreOf(fresh, now),
     distanceScore: distanceScoreOf(distanceM),
     ...(() => {
-      const wetter = weatherFactorOf(w.precipitationProbability, weather.windSpeed);
+      const wetter = weatherFactorOf(w.precipitationProbability, w.windSpeed);
       return { weatherFactor: wetter.factor, weatherDriver: wetter.driver };
     })(),
     weights,

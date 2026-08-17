@@ -539,12 +539,27 @@ export function breakdownRows(
   // Die tatsächlich verwendeten Gewichte, Schatten kann bei mildem Wetter
   // klein sein, dann zählen Ausstattung und Nähe entsprechend mehr.
   const wt = b.weights;
+  // Größte-Reste-Rundung: Einzeln gerundet ergaben die Anteile schon mal
+  // „19 + 54 + 0 + 28 = 101 %" – wer nachrechnet (und genau dafür ist die
+  // Aufschlüsselung da), stolpert. So summieren sie sich immer auf 100.
+  const roh = [wt.shade * 100, wt.amenity * 100, wt.status * 100, wt.distance * 100];
+  const boden = roh.map(Math.floor);
+  let rest = 100 - boden.reduce((a, x) => a + x, 0);
+  const reihenfolge = roh
+    .map((x, i) => ({ i, frac: x - Math.floor(x) }))
+    .sort((a, z) => z.frac - a.frac);
+  for (const { i } of reihenfolge) {
+    if (rest <= 0) break;
+    boden[i] += 1;
+    rest -= 1;
+  }
+  const [pctShade, pctAmenity, pctStatus, pctDistance] = boden;
 
   return [
     {
       key: "shade",
       label: "Schatten",
-      weightPercent: Math.round(wt.shade * 100),
+      weightPercent: pctShade,
       value: Math.round(b.shadeScore),
       tone: toneForValue(b.shadeScore),
       sentence: schattenSatz,
@@ -552,7 +567,7 @@ export function breakdownRows(
     {
       key: "amenity",
       label: "Ausstattung",
-      weightPercent: Math.round(wt.amenity * 100),
+      weightPercent: pctAmenity,
       value: Math.round(b.amenityScore),
       tone: toneForValue(b.amenityScore),
       sentence: amenityBreakdownSentence(place),
@@ -560,7 +575,7 @@ export function breakdownRows(
     {
       key: "status",
       label: "Meldungen anderer Eltern",
-      weightPercent: Math.round(wt.status * 100),
+      weightPercent: pctStatus,
       value: Math.round(b.statusScore),
       tone: toneForValue(b.statusScore),
       sentence: meldung
@@ -570,7 +585,7 @@ export function breakdownRows(
     {
       key: "distance",
       label: "Entfernung",
-      weightPercent: Math.round(wt.distance * 100),
+      weightPercent: pctDistance,
       value: Math.round(b.distanceScore),
       tone: toneForValue(b.distanceScore),
       sentence: distanceSentence(place.distance ?? 0),

@@ -403,8 +403,9 @@ export function HomeView() {
       )}
       {online && !refreshing && places.error && places.places.length > 0 && (
         <Hinweis className="mx-4 mt-2">
-          Gerade keine frischen Daten. Du siehst den Stand von deinem letzten
-          Besuch.
+          {places.preliminary
+            ? "Die vollständige Bewertung kommt gerade nicht durch. Aktualisieren hilft meist."
+            : "Gerade keine frischen Daten. Du siehst den Stand von deinem letzten Besuch."}
         </Hinweis>
       )}
 
@@ -506,7 +507,12 @@ export function HomeView() {
           <div className="animate-fade-in space-y-4 p-4 pb-32">
             <FilterChips />
 
-            {visible.length > 0 ? (
+            {visible.length === 0 && places.loading ? (
+              // Städtewechsel: Die alte Liste passt nicht mehr, die neue lädt
+              // noch. Vorher stand hier bis zu eine Minute lang fälschlich
+              // „Hier ist nichts erfasst".
+              <PlacesLoading hero rows={3} />
+            ) : visible.length > 0 ? (
               <>
                 {/* Gemerkt, aber gerade nicht sichtbar (Entfernung/Filter):
                     lieber ehrlich sagen als die Sektion wortlos verschwinden
@@ -591,7 +597,7 @@ export function HomeView() {
                         <ChevronRight size={16} aria-hidden className="shrink-0 text-muted" />
                       </Link>
                     )}
-                        {places.preliminary && (
+                        {places.preliminary && !places.error && (
                           <Hinweis>
                             Die Plätze sind da – Schatten und Bewertung rechnen
                             noch. Die Reihenfolge ist solange die Entfernung.
@@ -603,9 +609,11 @@ export function HomeView() {
                               ? "Ein weiterer Platz"
                               : `${uebrige.length - 1} weitere Plätze`}{" "}
                             in der Nähe,{" "}
-                            {filters.timeOffsetMin === 0
-                              ? "geordnet nach „Angenehm jetzt“."
-                              : `geordnet danach, wie angenehm es dort ${zeitLabel} ist.`}
+                            {places.preliminary
+                              ? "geordnet nach Entfernung."
+                              : filters.timeOffsetMin === 0
+                                ? "geordnet nach „Angenehm jetzt“."
+                                : `geordnet danach, wie angenehm es dort ${zeitLabel} ist.`}
                           </p>
                           <InfoButton
                             title="Wie wird sortiert?"

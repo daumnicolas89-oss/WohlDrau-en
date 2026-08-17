@@ -188,8 +188,12 @@ export function PlaceDetail({
   // Nur solange es wirklich nichts zu zeigen gibt. Vorher blieb `loading`
   // auch beim stillen Nachladen im Hintergrund wahr – dann rendere das
   // Skelett ÜBER der längst fertigen Detailseite, zwei Seiten übereinander.
+  // preliminary zählt nur als „lädt noch", solange die volle Abfrage lebt:
+  // Scheitert sie, bliebe die Seite sonst für immer im Skelett hängen –
+  // ohne Fehlertext, ohne „Erneut versuchen".
   const loading =
-    !place && (places.loading || places.preliminary || weatherBlocksLoading);
+    !place &&
+    (places.loading || (places.preliminary && !places.error) || weatherBlocksLoading);
   // Genauso beim Fehler: Steht der Ort schon da, soll ein misslungener
   // Hintergrund-Abruf ihn nicht durch einen Fehlerkasten verdrängen.
   const error = place ? null : places.error;

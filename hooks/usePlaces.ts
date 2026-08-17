@@ -70,6 +70,10 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
   useEffect(() => {
     placesRef.current = places;
   }, [places]);
+  /** Zu welcher Gegend die aktuelle Liste gehört – der Schnellstart darf
+   *  eine Liste derselben Gegend nicht verdrängen, eine fremde schon
+   *  (Städtewechsel: alte Orte wären dort ohnehin unbrauchbar). */
+  const ankerRef = useRef<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
@@ -130,7 +134,10 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
     const fastController = new AbortController();
     const fastAbbruch = setTimeout(() => fastController.abort(), 20_000);
     async function loadFast() {
-      if (placesRef.current.length > 0) return;
+      const anker = ankerRef.current;
+      const gleicheGegend =
+        anker !== null && haversine(anker.lat, anker.lng, lat, lng) < 3000;
+      if (placesRef.current.length > 0 && gleicheGegend) return;
       try {
         const res = await fetch(
           apiUrl(
@@ -140,11 +147,18 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         );
         if (!res.ok || vollDa) return;
         const data = (await res.json()) as PlacesResponse;
-        if (vollDa || placesRef.current.length > 0) return;
+        if (vollDa) return;
+        if (
+          placesRef.current.length > 0 &&
+          ankerRef.current !== null &&
+          haversine(ankerRef.current.lat, ankerRef.current.lng, lat, lng) < 3000
+        )
+          return;
         setPlaces(data.places);
         setToilets(data.toilets ?? []);
         setPreliminary(true);
         setLoading(false);
+        ankerRef.current = { lat, lng };
       } catch {
         // Schnellstart ist ein Bonus – scheitert er, bleibt alles wie bisher.
       }
@@ -174,6 +188,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         const data = (await res.json()) as PlacesResponse;
         vollDa = true;
         fastController.abort();
+        ankerRef.current = { lat, lng };
         setPlaces(data.places);
         setToilets(data.toilets ?? []);
         setPreliminary(false);
@@ -195,7 +210,14 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
           return;
         }
         if (controller.signal.aborted) return;
-        setError(err instanceof Error ? err.message : "Etwas ist schiefgelaufen");
+        // Browser-Netzwerkfehler heißen „Failed to fetch" – roh angezeigt
+        // wirkt das wie ein Absturz. Auf Deutsch, mit Handlungsidee.
+        const roh = err instanceof Error ? err.message : "";
+        setError(
+          /fetch|network|load failed/i.test(roh)
+            ? "Keine Verbindung zum Server. Prüf kurz dein Netz und versuch es erneut."
+            : roh || "Etwas ist schiefgelaufen",
+        );
       } finally {
         clearTimeout(abbruch);
         clearTimeout(abgelaufenPruefen);

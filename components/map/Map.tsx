@@ -104,7 +104,11 @@ export default function Map({
                   `&plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}&r=${radius}`,
               ),
           }}
-          title={`${place.name}: ${bewertung.label}, ${place.pleasantScore} von 100, ${formatDistance(place.distance ?? 0)}`}
+          title={
+            place.preliminary
+              ? `${place.name}, ${formatDistance(place.distance ?? 0)} – Bewertung wird berechnet`
+              : `${place.name}: ${bewertung.label}, ${place.pleasantScore} von 100, ${formatDistance(place.distance ?? 0)}`
+          }
         />
       ))}
     </MapContainer>
