@@ -2,6 +2,7 @@
 
 import { apiUrl } from "@/lib/appMode";
 import { Hinweis } from "./ui/Hinweis";
+import { IS_APP_SHELL } from "@/lib/appMode";
 
 import { useState } from "react";
 import { Crosshair, Search } from "lucide-react";
@@ -94,8 +95,11 @@ export function LocationSheet({
 
       {geoStatus === "denied" && (
         <Hinweis className="mt-2">
-          Der Standort ist im Browser blockiert. Erlaube ihn über das
-          Schloss-Symbol in der Adressleiste oder such einfach unten deinen Ort.
+          {/* In der App gibt es keine Adressleiste und kein Schloss-Symbol –
+              der Browser-Hinweis führte dort ins Leere. */}
+          {IS_APP_SHELL
+            ? "Der Standort ist für PlatzDa nicht freigegeben. Erlaube ihn in den iPhone-Einstellungen unter PlatzDa → Standort – oder such einfach unten deinen Ort."
+            : "Der Standort ist im Browser blockiert. Erlaube ihn über das Schloss-Symbol in der Adressleiste – oder such einfach unten deinen Ort."}
         </Hinweis>
       )}
 
