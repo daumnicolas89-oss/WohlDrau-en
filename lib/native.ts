@@ -28,6 +28,49 @@ export function erfolg(): void {
     .catch(() => undefined);
 }
 
+export type NativerStandort =
+  | { ok: true; lat: number; lng: number; accuracyM: number | null }
+  | { ok: false; grund: "denied" | "unavailable" };
+
+/**
+ * Standort über iOS statt über den WebView.
+ *
+ * Die Browser-Schnittstelle löst in der App ZWEI Dialoge aus: erst den von
+ * iOS, dann den von WebKit („localhost möchte deinen aktuellen Ort
+ * verwenden"). Der zweite nennt die App „localhost" – ausgerechnet in dem
+ * Moment, in dem jemand entscheidet, ob er seinen Standort hergibt. Über
+ * das native Plugin fragt nur iOS, einmal, mit dem Text aus der Info.plist.
+ *
+ * Gibt `null` zurück, wenn wir im Web laufen – dort bleibt alles wie bisher.
+ */
+export async function nativerStandort(): Promise<NativerStandort | null> {
+  if (!IS_APP_SHELL) return null;
+  try {
+    const { Geolocation } = await import("@capacitor/geolocation");
+    let rechte = await Geolocation.checkPermissions();
+    if (rechte.location !== "granted") {
+      rechte = await Geolocation.requestPermissions({ permissions: ["location"] });
+    }
+    if (rechte.location !== "granted") return { ok: false, grund: "denied" };
+
+    const pos = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 12_000,
+      maximumAge: 120_000,
+    });
+    return {
+      ok: true,
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      accuracyM: pos.coords.accuracy ?? null,
+    };
+  } catch {
+    // Kein GPS-Empfang, Ortungsdienste aus, Zeitüberschreitung: alles Fälle,
+    // in denen die App den zuletzt bekannten Ort weiterbenutzt.
+    return { ok: false, grund: "unavailable" };
+  }
+}
+
 /**
  * Öffnet die Route in der Karten-App des Geräts. In der iOS-App direkt in
  * Apple Karten (ein Tipp), im Browser wie bisher über Google Maps.

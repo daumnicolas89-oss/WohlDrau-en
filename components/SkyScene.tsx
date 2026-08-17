@@ -38,7 +38,12 @@ export function SkyScene({ mood }: { mood: SkyMood }) {
     <svg
       aria-hidden
       viewBox="0 0 120 120"
-      className="pointer-events-none absolute -top-12 -right-5 h-36 w-36 opacity-85"
+      /* Die Figur hing an der Kopfkante (-top-12). Auf einem iPhone mit
+         Dynamic Island beginnt die dort erst nach der Statusleiste – die
+         Sonne lag damit halb außerhalb des Bildschirms und der Rest hinter
+         der Uhr. Jetzt hängt sie am sicheren Bereich und sitzt neben Logo
+         und Ortszeile, wo Platz ist. */
+      className="pointer-events-none absolute top-[calc(env(safe-area-inset-top)-0.75rem)] -right-5 h-32 w-32 opacity-85"
     >
       {mood === "sunny" && (
         <g>

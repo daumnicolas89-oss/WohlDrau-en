@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { nativerStandort } from "@/lib/native";
 
 export interface Coords {
   lat: number;
@@ -84,20 +85,60 @@ export function useGeolocation(enabled = true) {
     setStatus(error.code === error.PERMISSION_DENIED ? "denied" : "unavailable");
   }, []);
 
-  useEffect(() => {
-    if (!enabled || !available()) return;
-    navigator.geolocation.getCurrentPosition(handleSuccess, handleError, OPTIONS);
-  }, [enabled, handleSuccess, handleError]);
+  const merken = useCallback((next: Coords) => {
+    setCoords(next);
+    setStatus("granted");
+    try {
+      localStorage.setItem(
+        LAST_KNOWN_KEY,
+        JSON.stringify({ lat: next.lat, lng: next.lng }),
+      );
+    } catch {
+      // Privater Modus o. Ä., der Standort funktioniert trotzdem.
+    }
+  }, []);
 
-  /** Erneuter Versuch, z. B. nachdem die Freigabe im Browser erteilt wurde. */
-  const locate = useCallback(() => {
+  /**
+   * In der App über iOS, im Browser über die Web-Schnittstelle. Der native
+   * Weg spart den zweiten Dialog, den WebKit sonst zusätzlich zeigt.
+   */
+  const holen = useCallback(async () => {
+    const nativ = await nativerStandort();
+    if (nativ) {
+      if (nativ.ok) {
+        merken({
+          lat: nativ.lat,
+          lng: nativ.lng,
+          accuracyM: nativ.accuracyM,
+          source: "gps",
+        });
+      } else {
+        setStatus(nativ.grund);
+      }
+      return;
+    }
     if (!available()) {
       setStatus("unavailable");
       return;
     }
-    setStatus("locating");
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, OPTIONS);
-  }, [handleSuccess, handleError]);
+  }, [merken, handleSuccess, handleError]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    // Standort holen ist genau das, wofür Effekte da sind: ein Seiteneffekt
+    // nach außen, dessen Ergebnis später in den Zustand fließt. Die Regel
+    // zielt auf setState während des Renderns – das passiert hier nicht,
+    // `holen` ist asynchron und antwortet frühestens im nächsten Tick.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void holen();
+  }, [enabled, holen]);
+
+  /** Erneuter Versuch, z. B. nachdem die Freigabe erteilt wurde. */
+  const locate = useCallback(() => {
+    setStatus("locating");
+    void holen();
+  }, [holen]);
 
   return { coords, status, locate };
 }
