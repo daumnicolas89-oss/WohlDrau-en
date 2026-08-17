@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const AerialThumb = dynamic(() => import("./AerialThumb"), {
   ssr: false,
-  loading: () => <div className="size-full animate-pulse bg-[#eef1f2]" />,
+  loading: () => <div className="size-full animate-pulse bg-info-soft" />,
 });
 
 /**
@@ -27,7 +27,7 @@ export function PlacePhoto({
   const showPhoto = Boolean(imageUrl) && !failed;
 
   return (
-    <div className="relative h-44 overflow-hidden rounded-card bg-[#eef1f2] shadow-card">
+    <div className="relative h-44 overflow-hidden rounded-card bg-info-soft shadow-card">
       {showPhoto ? (
         // Beliebige externe Hosts, hier ist ein einfaches img richtig.
         // eslint-disable-next-line @next/next/no-img-element

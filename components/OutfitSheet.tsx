@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Hinweis } from "./ui/Hinweis";
 import {
   clothingAdvice,
   outfitFor,
@@ -218,9 +219,7 @@ export function OutfitSheet({
         )}
 
         {outfit.note && (
-          <p className="rounded-2xl bg-accent-soft p-3 text-sm leading-relaxed text-accent-ink">
-            {outfit.note}
-          </p>
+          <Hinweis>{outfit.note}</Hinweis>
         )}
 
         {/* Der ehrlichste Check kommt von den Eltern selbst. */}

@@ -33,6 +33,7 @@ import { TONE_TEXT } from "@/components/ui/ScoreRing";
 import { Logo } from "./Logo";
 import { OutfitSheet } from "./OutfitSheet";
 import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
+import { Hinweis } from "./ui/Hinweis";
 
 export function WeatherHeader({
   weather,
@@ -282,36 +283,27 @@ export function WeatherHeader({
           niemand. Der STANDORT-Hinweis darunter meint etwas anderes und darf
           nicht wochenlang hinter einer Dauerfrost-Warnung verschwinden. */}
       {!kompakt && !alert && weatherError && (
-        <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          <CloudOff size={16} aria-hidden className="mt-0.5 shrink-0" />
-          <span>
-            Das Wetter ist gerade nicht erreichbar. Die Orte sind trotzdem da,
-            nach Schatten und Nähe geordnet, nur ohne aktuelle Grad- und
-            Regenwerte. Meist ist es gleich wieder da.
-          </span>
-        </p>
+        <Hinweis ton="info" aufHimmel Icon={CloudOff} className="relative mt-3">
+          Das Wetter ist gerade nicht erreichbar. Die Orte sind trotzdem da,
+          nach Schatten und Nähe geordnet, nur ohne aktuelle Grad- und
+          Regenwerte. Meist ist es gleich wieder da.
+        </Hinweis>
       )}
 
       {!kompakt && !weatherError && geoStatus === "denied" && !manualActive && (
-        <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          <MapPin size={16} aria-hidden className="mt-0.5 shrink-0" />
-          <span>
-            Ohne Standortfreigabe zeigen wir deinen zuletzt bekannten Ort oder
-            eine Beispielstadt. Tippe oben auf den Ortsnamen, um deinen Standort
-            freizugeben oder einen Ort zu suchen.
-          </span>
-        </p>
+        <Hinweis ton="info" aufHimmel Icon={MapPin} className="relative mt-3">
+          Ohne Standortfreigabe zeigen wir deinen zuletzt bekannten Ort oder
+          eine Beispielstadt. Tippe oben auf den Ortsnamen, um deinen Standort
+          freizugeben oder einen Ort zu suchen.
+        </Hinweis>
       )}
 
       {!kompakt && !weatherError && geoStatus === "unavailable" && !manualActive && (
-        <p className="relative mt-3 flex items-start gap-2 rounded-2xl border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          <MapPin size={16} aria-hidden className="mt-0.5 shrink-0" />
-          <span>
-            Der Standort lässt sich gerade nicht bestimmen. Im Gebäude oder ohne
-            GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
-            Ort; über den Ortsnamen oben kannst du es erneut versuchen.
-          </span>
-        </p>
+        <Hinweis ton="info" aufHimmel Icon={MapPin} className="relative mt-3">
+          Der Standort lässt sich gerade nicht bestimmen. Im Gebäude oder ohne
+          GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
+          Ort; über den Ortsnamen oben kannst du es erneut versuchen.
+        </Hinweis>
       )}
 
       {outfitParams && (

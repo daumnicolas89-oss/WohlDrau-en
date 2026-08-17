@@ -49,6 +49,7 @@ import { PlaceKindTag } from "./PlaceKindTag";
 import { PlacePhoto } from "./PlacePhoto";
 import { PlacesLoading } from "./PlacesLoading";
 import { ScoreBreakdown } from "./ScoreBreakdown";
+import { Hinweis } from "@/components/ui/Hinweis";
 import { ShadeMeter } from "./ShadeMeter";
 import { ShadeTimeline } from "./ShadeTimeline";
 
@@ -331,25 +332,19 @@ export function PlaceDetail({
 
           <section className="space-y-4 px-4 pt-4">
             {weatherMissing && (
-              <p className="flex items-start gap-2 rounded-card border border-accent/50 bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-                <CloudOff size={16} aria-hidden className="mt-0.5 shrink-0" />
-                <span>
-                  Das Wetter ist gerade nicht erreichbar. Schatten und Bewertung
-                  beruhen hier auf dem Sonnenstand und einer neutralen Annahme,
-                  nicht auf aktuellen Werten.
-                </span>
-              </p>
+              <Hinweis Icon={CloudOff}>
+                Das Wetter ist gerade nicht erreichbar. Schatten und Bewertung
+                beruhen hier auf dem Sonnenstand und einer neutralen Annahme,
+                nicht auf aktuellen Werten.
+              </Hinweis>
             )}
 
             {place.tags.restrictedAccess && (
-              <p className="flex items-start gap-2 rounded-card border border-accent/50 bg-accent-soft p-3 text-sm leading-relaxed text-accent-ink">
-                <Info size={16} aria-hidden className="mt-0.5 shrink-0" />
-                <span>
-                  Der Zugang ist laut Karte eingeschränkt (z. B. ein Schulhof).
-                  Solche Plätze sind oft nur außerhalb der Schulzeit offen, schau
-                  am besten vorher, ob offen ist.
-                </span>
-              </p>
+              <Hinweis ton="warnung" Icon={Info}>
+                Der Zugang ist laut Karte eingeschränkt (z. B. ein Schulhof).
+                Solche Plätze sind oft nur außerhalb der Schulzeit offen, schau
+                am besten vorher, ob offen ist.
+              </Hinweis>
             )}
 
             {/* Echtes Foto, wo OSM eines hat, sonst Luftbild von oben. */}

@@ -12,6 +12,7 @@ import {
   Star,
   Toilet,
   ToyBrick,
+  WifiOff,
 } from "lucide-react";
 import { selectPlaces } from "@/lib/select";
 import { formatDistance, haversine } from "@/lib/utils";
@@ -37,6 +38,7 @@ import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
 import { MapControls } from "./map/MapControls";
 import { MapLegende } from "./map/MapLegende";
+import { Hinweis } from "./ui/Hinweis";
 import Link from "next/link";
 import { PlaceCard } from "./place/PlaceCard";
 import { PlacesLoading } from "./place/PlacesLoading";
@@ -51,7 +53,7 @@ const LISTE_SCHRITT = 10;
 
 const Map = dynamic(() => import("./map/Map"), {
   ssr: false,
-  loading: () => <div className="size-full animate-pulse bg-[#eef1f2]" />,
+  loading: () => <div className="size-full animate-pulse bg-info-soft" />,
 });
 
 /** Ein Knopf, zwei Plätze: oben in der Karte, unten in der Liste. */
@@ -336,10 +338,10 @@ export function HomeView() {
         </p>
       )}
       {online && !refreshing && places.error && places.places.length > 0 && (
-        <p className="mx-4 mt-2 rounded-2xl bg-accent-soft px-4 py-2.5 text-xs leading-relaxed text-accent-ink">
+        <Hinweis className="mx-4 mt-2">
           Gerade keine frischen Daten. Du siehst den Stand von deinem letzten
           Besuch.
-        </p>
+        </Hinweis>
       )}
 
       {/* In der Kartenansicht bleibt der Knopf oben – dort ist die Karte
@@ -351,11 +353,11 @@ export function HomeView() {
       )}
 
       {!online && (
-        <p className="mx-4 mt-3 rounded-2xl bg-accent-soft px-4 py-3 text-sm leading-relaxed text-accent-ink">
+        <Hinweis Icon={WifiOff} className="mx-4 mt-3">
           <span className="font-semibold">Du bist offline.</span> Wir zeigen die
           zuletzt geladenen Orte. Schatten und Sonnenstand stimmen weiterhin,
           neue Meldungen anderer Eltern fehlen.
-        </p>
+        </Hinweis>
       )}
 
       <main className="relative flex flex-1 flex-col">
@@ -545,11 +547,11 @@ export function HomeView() {
 
                         {/* Einmal für die ganze Liste statt auf jeder Zeile. */}
                         {(vieleUnsicher || places.treeDataQuality === "low") && (
-                          <p className="rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
+                          <Hinweis>
                             Bei den meisten Plätzen hier sind kaum Bäume in
                             OpenStreetMap erfasst. Vor Ort kann es also
                             schattiger sein, als wir zeigen – umgekehrt kaum.
-                          </p>
+                          </Hinweis>
                         )}
                       </>
                     )}

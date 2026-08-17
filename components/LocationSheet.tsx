@@ -1,6 +1,7 @@
 "use client";
 
 import { apiUrl } from "@/lib/appMode";
+import { Hinweis } from "./ui/Hinweis";
 
 import { useState } from "react";
 import { Crosshair, Search } from "lucide-react";
@@ -92,10 +93,10 @@ export function LocationSheet({
       </button>
 
       {geoStatus === "denied" && (
-        <p className="mt-2 rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-          Der Standort ist im Browser blockiert. Erlaube ihn über das Schloss-Symbol
-          in der Adressleiste oder such einfach unten deinen Ort.
-        </p>
+        <Hinweis className="mt-2">
+          Der Standort ist im Browser blockiert. Erlaube ihn über das
+          Schloss-Symbol in der Adressleiste oder such einfach unten deinen Ort.
+        </Hinweis>
       )}
 
       {manual && (
