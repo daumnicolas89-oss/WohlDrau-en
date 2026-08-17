@@ -39,7 +39,9 @@ function SegmentedControl<T extends string | number>({
               aria-pressed={active}
               onClick={() => onChange(choice.value)}
               className={`min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold transition ${
-                active ? "bg-card text-dark shadow-card" : "text-muted active:bg-card/60"
+                active
+                  ? "bg-card text-dark shadow-card ring-1 ring-primary-dark/45"
+                  : "text-muted active:bg-card/60"
               }`}
             >
               {choice.label}
@@ -75,6 +77,7 @@ function ToggleRow({
             <span
               className={`ml-2 text-xs font-normal ${scarce ? "text-warning-ink" : "text-muted"}`}
             >
+              {scarce ? "nur " : ""}
               {match.hits} von {match.total} erfasst
             </span>
           )}
@@ -90,7 +93,7 @@ function ToggleRow({
       <span
         aria-hidden
         className={`relative h-7 w-12 shrink-0 rounded-full transition peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 ${
-          checked ? "bg-primary" : "bg-[#d4dade]"
+          checked ? "bg-primary" : "bg-switch-off"
         }`}
       >
         <span

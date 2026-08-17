@@ -36,7 +36,9 @@ export function MapControls({
                 filters.set("timeOffsetMin", choice.value);
               }}
               className={`min-h-11 flex-1 rounded-xl text-sm font-semibold transition ${
-                active ? "bg-card text-dark shadow-card" : "text-muted active:bg-card/60"
+                active
+                  ? "bg-card text-dark shadow-card ring-1 ring-primary-dark/45"
+                  : "text-muted active:bg-card/60"
               }`}
             >
               {choice.label}

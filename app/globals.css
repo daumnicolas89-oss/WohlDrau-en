@@ -28,6 +28,10 @@
      3,10:1 – unter der Lesbarkeitsgrenze von 4,5:1, ausgerechnet bei
      Sonne draußen. Diese Tinte hält in allen fünf Wetterlagen 5,1:1. */
   --color-sky-muted: #3d4a52;
+  /* Ausgeschaltete Schalterbahn. Das frühere #d4dade lag bei 1,41:1 gegen
+     die weiße Karte – man sah draußen weder den Schalter noch seinen
+     Knopf. Dieser Ton hält 3,20:1, die Grenze für Bedienelemente ist 3:1. */
+  --color-switch-off: #84929a;
   --color-line: #e6eae9;
 
   /* Gedrückter Primärknopf und deaktivierter Knopf. Vorher in vier Dateien

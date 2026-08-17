@@ -662,7 +662,7 @@ export function HomeView() {
           <SlidersHorizontal size={20} aria-hidden />
           Filter
           {filterCount > 0 && (
-            <span className="rounded-full bg-white/25 px-2 py-0.5 text-xs">
+            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-primary-dark">
               {filterCount}
             </span>
           )}

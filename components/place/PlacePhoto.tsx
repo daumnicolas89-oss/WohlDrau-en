@@ -41,7 +41,10 @@ export function PlacePhoto({
       ) : (
         <AerialThumb lat={lat} lng={lng} />
       )}
-      <span className="pointer-events-none absolute right-2 bottom-1.5 rounded bg-dark/40 px-1.5 py-0.5 text-[10px] font-medium text-white/90">
+      <span /* 40 % Deckung reichten über hellen Flächen (Sand, Beton, Schnee)
+           nicht: weißer Text lag dort bei 2,73:1. Mit 65 % sind es 5,00:1,
+           auch im ungünstigsten Fall. */
+        className="pointer-events-none absolute right-2 bottom-1.5 rounded-md bg-dark/65 px-1.5 py-0.5 text-[10px] font-medium text-white">
         {showPhoto ? "Foto · OpenStreetMap" : "Luftbild · Esri"}
       </span>
     </div>

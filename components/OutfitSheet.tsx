@@ -87,7 +87,9 @@ function Segmented<T extends string>({
             onClick={() => onChange(o.key)}
             aria-pressed={active}
             className={`flex min-h-[44px] flex-col items-center justify-center rounded-xl px-1 py-2 transition ${
-              active ? "bg-card shadow-card" : "hover:bg-card/50"
+              active
+                ? "bg-card shadow-card ring-1 ring-primary-dark/45"
+                : "hover:bg-card/50"
             }`}
           >
             {render ? (

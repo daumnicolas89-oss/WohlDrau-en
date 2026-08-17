@@ -31,7 +31,7 @@ export function Sheet({
           {...(description ? {} : { "aria-describedby": undefined })}
           className="fixed inset-x-0 bottom-0 z-[1000] mx-auto flex max-h-[88dvh] max-w-lg flex-col rounded-t-sheet bg-card shadow-float outline-none"
         >
-          <div className="mx-auto mt-3 h-1.5 w-10 shrink-0 rounded-full bg-[#d4dade]" />
+          <div className="mx-auto mt-3 h-1.5 w-10 shrink-0 rounded-full bg-dark/25" />
           <div className="px-5 pt-3 pb-3">
             <Drawer.Title className="font-display text-lg font-semibold text-dark">
               {title}

@@ -249,10 +249,13 @@ export function WeatherHeader({
             <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
             <div className="flex shrink-0 items-baseline gap-1">
               <dt className="text-muted">Wind</dt>
+              {/* Dass der Wind bei Kälte zusätzlich zählt, stand vorher nur in
+                  der Farbe – für Rot-Grün-Blinde und in der Sonne verloren. */}
               <dd
                 className={`font-semibold ${regime === "cold" ? "text-accent-ink" : "text-dark"}`}
               >
                 {Math.round(weather.windSpeed)} km/h
+                {regime === "cold" && <span className="font-normal"> (kalt)</span>}
               </dd>
             </div>
           </dl>
