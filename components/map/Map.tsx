@@ -58,11 +58,13 @@ export default function Map({
       places.slice(0, MAX_MARKERS).map((place, index) => ({
         place,
         bewertung: scoreWording(place.pleasantScore),
-        icon: placeMarkerIcon(
-          TONE_COLORS[scoreWording(place.pleasantScore).tone],
-          place.pleasantScore,
-          index === 0,
-        ),
+        icon: place.preliminary
+          ? placeMarkerIcon("#8a979e", "…" as unknown as number, false)
+          : placeMarkerIcon(
+              TONE_COLORS[scoreWording(place.pleasantScore).tone],
+              place.pleasantScore,
+              index === 0,
+            ),
       })),
     [places],
   );

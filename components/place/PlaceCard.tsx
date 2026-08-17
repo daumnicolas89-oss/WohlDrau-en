@@ -70,6 +70,9 @@ export function PlaceCard({
   const chips = factChips(place);
   const beste = rank === 0;
   const spaeter = zeitLabel !== undefined && zeitLabel !== "gerade";
+  // Schnellstart: Der Ort ist echt, seine Bewertung noch nicht. Dann zeigt
+  // die Zeile Name, Art und Entfernung – und sagt ehrlich, was noch rechnet.
+  const vorlaeufig = place.preliminary === true;
   const wenigBaumdaten =
     place.shadeInputs.confidence === "low" && place.shadeInputs.inGreen;
   const eingeschraenkt = place.tags.restrictedAccess === true;
@@ -78,6 +81,37 @@ export function PlaceCard({
   // ruhige, scanbare Liste, das bricht den „Einheitsbrei" ohne mehr Farbe.
   if (!beste) {
     const distance = haversine(origin.lat, origin.lng, place.lat, place.lng);
+    if (vorlaeufig) {
+      return (
+        <Link
+          href={href}
+          className="flex items-center gap-3.5 rounded-card bg-card p-4 shadow-card transition duration-200 active:scale-[0.98]"
+        >
+          <span
+            aria-hidden
+            className="flex size-[46px] shrink-0 items-center justify-center rounded-full border-2 border-line font-display text-lg text-muted"
+          >
+            …
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-display text-[15px] leading-tight font-semibold text-dark">
+              <span className="[display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
+                {place.name}
+              </span>
+            </h3>
+            <p className="mt-0.5 flex items-center gap-1.5 truncate text-sm text-muted">
+              <PlaceKindTag kind={place.kind} iconSize={14} className="font-medium" />
+              <span aria-hidden className="text-dark/30">·</span>
+              {formatDistance(distance)}
+            </p>
+            <p className="mt-0.5 truncate text-xs text-muted italic">
+              Schatten und Bewertung werden berechnet …
+            </p>
+          </div>
+          <ChevronRight size={20} aria-hidden className="shrink-0 text-muted" />
+        </Link>
+      );
+    }
     return (
       <Link
         href={href}

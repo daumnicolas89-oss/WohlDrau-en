@@ -129,7 +129,11 @@ export function PlaceDetail({
     }).catch(() => undefined);
   }
 
-  const osmPlace = places.places.find((p) => p.id === placeId) ?? null;
+  // Vorläufige Schnellstart-Orte (ohne Bäume/Gebäude) reichen der
+  // Detailseite nicht – sie würde falschen Schatten behaupten. Sie wartet
+  // auf die volle Antwort; solange gilt die Seite als ladend.
+  const osmPlace =
+    places.places.find((p) => p.id === placeId && !p.preliminary) ?? null;
 
   const place = useMemo(() => {
     if (!osmPlace) return null;
@@ -183,7 +187,8 @@ export function PlaceDetail({
   // Nur solange es wirklich nichts zu zeigen gibt. Vorher blieb `loading`
   // auch beim stillen Nachladen im Hintergrund wahr – dann rendere das
   // Skelett ÜBER der längst fertigen Detailseite, zwei Seiten übereinander.
-  const loading = !place && (places.loading || weatherBlocksLoading);
+  const loading =
+    !place && (places.loading || places.preliminary || weatherBlocksLoading);
   // Genauso beim Fehler: Steht der Ort schon da, soll ein misslungener
   // Hintergrund-Abruf ihn nicht durch einen Fehlerkasten verdrängen.
   const error = place ? null : places.error;

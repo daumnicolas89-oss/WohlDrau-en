@@ -451,7 +451,7 @@ export function HomeView() {
               radius={radius}
               style={filters.mapStyle}
             />
-            {visible.length > 0 && <MapLegende />}
+            {visible.length > 0 && !places.preliminary && <MapLegende />}
             <button
               type="button"
               onClick={() =>
@@ -555,7 +555,7 @@ export function HomeView() {
                       // Spitzenreiter der GESAMT-Sortierung ist. Ist der ein
                       // gemerkter Platz, führt er oben die „Meine Plätze"-Sektion
                       // an – dann trägt hier niemand fälschlich das Banner.
-                      rank={place.id === visible[0]?.id ? 0 : index + 1}
+                      rank={places.preliminary ? index + 1 : place.id === visible[0]?.id ? 0 : index + 1}
                       now={now.getTime()}
                       areaTreeHint={vieleUnsicher}
                       zeitLabel={zeitLabel}
@@ -591,6 +591,12 @@ export function HomeView() {
                         <ChevronRight size={16} aria-hidden className="shrink-0 text-muted" />
                       </Link>
                     )}
+                        {places.preliminary && (
+                          <Hinweis>
+                            Die Plätze sind da – Schatten und Bewertung rechnen
+                            noch. Die Reihenfolge ist solange die Entfernung.
+                          </Hinweis>
+                        )}
                         <div className="flex items-center justify-between gap-2 pt-1">
                           <p className="text-sm text-muted">
                             {uebrige.length - 1 === 1
@@ -615,7 +621,7 @@ export function HomeView() {
                         </div>
 
                         {/* Einmal für die ganze Liste statt auf jeder Zeile. */}
-                        {(vieleUnsicher || places.treeDataQuality === "low") && (
+                        {!places.preliminary && (vieleUnsicher || places.treeDataQuality === "low") && (
                           <Hinweis>
                             Bei den meisten Plätzen hier sind kaum Bäume in
                             OpenStreetMap erfasst. Vor Ort kann es also

@@ -97,6 +97,30 @@ out skel qt;
 out tags geom;`;
 }
 
+/**
+ * Schnellstart: nur die Orte selbst plus Toiletten/Unterstände/Wasser.
+ * KEINE Wälder (deren Umrisse sind das Teure – Rosengarten: 26 s), keine
+ * Bäume, keine Gebäude. Damit antwortet Overpass auch kalt in Sekunden,
+ * und die App kann sofort zeigen, WAS es gibt und WIE WEIT es ist.
+ */
+function buildQuickQuery(bbox: [number, number, number, number]): string {
+  const b = bbox.map((n) => n.toFixed(5)).join(",");
+  return `[out:json][timeout:10];
+(
+  nwr["leisure"="playground"](${b});
+  nwr["leisure"="park"](${b});
+  nwr["leisure"="garden"]["access"!="private"](${b});
+);
+out tags center bb;
+(
+  node["amenity"="toilets"](${b});
+  nwr["amenity"="shelter"](${b});
+  node["amenity"="drinking_water"](${b});
+  node["amenity"="water_point"](${b});
+);
+out tags center;`;
+}
+
 function buildUrbanQuery(bbox: [number, number, number, number]): string {
   const b = bbox.map((n) => n.toFixed(5)).join(",");
   // Der convert-Block liefert echte Gebäudehöhen (height/building:levels) als
@@ -462,13 +486,17 @@ export async function fetchPlaces(
   lat: number,
   lng: number,
   radiusM: number,
+  /** Schnellstart: siehe buildQuickQuery – vorläufige Orte ohne Schatten. */
+  fast = false,
 ): Promise<FetchPlacesResult> {
   // Beide Hälften parallel: es zählt die langsamere, nicht die Summe.
   const bbox = bboxAround(lat, lng, radiusM);
-  const [greenElements, urbanElements] = await Promise.all([
-    runOverpass(buildGreenQuery(bbox)),
-    runOverpass(buildUrbanQuery(bbox)),
-  ]);
+  const [greenElements, urbanElements] = fast
+    ? [await runOverpass(buildQuickQuery(bbox)), []]
+    : await Promise.all([
+        runOverpass(buildGreenQuery(bbox)),
+        runOverpass(buildUrbanQuery(bbox)),
+      ]);
   const elements = [...greenElements, ...urbanElements];
 
   const rawPlaces: OverpassElement[] = [];
@@ -863,7 +891,13 @@ export async function fetchPlaces(
 
   // Gelände-Horizont für Bergschatten (in Tälern verschwindet die Sonne früh).
   // Fehler-tolerant: klappt es nicht, rechnen die Orte wie bisher ohne Gelände.
-  await attachHorizons(deduped);
+  if (!fast) await attachHorizons(deduped);
+
+  if (fast) {
+    // Ehrlich markieren: Diese Orte kennen weder Bäume noch Gebäude – die
+    // App darf Name und Entfernung zeigen, aber keinen Schatten behaupten.
+    for (const platz of deduped) platz.preliminary = true;
+  }
 
   return { places: deduped, toilets: publicToilets, treeDataQuality };
 }

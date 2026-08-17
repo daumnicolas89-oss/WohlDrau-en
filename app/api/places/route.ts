@@ -69,7 +69,11 @@ export async function GET(request: Request) {
     );
   }
 
-  const key = cacheKey(lat, lng, radius);
+  // Schnellstart-Variante: nur Orte + Ausstattung, ohne Wälder/Bäume/Gebäude.
+  // Eigener Cache-Schlüssel – die vorläufige Antwort darf NIE als volle
+  // durchgehen (und umgekehrt ersetzt die volle sie einfach im Client).
+  const fast = params.get("fast") === "1";
+  const key = (fast ? "f:" : "") + cacheKey(lat, lng, radius);
 
   const hot = memory.get(key);
   if (hot && Date.now() - hot.at < FRESH_MS) return respond(hot.value, "memory");
@@ -85,7 +89,7 @@ export async function GET(request: Request) {
     // Parallele Anfragen aus derselben Gegend teilen sich einen Overpass-Call.
     let pending = inFlight.get(key);
     if (!pending) {
-      pending = fetchPlaces(lat, lng, radius);
+      pending = fetchPlaces(lat, lng, radius, fast);
       inFlight.set(key, pending);
       // .finally() erzeugt eine NEUE Promise-Kette – ohne .catch() würde ein
       // Overpass-Fehler hier als unhandled rejection den Prozess treffen,

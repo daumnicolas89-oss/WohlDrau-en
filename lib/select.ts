@@ -66,16 +66,29 @@ export function selectPlaces({
     );
   }
 
+  // Schnellstart-Liste: Schatten ist noch nicht berechnet – ein
+  // Schatten-Filter würde auf Zufallswerten filtern, und die Sortierung
+  // nach Bewertung wäre erfunden. Entfernung ist das Ehrlichste, was wir
+  // in diesem Moment wissen.
+  const vorlaeufig = places.length > 0 && places.every((p) => p.preliminary);
+
   const visible = scored.filter((place) => {
     if (!filters.types.includes(place.type)) return false;
-    if (place.shade.index < SHADE_THRESHOLD[filters.shade]) return false;
-    if (
-      filters.hideReportedProblems &&
-      place.lastStatuses.some((s) => PROBLEM_TYPES.has(s.type))
-    )
-      return false;
+    if (!vorlaeufig) {
+      if (place.shade.index < SHADE_THRESHOLD[filters.shade]) return false;
+      if (
+        filters.hideReportedProblems &&
+        place.lastStatuses.some((s) => PROBLEM_TYPES.has(s.type))
+      )
+        return false;
+    }
     return true;
   });
+
+  if (vorlaeufig) {
+    visible.sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0));
+    return { visible, filteredOut: scored.length - visible.length };
+  }
 
   // Weiche Prioritäten: gewünschte Ausstattung sortiert Orte nach oben, statt
   // sie zu verstecken, so führt dünne OSM-Datenlage nicht zur leeren Liste.

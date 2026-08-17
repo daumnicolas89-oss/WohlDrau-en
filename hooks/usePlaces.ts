@@ -45,6 +45,8 @@ export interface UsePlacesResult {
   loading: boolean;
   error: string | null;
   reload: () => void;
+  /** Schnellstart: Liste ist vorläufig – ohne Schatten und Bewertung. */
+  preliminary: boolean;
 }
 
 /**
@@ -62,6 +64,12 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
   const [places, setPlaces] = useState<OsmPlace[]>([]);
   const [toilets, setToilets] = useState<Toilet[]>([]);
   const [treeDataQuality, setTreeDataQuality] = useState<ShadeConfidence>("medium");
+  // Schnellstart aktiv: Die aktuelle Liste ist vorläufig (ohne Schatten).
+  const [preliminary, setPreliminary] = useState(false);
+  const placesRef = useRef(places);
+  useEffect(() => {
+    placesRef.current = places;
+  }, [places]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
@@ -108,6 +116,40 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
       abgelaufen = true;
     }, FETCH_TIMEOUT_MS - 50);
 
+    /*
+     * Schnellstart: parallel zur vollen Abfrage eine leichte anstoßen (nur
+     * Orte + Ausstattung, ohne Wälder/Bäume/Gebäude). In waldreichen Gegenden
+     * braucht die volle kalt bis ~60 s – niemand wartet so lange vor einer
+     * leeren Seite. Die leichte Antwort zeigt WAS es gibt und WIE WEIT es
+     * ist; Schatten und Bewertung liefert die volle nach.
+     *
+     * Nur wenn noch nichts angezeigt wird: Ein Wiederkehrer hat schon die
+     * gespeicherte VOLLE Liste – die darf keine vorläufige verdrängen.
+     */
+    let vollDa = false;
+    const fastController = new AbortController();
+    const fastAbbruch = setTimeout(() => fastController.abort(), 20_000);
+    async function loadFast() {
+      if (placesRef.current.length > 0) return;
+      try {
+        const res = await fetch(
+          apiUrl(
+            `/api/places?v=${PLACES_SCHEMA_VERSION}&fast=1&lat=${lat.toFixed(2)}&lng=${lng.toFixed(2)}&radius=${radius}`,
+          ),
+          { signal: fastController.signal },
+        );
+        if (!res.ok || vollDa) return;
+        const data = (await res.json()) as PlacesResponse;
+        if (vollDa || placesRef.current.length > 0) return;
+        setPlaces(data.places);
+        setToilets(data.toilets ?? []);
+        setPreliminary(true);
+        setLoading(false);
+      } catch {
+        // Schnellstart ist ein Bonus – scheitert er, bleibt alles wie bisher.
+      }
+    }
+
     async function load() {
       setLoading(true);
       setError(null);
@@ -130,8 +172,11 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
           throw new Error(body.error ?? "Orte konnten nicht geladen werden");
         }
         const data = (await res.json()) as PlacesResponse;
+        vollDa = true;
+        fastController.abort();
         setPlaces(data.places);
         setToilets(data.toilets ?? []);
+        setPreliminary(false);
         setTreeDataQuality(data.treeDataQuality);
         // Für den Sofort-Start beim nächsten Öffnen aufheben.
         saveLastVisit<CachedPlaces>(LAST_PLACES_KEY, {
@@ -159,14 +204,17 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
     }
 
     load();
+    loadFast();
     return () => {
       clearTimeout(abbruch);
       clearTimeout(abgelaufenPruefen);
+      clearTimeout(fastAbbruch);
       controller.abort();
+      fastController.abort();
     };
   }, [lat, lng, radius, nonce]);
 
   const reload = useCallback(() => setNonce((n) => n + 1), []);
 
-  return { places, toilets, treeDataQuality, loading, error, reload };
+  return { places, toilets, treeDataQuality, loading, error, reload, preliminary };
 }

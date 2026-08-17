@@ -72,6 +72,12 @@ export interface OsmPlace {
   toiletDistance: number | null;
   /** Echtes Foto aus OSM (Tag `image` oder `wikimedia_commons`), falls vorhanden. */
   imageUrl?: string;
+  /**
+   * Schnellstart-Antwort: Name, Ort und Ausstattung stimmen, aber Bäume,
+   * Gebäude und Gelände fehlen noch – Schatten und Bewertung sind hier
+   * NICHT belastbar und dürfen nicht angezeigt werden.
+   */
+  preliminary?: boolean;
 }
 
 /** Eine öffentliche Toilette aus OpenStreetMap (amenity=toilets). */
