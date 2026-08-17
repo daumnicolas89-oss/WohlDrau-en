@@ -23,6 +23,11 @@
   --color-card: #ffffff;
   --color-body: #1a2529;
   --color-muted: #5c6b73;
+  /* Nebentext auf dem Himmel-Verlauf. Dort tönt der Radial oben rechts den
+     Untergrund ein, und --color-muted fällt je nach Wetter auf bis zu
+     3,10:1 – unter der Lesbarkeitsgrenze von 4,5:1, ausgerechnet bei
+     Sonne draußen. Diese Tinte hält in allen fünf Wetterlagen 5,1:1. */
+  --color-sky-muted: #3d4a52;
   --color-line: #e6eae9;
 
   /* Gedrückter Primärknopf und deaktivierter Knopf. Vorher in vier Dateien

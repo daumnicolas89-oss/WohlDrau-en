@@ -275,9 +275,11 @@ export function PlaceDetail({
               <h1 className="font-display text-2xl leading-tight font-bold text-balance text-dark">
               {place.name}
             </h1>
-            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm text-muted">
+            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-sm text-sky-muted">
               {distanceSentence(place.distance ?? 0)}
-              <span aria-hidden className="text-line">
+              {/* Der Trenner war `text-line` – ein Rahmen-Token als Schrift,
+                  1,04:1 auf dem Verlauf, also schlicht unsichtbar. */}
+              <span aria-hidden className="text-sky-muted/50">
                 ·
               </span>
               <PlaceKindTag kind={place.kind} className="font-medium" />
@@ -294,7 +296,7 @@ export function PlaceDetail({
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-1">
-                  <p className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+                  <p className="text-[11px] font-semibold tracking-wide text-sky-muted uppercase">
                     Angenehm jetzt
                   </p>
                   <InfoButton
@@ -313,7 +315,7 @@ export function PlaceDetail({
                 >
                   {bewertung.label}
                 </p>
-                <p className="mt-0.5 text-sm text-muted">
+                <p className="mt-0.5 text-sm text-sky-muted">
                   {place.pleasantScore} von 100
                 </p>
               </div>

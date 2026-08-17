@@ -140,7 +140,7 @@ export function WeatherHeader({
           type="button"
           onClick={onOpenLocation}
           aria-label="Standort ändern oder einen Ort suchen"
-          className="mt-1.5 flex max-w-full items-center gap-1.5 text-[15px] font-medium text-muted transition active:opacity-70"
+          className="mt-1.5 flex max-w-full items-center gap-1.5 text-[15px] font-medium text-sky-muted transition active:opacity-70"
         >
           <MapPin
             size={14}
@@ -148,7 +148,7 @@ export function WeatherHeader({
             className={`shrink-0 text-primary-dark ${geoStatus === "locating" ? "animate-pulse" : ""}`}
           />
           <span className="truncate">{locationLabel}</span>
-          <ChevronDown size={16} aria-hidden className="shrink-0 text-muted" />
+          <ChevronDown size={16} aria-hidden className="shrink-0 text-sky-muted" />
         </button>
       </div>
 
@@ -157,7 +157,7 @@ export function WeatherHeader({
           <span className="font-display text-xl font-bold tabular-nums">
             {Math.round(values.temperature)}°
           </span>
-          <span className="truncate text-muted">
+          <span className="truncate text-sky-muted">
             {weatherAdvice(
               values.apparentTemperature,
               values.uvIndex,
@@ -182,7 +182,7 @@ export function WeatherHeader({
               <span className="font-display text-xl leading-none font-semibold text-dark/70">
                 °C
               </span>
-              <span className="pb-0.5 pl-1 text-[13px] leading-none text-muted">
+              <span className="pb-0.5 pl-1 text-[13px] leading-none text-sky-muted">
                 gefühlt {Math.round(values.apparentTemperature)}°
               </span>
             </div>
@@ -260,12 +260,12 @@ export function WeatherHeader({
           {/* Aufziehender Regen ist dringend und bleibt eigenständig. Beste
               Zeit und Sonnenuntergang sind Beiwerk und teilen sich eine Zeile. */}
           {regenRadar && (
-            <p className="mt-2 text-[13px] leading-snug font-semibold text-accent-ink">
+            <p className="mt-2 inline-flex items-start gap-1.5 rounded-2xl border border-white/80 bg-white/85 px-3 py-2 text-[13px] leading-snug font-semibold text-accent-ink backdrop-blur">
               {regenRadar}
             </p>
           )}
           {(besteZeit || tageslicht) && (
-            <p className="mt-1.5 text-[13px] leading-snug text-muted">
+            <p className="mt-1.5 text-[13px] leading-snug text-sky-muted">
               {besteZeit && <span className="font-medium text-dark">{besteZeit}</span>}
               {besteZeit && tageslicht && " · "}
               {tageslicht}

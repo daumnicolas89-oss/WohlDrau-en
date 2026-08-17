@@ -180,7 +180,7 @@ export function PlaceCard({
           {chips.map((chip, index) => (
             <li key={chip.text} className="flex items-center gap-2">
               {index > 0 && (
-                <span aria-hidden className="text-line">
+                <span aria-hidden className="text-dark/30">
                   ·
                 </span>
               )}

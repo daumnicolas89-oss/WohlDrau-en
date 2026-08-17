@@ -19,15 +19,21 @@ export function skyMood(
 }
 
 /** Passender Himmel-Verlauf für den Kopf, immer hell genug für dunkle Schrift. */
+/**
+ * Der Kopf trägt das Wetter – aber nur oben rechts, wo die Figur sitzt.
+ * Die Tönung einmal über die ganze Fläche zu legen war ein Fehler: Der
+ * Nebentext links fiel dadurch auf 2,99:1 (Regen), weit unter die Grenze
+ * von 4,5:1. Die Grundfläche bleibt deshalb hell, gefärbt wird im Radial.
+ */
 export const SKY_GRADIENT: Record<SkyMood, string> = {
   sunny:
     "radial-gradient(110% 78% at 86% 6%, rgba(249,197,82,0.52), rgba(249,197,82,0) 58%), linear-gradient(176deg, #fde7c6 0%, #f4ecdd 40%, #eaf1ec 72%, var(--color-background) 100%)",
   dusk:
     "radial-gradient(110% 82% at 86% 12%, rgba(240,160,86,0.42), rgba(240,160,86,0) 60%), linear-gradient(176deg, #fbe2c2 0%, #f3e8d9 46%, #ecefe9 76%, var(--color-background) 100%)",
   cloudy:
-    "radial-gradient(105% 75% at 86% 6%, rgba(150,166,168,0.38), rgba(150,166,168,0) 58%), linear-gradient(176deg, #dfe5e2 0%, #e9edea 50%, var(--color-background) 100%)",
+    "radial-gradient(105% 75% at 86% 6%, rgba(150,166,168,0.38), rgba(150,166,168,0) 58%), linear-gradient(176deg, #e8ece8 0%, #edf0ec 52%, var(--color-background) 100%)",
   rainy:
-    "radial-gradient(105% 75% at 86% 6%, rgba(122,150,164,0.40), rgba(122,150,164,0) 58%), linear-gradient(176deg, #d3dfe4 0%, #e2eaeb 50%, var(--color-background) 100%)",
+    "radial-gradient(105% 75% at 86% 6%, rgba(122,150,164,0.40), rgba(122,150,164,0) 58%), linear-gradient(176deg, #dbe4e7 0%, #e6ecec 52%, var(--color-background) 100%)",
   night:
     "radial-gradient(110% 78% at 86% 6%, rgba(120,150,190,0.40), rgba(120,150,190,0) 56%), linear-gradient(176deg, #dce2eb 0%, #e7ebee 55%, var(--color-background) 100%)",
 };
