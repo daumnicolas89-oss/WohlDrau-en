@@ -163,8 +163,13 @@ export function PlaceDetail({
     await report(placeId, type, message);
   }
 
-  const loading = places.loading || weatherBlocksLoading;
-  const error = places.error;
+  // Nur solange es wirklich nichts zu zeigen gibt. Vorher blieb `loading`
+  // auch beim stillen Nachladen im Hintergrund wahr – dann rendere das
+  // Skelett ÜBER der längst fertigen Detailseite, zwei Seiten übereinander.
+  const loading = !place && (places.loading || weatherBlocksLoading);
+  // Genauso beim Fehler: Steht der Ort schon da, soll ein misslungener
+  // Hintergrund-Abruf ihn nicht durch einen Fehlerkasten verdrängen.
+  const error = place ? null : places.error;
   const bewertung = place ? scoreWording(place.pleasantScore) : null;
   const heroW = weather ? weatherAt(weather, now) : null;
   const heroMood =
