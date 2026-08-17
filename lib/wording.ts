@@ -129,6 +129,16 @@ export function surfaceLabel(raw: string): string {
   return `${einmalig.slice(0, -1).join(", ")} und ${einmalig[einmalig.length - 1]}`;
 }
 
+/**
+ * Ab dieser Wolken-Dämpfung spricht die App nicht mehr von „Schatten", als
+ * schiene die Sonne: Bei bedecktem Himmel ist „Aktuell viel Schatten, 91 %"
+ * rechnerisch wahr, liest sich aber absurd – Eltern meinen mit Schatten den
+ * Schutz vor Sonne, und die gibt es gerade gar nicht.
+ */
+export function bedeckt(shade: { fromClouds: number; state: ShadeState }): boolean {
+  return shade.state !== "no-sun" && shade.fromClouds >= 0.55;
+}
+
 /* ---------------------------------------------------------------- Schatten */
 
 const SCHATTEN_WORTE: Record<ShadeState, Wording> = {
@@ -340,8 +350,13 @@ export interface Driver {
  * dann nicht gebraucht). Dann darf der Satz nicht „viel Schatten“ behaupten,
  * sonst widerspricht er der Schatten-Anzeige darunter.
  */
-function schattenGrund(state: Place["shade"]["state"]): string {
-  switch (state) {
+function schattenGrund(shade: Place["shade"]): string {
+  // Bedeckter Himmel zuerst: „viel Schatten" wäre hier zwar rechnerisch
+  // richtig, klingt aber nach Bäumen – dabei machen die Wolken die Arbeit.
+  if (bedeckt(shade)) {
+    return "Der Himmel ist bedeckt, Sonnenschutz ist gerade kein Thema.";
+  }
+  switch (shade.state) {
     case "no-sun":
       return "Die Sonne ist unter, jetzt zählt nur noch, was der Platz bietet.";
     case "shady":
@@ -401,7 +416,7 @@ export function mainDriver(place: Place): Driver {
   switch (staerkster.key) {
     case "shade":
       return positiv
-        ? { text: schattenGrund(place.shade.state), tone: "good" }
+        ? { text: schattenGrund(place.shade), tone: "good" }
         : { text: "Bei dieser Sonne gibt es hier kaum Schatten.", tone: "bad" };
     case "amenity":
       return positiv

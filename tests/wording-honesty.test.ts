@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { gewichtsSatz, mainDriver, shadeOutlook, surfaceLabel } from "../lib/wording";
+import { bedeckt, gewichtsSatz, mainDriver, shadeOutlook, surfaceLabel } from "../lib/wording";
 import { scorePlace } from "../lib/scoring";
 import { NOON, place, weather } from "./helpers";
 
@@ -118,5 +118,16 @@ describe("mainDriver bei Regenwetter", () => {
       now: NOON.getTime(),
     });
     assert.match(mainDriver(bewertet).text, /Regen/);
+  });
+});
+
+describe("bedeckt", () => {
+  it("nennt Wolken-Schatten nicht Baum-Schatten (Realfall Bürgerpark)", () => {
+    // Komplett bedeckter Himmel: Die App sagte „Aktuell viel Schatten, 91 %" –
+    // rechnerisch wahr, aber Eltern lesen daraus Bäume, nicht Wolken.
+    assert.equal(bedeckt({ fromClouds: 0.9, state: "shady" }), true);
+    assert.equal(bedeckt({ fromClouds: 0.2, state: "shady" }), false);
+    // Nachts hat „bedeckt" keinen eigenen Auftritt – da gilt „Keine Sonne mehr".
+    assert.equal(bedeckt({ fromClouds: 0.9, state: "no-sun" }), false);
   });
 });

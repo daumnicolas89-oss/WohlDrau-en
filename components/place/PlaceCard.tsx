@@ -2,7 +2,7 @@ import Link from "next/link";
 import { placeHref } from "@/lib/appMode";
 import { AlertTriangle, ChevronRight, Star, Sun } from "lucide-react";
 import { formatDistance, haversine } from "@/lib/utils";
-import { factChips, mainDriver, scoreWording, shadeWording, statusSentence } from "@/lib/wording";
+import { factChips, mainDriver, scoreWording, shadeWording, statusSentence, bedeckt } from "@/lib/wording";
 import type { Place } from "@/types";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { ShadeMeter } from "./ShadeMeter";
@@ -147,7 +147,11 @@ export function PlaceCard({
           <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted">
             <PlaceKindTag kind={place.kind} iconSize={14} className="font-medium" />
             <span aria-hidden className="text-dark/25">·</span>
-            {shadeWording(place.shade.state, place.shade.index, spaeter).label}
+            {bedeckt(place.shade)
+              ? spaeter
+                ? "Dann bedeckt, kaum Sonne"
+                : "Bedeckt, kaum direkte Sonne"
+              : shadeWording(place.shade.state, place.shade.index, spaeter).label}
           </p>
           {wenigBaumdaten && !areaTreeHint && (
             <p className="mt-0.5 text-xs leading-snug text-muted">
@@ -208,6 +212,7 @@ export function PlaceCard({
             shadeIndex={place.shade.index}
             estimateHint
             spaeter={spaeter}
+            bedeckt={bedeckt(place.shade)}
           />
           {wenigBaumdaten && (
             <p className="mt-1.5 text-xs leading-relaxed text-muted">

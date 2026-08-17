@@ -26,6 +26,7 @@ import {
   shadeOutlook,
   shadeReason,
   surfaceLabel,
+  bedeckt,
 } from "@/lib/wording";
 import type { PlaceStatusType } from "@/types";
 import { useFavorites } from "@/store/useFavorites";
@@ -413,6 +414,7 @@ export function PlaceDetail({
                 shadeIndex={place.shade.index}
                 size="lg"
                 reason={shadeReason(place, now)}
+                bedeckt={bedeckt(place.shade)}
               />
               {ausblick && (
                 <p className="mt-2 text-sm font-medium text-primary-dark">{ausblick}</p>
