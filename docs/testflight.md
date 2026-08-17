@@ -50,13 +50,20 @@ Wenn ihr an einem Platz seid, vergleicht bitte kurz, was die App sagt
 (z. B. „Aktuell viel Schatten, geschätzt 70 %") mit dem, was ihr seht.
 Wenn es nicht passt, ist das der wertvollste Hinweis überhaupt.
 
+Neu in dieser Version, bitte besonders drauf achten:
+– Beim allerersten Öffnen in einer neuen Gegend zeigt die App die
+  Plätze jetzt nach wenigen Sekunden und rechnet Schatten und
+  Bewertung sichtbar nach. Fühlt sich das schnell genug an?
+– Die Bewertungen sind neu austariert: Passt das Wort („Angenehm",
+  „Geht so" …) zu dem, was ihr vor Ort erlebt? Fühlt sich ein Platz
+  mit hoher Zahl wirklich besser an als einer mit niedriger?
+
 Außerdem interessiert mich:
 – Seht ihr auf Anhieb, wohin ihr gehen solltet?
-– Ist die Zahl von 0 bis 100 nachvollziehbar?
+– Ergeben die Texte bei Regen oder bedecktem Himmel Sinn?
 – Fehlt euch etwas, das ihr vor dem Losgehen wissen wollt?
-– Fühlt sich irgendwo etwas langsam oder umständlich an?
 
-Rückmeldung geht direkt in TestFlight: Screenshot machen, dann auf
+Rückmeldung direkt in TestFlight: Screenshot machen, dann auf
 „Feedback senden“. Oder schreibt mir einfach.
 ```
 
