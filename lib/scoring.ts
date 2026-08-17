@@ -151,12 +151,24 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     shade.state === "no-sun" ? 0 : desiredShade(w.apparentTemperature, w.uvIndex);
   const shadeW = 0.15 + (WEIGHTS.shade - 0.15) * shadeRelevance;
   const freed = WEIGHTS.shade - shadeW;
-  const weights = {
+  const weights: { shade: number; amenity: number; status: number; distance: number } = {
     shade: shadeW,
     amenity: WEIGHTS.amenity + freed * 0.6,
     status: WEIGHTS.status,
     distance: WEIGHTS.distance + freed * 0.4,
   };
+
+  // Ohne Meldungen ist der Meldungs-Teil ein fixer 50er-Anker, der mit
+  // 20 % Gewicht JEDEN Wert zur Mitte staucht – deshalb drängte sich in
+  // München alles bei 42–54. Gibt es nichts zu melden, zählt der Teil
+  // nichts, und die drei echten Teile teilen sich sein Gewicht.
+  if (fresh.length === 0) {
+    const f = 1 / (1 - weights.status);
+    weights.shade *= f;
+    weights.amenity *= f;
+    weights.distance *= f;
+    weights.status = 0;
+  }
 
   const breakdown: ScoreBreakdown = {
     shadeScore: shadeScoreOf(shade, w.apparentTemperature, w.uvIndex),

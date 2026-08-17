@@ -160,7 +160,8 @@ describe("Nacht", () => {
     // Gleiche Ausstattung, gleiche Entfernung: nachts darf der Baumbestand
     // keinen Unterschied machen.
     assert.ok(Math.abs(a.pleasantScore - b.pleasantScore) <= 1);
-    // Und das Schatten-Gewicht liegt auf dem Boden von 15 %.
-    assert.ok(a.breakdown.weights.shade <= 0.16);
+    // Und das Schatten-Gewicht liegt auf seinem Boden (15 %, durch die
+    // Meldungs-Renormalisierung ohne Meldungen auf 18,75 % Anteil skaliert).
+    assert.ok(a.breakdown.weights.shade <= 0.19);
   });
 });
