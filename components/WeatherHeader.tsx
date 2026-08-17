@@ -100,7 +100,7 @@ export function WeatherHeader({
           apparentTemperature: values.apparentTemperature,
           uvIndex: values.uvIndex,
           precipitationProbability: values.precipitationProbability,
-          windSpeed: weather.windSpeed,
+          windSpeed: values.windSpeed,
         }
       : null;
   const sunset = origin && dayAt ? sunTimes(origin.lat, origin.lng, at).sunset : null;
@@ -255,7 +255,7 @@ export function WeatherHeader({
               <dd
                 className={`font-semibold ${regime === "cold" ? "text-accent-ink" : "text-dark"}`}
               >
-                {Math.round(weather.windSpeed)} km/h
+                {Math.round(values.windSpeed)} km/h
                 {regime === "cold" && <span className="font-normal"> (kalt)</span>}
               </dd>
             </div>

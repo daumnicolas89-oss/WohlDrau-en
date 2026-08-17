@@ -200,5 +200,7 @@ export interface Weather {
     cloudCover: number[];
     precipitationProbability: number[];
     uvIndex: number[];
+    /** Stundenwind; ältere gecachte Antworten haben ihn noch nicht. */
+    windSpeed?: (number | undefined)[];
   };
 }

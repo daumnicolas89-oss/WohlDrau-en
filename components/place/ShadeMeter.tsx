@@ -74,7 +74,7 @@ export function ShadeMeter({
           <div
             className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-line"
             role="img"
-            aria-label={`Geschätzt ${prozent} Prozent der Fläche liegen im Schatten`}
+            aria-label={`Sonnenschutz gerade: geschätzt ${prozent} Prozent`}
           >
             <div
               className="h-full rounded-full transition-[width] duration-500 ease-out"
@@ -84,7 +84,8 @@ export function ShadeMeter({
 
           {size === "lg" && (
             <p className="mt-1.5 text-xs text-muted">
-              Geschätzt {prozent} % der Fläche liegen gerade im Schatten.
+              Sonnenschutz gerade: geschätzt {prozent} % – aus Bäumen, Gebäuden
+              und Wolken zusammen.
             </p>
           )}
         </>

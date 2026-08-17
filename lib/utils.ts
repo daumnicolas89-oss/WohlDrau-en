@@ -84,9 +84,14 @@ export function formatDistance(meters: number): string {
   return `${(meters / 1000).toFixed(1).replace(".", ",")} km`;
 }
 
-/** Fußweg-Faustregel: 4,5 km/h, plus 15 % Umwegfaktor gegenüber Luftlinie. */
+/**
+ * Fußweg-Faustregel MIT KIND: ~3,5 km/h (58 m/min) plus 15 % Umwegfaktor
+ * gegenüber Luftlinie. Die alten 4,5 km/h waren zügiges Erwachsenen-Tempo –
+ * mit Laufrad, Buggy und Anhalte-Käfer sind die Minuten sonst systematisch
+ * geschönt, und die App verspricht „7 Minuten", die real zwölf sind.
+ */
 export function walkingMinutes(meters: number): number {
-  return Math.max(1, Math.round((meters * 1.15) / 75));
+  return Math.max(1, Math.round((meters * 1.15) / 58));
 }
 
 export function formatTime(date: Date): string {

@@ -253,7 +253,7 @@ export function amenitySentence(place: Place): string {
   if (tags.toilet === true) {
     teile.push(
       toiletDistance !== null && toiletDistance > 25
-        ? `Toilette ${formatDistance(toiletDistance)} entfernt`
+        ? `Toilette ${formatDistance(toiletDistance)} entfernt (Luftlinie)`
         : "Toilette vor Ort",
     );
   }

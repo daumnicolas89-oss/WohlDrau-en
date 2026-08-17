@@ -54,6 +54,7 @@ export function PlaceCard({
 }) {
   // Der Link trägt beides: den Standort des Nutzers (für die Entfernung) und
   // den des Ortes (damit die Detailseite gezielt dort nachladen kann).
+  const spaeter = zeitLabel !== undefined && zeitLabel !== "gerade";
   const href = placeHref(
     place.id,
     `lat=${origin.lat.toFixed(5)}&lng=${origin.lng.toFixed(5)}` +
@@ -61,7 +62,9 @@ export function PlaceCard({
       // Der Wert, den die Liste gerade zeigt: Lädt die Detailseite frischeres
       // Wetter und rechnet spürbar anders, kann sie den Sprung ERKLÄREN,
       // statt wie ein Fehler auszusehen (56 in der Liste, 40 im Kopf).
-      `&ls=${place.pleasantScore}`,
+      // In der Zeitvorschau entfällt er: Die Detailseite rechnet für JETZT,
+      // ein Später-Wert würde die Erklärung („Wetter aktualisiert") erlügen.
+      (spaeter ? "" : `&ls=${place.pleasantScore}`),
   );
 
   const bewertung = scoreWording(place.pleasantScore);
@@ -69,7 +72,6 @@ export function PlaceCard({
   const meldung = statusSentence(place.lastStatuses, now);
   const chips = factChips(place);
   const beste = rank === 0;
-  const spaeter = zeitLabel !== undefined && zeitLabel !== "gerade";
   // Schnellstart: Der Ort ist echt, seine Bewertung noch nicht. Dann zeigt
   // die Zeile Name, Art und Entfernung – und sagt ehrlich, was noch rechnet.
   const vorlaeufig = place.preliminary === true;
@@ -121,7 +123,7 @@ export function PlaceCard({
           score={place.pleasantScore}
           tone={bewertung.tone}
           size={46}
-          label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}`}
+          label={`Angenehm ${zeitLabel ?? "jetzt"}: ${place.pleasantScore} von 100, ${bewertung.label}`}
         />
         <div className="min-w-0 flex-1">
           <h3 className="flex items-center gap-1.5 font-display text-[15px] leading-tight font-semibold text-dark">
@@ -202,7 +204,7 @@ export function PlaceCard({
             score={place.pleasantScore}
             tone={bewertung.tone}
             size={60}
-            label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}`}
+            label={`Angenehm ${zeitLabel ?? "jetzt"}: ${place.pleasantScore} von 100, ${bewertung.label}`}
           />
         </div>
 

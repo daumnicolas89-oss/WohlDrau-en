@@ -52,11 +52,27 @@ function shadeScoreOf(
   const want = desiredShade(apparentTemperature, uvIndex);
   const coldPenalty = clamp((16 - apparentTemperature) / 10);
 
-  if (shade.index < want) return 100 * (1 - clamp((want - shade.index) * 1.4));
+  // Bergschatten ist ortsgebunden wie ein Gebäude: Das Tal hinterm Hügel ist
+  // bei 5 °C wirklich kälter als die besonnte Wiese nebenan. Nur Wolken
+  // bleiben draußen – die treffen alle Orte gleich.
+  const avoidable = clamp(
+    1 -
+      (1 - shade.fromCanopy) *
+        (1 - shade.fromBuildings) *
+        (1 - (shade.fromTerrain ?? 0)),
+  );
 
-  const avoidable = clamp(1 - (1 - shade.fromCanopy) * (1 - shade.fromBuildings));
-  const surplus = Math.max(0, avoidable - want);
-  return 100 * (1 - clamp(surplus * coldPenalty));
+  const roh =
+    shade.index < want
+      ? 100 * (1 - clamp((want - shade.index) * 1.4))
+      : 100 * (1 - clamp(Math.max(0, avoidable - want) * coldPenalty));
+
+  // Dämmerungs-Blende: Unter ~6° Sonnenhöhe blendet real nichts mehr, aber
+  // der Sentinel bei Sonnenuntergang sprang von „zu sonnig" (48) hart auf
+  // 100 – ein 15-Punkte-Sprung in drei Minuten, quer über zwei Wortbänder.
+  // Deshalb gleitet der Malus in der letzten Stunde weich aus.
+  const daemmerung = clamp(shade.sunAltitudeDeg / 6);
+  return 100 - (100 - roh) * daemmerung;
 }
 
 /** Toilette, Zaun und Wickeltisch entscheiden den Ausflug mit Kleinkind. */
@@ -128,7 +144,11 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
   // stark, an milden Tagen kaum. Ist er egal, würde ein festes Schatten-Gewicht
   // alle Orte gleich hoch bewerten, dann sollen Ausstattung und Nähe den
   // Ausschlag geben. Das frei werdende Gewicht wandert dorthin (60 % / 40 %).
-  const shadeRelevance = desiredShade(w.apparentTemperature, w.uvIndex);
+  // Nachts sagt Schatten nichts aus – in einer warmen Nacht würde die
+  // Temperatur sonst Gewicht ZUM (bedeutungslosen) Schatten schieben und
+  // die echten Unterschiede (Ausstattung, Nähe) verdünnen.
+  const shadeRelevance =
+    shade.state === "no-sun" ? 0 : desiredShade(w.apparentTemperature, w.uvIndex);
   const shadeW = 0.15 + (WEIGHTS.shade - 0.15) * shadeRelevance;
   const freed = WEIGHTS.shade - shadeW;
   const weights = {
@@ -156,33 +176,42 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
   // bei Regen als Dach, bei praller Hitze als Schattenplatz zum Durchatmen,
   // bei Kälte als Windschutz für die Pause. Wenn das Wetter egal ist, ist er
   // nur ein normales Ausstattungsmerkmal (steckt schon im amenityScore).
+  // Rampen statt Schaltern: Die alten harten Schwellen (Regen ≥ 50 %,
+  // ≥ 28°, ≤ 4°) ließen den Wert bei 49 → 50 % Regen um zehn Punkte
+  // SPRINGEN – mehr Regen machte den Platz schlagartig besser. Jetzt wächst
+  // der Bonus stetig mit dem Bedarf.
   const hatUnterstand = place.tags.shelter === true;
-  const rainLikely = w.precipitationProbability >= 50;
-  const heiss = w.apparentTemperature >= 28;
-  const kalt = w.apparentTemperature <= 4;
-  const shelterGrund = !hatUnterstand
-    ? null
-    : rainLikely
-      ? "Unterstand für Regenpausen"
-      : heiss
-        ? "Unterstand für eine Pause im Schatten"
-        : kalt
-          ? "Unterstand als Windschutz für die Pause"
-          : null;
-  const shelterBonus = shelterGrund ? 10 : 0;
+  // Flache Rampe (voll erst bei 80 %): Steiler würde der Bonus die
+  // Regen-Dämpfung überholen, und mehr Regen machte den Platz wieder besser.
+  const regenBedarf = clamp((w.precipitationProbability - 40) / 40);
+  const hitzeBedarf = clamp((w.apparentTemperature - 26) / 4);
+  const kaelteBedarf = clamp((6 - w.apparentTemperature) / 4);
+  const bedarf = hatUnterstand
+    ? Math.max(regenBedarf, hitzeBedarf, kaelteBedarf)
+    : 0;
+  const shelterGrund =
+    bedarf < 0.5
+      ? null
+      : regenBedarf >= hitzeBedarf && regenBedarf >= kaelteBedarf
+        ? "Unterstand für Regenpausen"
+        : hitzeBedarf >= kaelteBedarf
+          ? "Unterstand für eine Pause im Schatten"
+          : "Unterstand als Windschutz für die Pause";
+  const shelterBonus = Math.round(10 * bedarf);
 
   // Eingeschränkter Zugang (Schulhof, Kita): bewusst gelistet, aber ein
   // öffentlicher Platz nebenan soll bei Gleichstand immer vorne stehen –
   // meistens kommt man auf den privaten schlicht nicht drauf.
   const accessMalus = place.tags.restrictedAccess === true ? 5 : 0;
 
+  // Bonus und Malus stehen NACH dem Wetterfaktor (siehe pleasantScore):
+  // Vorher dämpfte der Regen den Unterstand-Bonus auf +5 herunter –
+  // ausgerechnet dann, wenn das Dach am wichtigsten ist.
   const base =
     breakdown.shadeScore * weights.shade +
     breakdown.amenityScore * weights.amenity +
     breakdown.statusScore * weights.status +
-    breakdown.distanceScore * weights.distance +
-    shelterBonus -
-    accessMalus;
+    breakdown.distanceScore * weights.distance;
 
   breakdown.shelterBonus = shelterBonus;
   breakdown.accessMalus = accessMalus;
@@ -192,8 +221,11 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
 
   if (shelterGrund) reasons.push(shelterGrund);
 
-  if (shade.state === "shady") reasons.push("Viel Schatten");
-  else if (shade.state === "partial") reasons.push("Teils schattig");
+  // Schatten nur dann als Pluspunkt nennen, wenn er gerade etwas wert ist –
+  // bei 5 °C Wintersonne ist „Viel Schatten" kein Lob, sondern ein Problem.
+  if (shade.state === "shady" && shadeRelevance > 0.25) reasons.push("Viel Schatten");
+  else if (shade.state === "partial" && shadeRelevance > 0.25)
+    reasons.push("Teils schattig");
   else if (shade.state === "no-sun") reasons.push("Keine direkte Sonne");
 
   if (distanceM > 0) reasons.push(`${walkingMinutes(distanceM)} Min zu Fuß`);
@@ -221,7 +253,9 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     ...place,
     distance: distanceM,
     currentShadeScore: Math.round(shade.index * 100),
-    pleasantScore: Math.round(clamp(base * breakdown.weatherFactor, 0, 100)),
+    pleasantScore: Math.round(
+      clamp(base * breakdown.weatherFactor + shelterBonus - accessMalus, 0, 100),
+    ),
     lastStatuses: fresh,
     shade,
     breakdown,

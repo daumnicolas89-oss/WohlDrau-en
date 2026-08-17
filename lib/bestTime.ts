@@ -17,12 +17,20 @@ export interface BestTime {
 }
 
 /** Wohlfühl-Wert einer Stunde für „mit Kind draußen", 0–100. */
-function comfort(apparent: number, uv: number, precipProbability: number): number {
+function comfort(
+  apparent: number,
+  uv: number,
+  precipProbability: number,
+  windSpeed?: number,
+): number {
   let score = 100;
   score -= precipProbability * 0.6; // Regenrisiko drückt am stärksten
   score -= Math.max(0, apparent - 25) * 6; // Hitze
   score -= Math.max(0, 8 - apparent) * 5; // Kälte
   score -= Math.max(0, uv - 5) * 4; // pralle Mittagssonne
+  // Wind wie im Platz-Score: sonst empfiehlt die Zeile eine stürmische
+  // Stunde, die die Plätze selbst gerade abwerten.
+  if (windSpeed !== undefined) score -= Math.max(0, windSpeed - 18) * 0.5;
   return score;
 }
 
@@ -63,6 +71,14 @@ export function bestTimeToday(
     if (tag === null && new Date(epoch).getDate() !== now.getDate()) continue;
     // Zur Stundenmitte prüfen, ob überhaupt noch Tag ist.
     if (!isDaylight(origin.lat, origin.lng, new Date(epoch + 1_800_000))) continue;
+    // Nach 20 Uhr ist für die Zielgruppe Schluss: „Heute am angenehmsten:
+    // 19–21 Uhr" ist im Juni rechnerisch wahr – aber Kleinkinder schlafen
+    // dann. Die Empfehlung endet, wo der Familientag endet.
+    {
+      const stunde =
+        heutigerTag !== null ? Number(time[i].slice(11, 13)) : new Date(epoch).getHours();
+      if (stunde >= 20) continue;
+    }
     hours.push({
       hour:
         heutigerTag !== null
@@ -72,6 +88,7 @@ export function bestTimeToday(
         apparentTemperature[i] ?? weather.apparentTemperature,
         uvIndex[i] ?? weather.uvIndex,
         precipitationProbability[i] ?? weather.precipitationProbability,
+        weather.hourly.windSpeed?.[i],
       ),
     });
   }

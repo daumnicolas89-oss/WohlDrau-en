@@ -86,7 +86,7 @@ export function ShadeTimeline({
       </div>
 
       <p className="mt-2 text-xs leading-relaxed text-muted">
-        Je höher der Balken, desto mehr Fläche liegt zu dieser Stunde im Schatten.
+        Je höher der Balken, desto mehr Schutz vor Sonne zu dieser Stunde.
       </p>
     </div>
   );

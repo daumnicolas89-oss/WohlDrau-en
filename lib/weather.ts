@@ -23,6 +23,7 @@ interface OpenMeteoResponse {
     cloud_cover: number[];
     precipitation_probability: (number | null)[];
     uv_index: (number | null)[];
+    wind_speed_10m?: (number | null)[];
   };
   minutely_15?: {
     time: string[];
@@ -40,7 +41,7 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
   );
   url.searchParams.set(
     "hourly",
-    "temperature_2m,apparent_temperature,cloud_cover,precipitation_probability,uv_index",
+    "temperature_2m,apparent_temperature,cloud_cover,precipitation_probability,uv_index,wind_speed_10m",
   );
   url.searchParams.set("forecast_days", "2");
   // 15-Minuten-Niederschlag (radar-gestützt) für das „Regen zieht auf"-Gefühl.
@@ -86,6 +87,7 @@ export async function fetchWeather(lat: number, lng: number): Promise<Weather> {
         (v) => v ?? 0,
       ),
       uvIndex: slice(data.hourly.uv_index).map((v) => v ?? 0),
+      windSpeed: slice(data.hourly.wind_speed_10m ?? []).map((v) => v ?? undefined),
     },
   };
 }
@@ -149,5 +151,9 @@ export function weatherAt(weather: Weather, date: Date) {
       weather.hourly.precipitationProbability[index] ??
       weather.precipitationProbability,
     uvIndex: weather.hourly.uvIndex[index] ?? weather.uvIndex,
+    // Ältere Cache-Stände haben keinen Stundenwind – dann wie bisher der
+    // Jetzt-Wert. Damit zeigt „+1 Std" nicht länger UV von später neben
+    // Wind von jetzt auf demselben Bildschirm.
+    windSpeed: weather.hourly.windSpeed?.[index] ?? weather.windSpeed,
   };
 }

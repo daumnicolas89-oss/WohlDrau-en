@@ -47,9 +47,12 @@ function clampUnit(value: number) {
 }
 
 export function formatAge(createdAt: string, now = Date.now()): string {
-  const minutes = Math.round((now - new Date(createdAt).getTime()) / 60000);
+  // Abrunden statt runden: Eine 2:30 alte Meldung hieß „vor 3 Std" – direkt
+  // unter der Überschrift „Meldungen der letzten drei Stunden" las sich das
+  // wie abgelaufen, obwohl sie noch galt und zählte.
+  const minutes = Math.floor((now - new Date(createdAt).getTime()) / 60000);
   if (minutes < 1) return "gerade eben";
   if (minutes < 60) return `vor ${minutes} Min`;
-  const hours = Math.round(minutes / 60);
+  const hours = Math.floor(minutes / 60);
   return `vor ${hours} Std`;
 }
