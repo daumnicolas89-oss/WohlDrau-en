@@ -158,7 +158,33 @@ Stunden automatisch gelöscht. Kontakt: kontakt@nicolas-daum.ai
 
 Daten: Orte von OpenStreetMap, Wetter von Open-Meteo. Es gibt kein
 Tracking, keine Werbung und keine Käufe.
+
+Zum Funktionsumfang: PlatzDa ist keine eingepackte Website. Die gesamte
+Oberflaeche liegt im App-Bundle, nicht auf einem Server. Der Kern der App
+ist eine Berechnung, die es so nirgends zu sehen gibt: Fuer jeden Ort
+wird der aktuelle Schattenanteil aus dem Sonnenstand, den in
+OpenStreetMap erfassten Baeumen (getrennt nach Nadel- und Laubwald, im
+Winter entsprechend lichter), den Hoehen der umliegenden Gebaeude und dem
+Gelaendehorizont berechnet und mit dem Wetterbedarf verrechnet. Dazu
+kommen Ortung, Kartenansicht, Offline-Verhalten, gemerkte Plaetze und
+Meldungen anderer Eltern.
 ```
+
+---
+
+## Geprueft fuer die Review
+
+Die App Review sitzt meist in Kalifornien. Am 17.08.2026 mit den
+Koordinaten des Apple Park (37.3349, -122.0090) getestet:
+
+- Orte: 165 gefunden, davon 122 Spielplaetze, 31 Gruenflaechen, 12 Waeldchen
+- Baumdatenlage: hoch (z. B. Serra Park mit 28 erfassten Baeumen,
+  Kronendeckung 0,85)
+- Toiletten: 32 im Umkreis
+- Wetter: vollstaendig, inklusive Stundenvorhersage und richtiger Zeitzone
+
+Die App funktioniert dort also genauso wie in Deutschland. Nur die
+Oberflaeche ist deutsch.
 
 ---
 
