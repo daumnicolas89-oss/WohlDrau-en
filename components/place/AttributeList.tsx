@@ -26,7 +26,7 @@ const EINTRAEGE: Eintrag[] = [
   { key: "fenced", label: "Eingezäunt", Icon: Fence },
   { key: "wheelchair", label: "Barrierefrei / Kinderwagen", Icon: Accessibility },
   { key: "drinking_water", label: "Trinkwasser", Icon: Droplet },
-  { key: "shelter", label: "Überdachter Bereich", Icon: Umbrella },
+  { key: "shelter", label: "Unterstand", Icon: Umbrella },
 ];
 
 /**

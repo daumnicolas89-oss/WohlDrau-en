@@ -139,7 +139,7 @@ export function FilterSheet({
             Zurücksetzen
           </Button>
           <Button onClick={onClose} className="flex-[2]">
-            Orte anzeigen
+            Plätze anzeigen
           </Button>
         </div>
       }
@@ -172,7 +172,7 @@ export function FilterSheet({
             {(
               [
                 { type: "playground", label: "Spielplätze" },
-                { type: "park", label: "Grünflächen" },
+                { type: "park", label: "Parks & Grün" },
               ] as const
             ).map(({ type, label }) => {
               const active = filters.types.includes(type);

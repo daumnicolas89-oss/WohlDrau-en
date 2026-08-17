@@ -39,7 +39,7 @@ PlatzDa bedienen Eltern — die App gehört dort nicht hin.)*
 ```
 Wo ist es mit Kind gerade schön draußen?
 
-PlatzDa zeigt dir Spielplätze, Parks und Wäldchen in deiner Nähe – und
+PlatzDa zeigt dir Spielplätze, Parks und Wäldchen in deiner Nähe und
 rechnet aus, wo es sich jetzt wirklich lohnt. Nicht irgendwann, sondern
 in dieser Stunde.
 
@@ -51,20 +51,20 @@ lichter, weil sie dann kahl sind. Und sie sagt ehrlich dazu, wie
 verlässlich die Schätzung ist.
 
 DAS WETTER, DAS ZÄHLT
-Temperatur, gefühlte Temperatur, UV, Regen und Wind – dazu Warnungen,
+Temperatur, gefühlte Temperatur, UV, Regen und Wind. Dazu Warnungen,
 wenn es wirklich wichtig wird: große Hitze, hohe UV-Strahlung, Glätte,
 Schnee. Und der Regen-Blick nach vorn: „Regen zieht auf: in rund 20
 Minuten geht es los."
 
 WAS ANZIEHEN?
-Ein Tipp öffnet die Anzieh-Liste – abgestimmt auf das Alter deines
+Ein Fingertipp öffnet die Anzieh-Liste, abgestimmt auf das Alter deines
 Kindes (Baby bis Schulkind) und darauf, ob es leicht friert oder
 schwitzt. Mit dem Hinweis, den Kinderärzte geben: Der Nackencheck sagt
 mehr als jede Tabelle.
 
 ALLES, WAS DEN AUSFLUG ENTSCHEIDET
 Toilette in der Nähe, Zaun, Wickeltisch, Wasser zum Planschen,
-Unterstand für Regenpausen – und was andere Eltern gerade gemeldet
+Unterstand für Regenpausen. Und was andere Eltern gerade gemeldet
 haben.
 
 MEINE PLÄTZE
@@ -72,8 +72,9 @@ Merke dir eure Stammplätze. Sie stehen beim nächsten Öffnen oben, mit
 ihrem aktuellen Wert.
 
 OHNE KONTO, OHNE TRACKING
-Kein Login, keine Werbung, keine Nutzungsprofile. Dein Standort dient
-nur der Suche und wird nicht gespeichert.
+Kein Login, keine Werbung, keine Nutzungsprofile. Dein Standort dient nur
+der Suche. Er wird nicht bei uns gespeichert – nur dein Gerät merkt
+sich den letzten Ort.
 
 Orte und Ausstattung stammen von OpenStreetMap, das Wetter von
 Open-Meteo. Der Schatten wird berechnet, nicht gemessen – er ist eine
@@ -160,31 +161,31 @@ Daten: Orte von OpenStreetMap, Wetter von Open-Meteo. Es gibt kein
 Tracking, keine Werbung und keine Käufe.
 
 Zum Funktionsumfang: PlatzDa ist keine eingepackte Website. Die gesamte
-Oberflaeche liegt im App-Bundle, nicht auf einem Server. Der Kern der App
-ist eine Berechnung, die es so nirgends zu sehen gibt: Fuer jeden Ort
+Oberfläche liegt im App-Bundle, nicht auf einem Server. Der Kern der App
+ist eine Berechnung, die es so nirgends zu sehen gibt: Für jeden Ort
 wird der aktuelle Schattenanteil aus dem Sonnenstand, den in
-OpenStreetMap erfassten Baeumen (getrennt nach Nadel- und Laubwald, im
-Winter entsprechend lichter), den Hoehen der umliegenden Gebaeude und dem
-Gelaendehorizont berechnet und mit dem Wetterbedarf verrechnet. Dazu
-kommen Ortung, Kartenansicht, Offline-Verhalten, gemerkte Plaetze und
+OpenStreetMap erfassten Bäumen (getrennt nach Nadel- und Laubwald, im
+Winter entsprechend lichter), den Höhen der umliegenden Gebäude und dem
+Geländehorizont berechnet und mit dem Wetterbedarf verrechnet. Dazu
+kommen Ortung, Kartenansicht, Offline-Verhalten, gemerkte Plätze und
 Meldungen anderer Eltern.
 ```
 
 ---
 
-## Geprueft fuer die Review
+## Geprüft für die Review
 
 Die App Review sitzt meist in Kalifornien. Am 17.08.2026 mit den
 Koordinaten des Apple Park (37.3349, -122.0090) getestet:
 
-- Orte: 165 gefunden, davon 122 Spielplaetze, 31 Gruenflaechen, 12 Waeldchen
-- Baumdatenlage: hoch (z. B. Serra Park mit 28 erfassten Baeumen,
+- Orte: 165 gefunden, davon 122 Spielplätze, 31 Grünflächen, 12 Wäldchen
+- Baumdatenlage: hoch (z. B. Serra Park mit 28 erfassten Bäumen,
   Kronendeckung 0,85)
 - Toiletten: 32 im Umkreis
-- Wetter: vollstaendig, inklusive Stundenvorhersage und richtiger Zeitzone
+- Wetter: vollständig, inklusive Stundenvorhersage und richtiger Zeitzone
 
 Die App funktioniert dort also genauso wie in Deutschland. Nur die
-Oberflaeche ist deutsch.
+Oberfläche ist deutsch.
 
 ---
 

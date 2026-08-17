@@ -89,8 +89,9 @@ export function ScoreBreakdown({
         <p className="border-t border-line pt-3 text-xs leading-relaxed text-muted">
           {gewichtsSatz(b.weights)} Die vier Teile werden mit diesen Anteilen
           verrechnet
-          {zusaetze.length > 0 && <>, dazu kommt {zusaetze.join(" und ")}</>}. So
-          entsteht der Gesamtwert von{" "}
+          {zusaetze.length === 1 && <>, dazu kommt {zusaetze[0]}</>}
+          {zusaetze.length > 1 && <>, dazu kommen {zusaetze.join(" und ")}</>}.
+          So entsteht der Gesamtwert:{" "}
           <span className="font-semibold text-dark">{place.pleasantScore}</span> von
           100.
         </p>

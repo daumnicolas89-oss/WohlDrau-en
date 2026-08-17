@@ -420,7 +420,7 @@ export function HomeView() {
                     }
                     text={
                       filteredOut > 0
-                        ? "Lockere einen Filter, dann tauchen Orte wieder auf."
+                        ? "Lockere einen Filter, dann tauchen Plätze wieder auf."
                         : "In diesem Umkreis kennt OpenStreetMap nichts. Mit größerer Entfernung findet sich meist etwas."
                     }
                   >
@@ -528,9 +528,9 @@ export function HomeView() {
                         <div className="flex items-center justify-between gap-2 pt-1">
                           <p className="text-sm text-muted">
                             {uebrige.length - 1 === 1
-                              ? "Ein weiterer Ort"
-                              : `${uebrige.length - 1} weitere Orte`}{" "}
-                            in der Nähe, nach demselben Wert geordnet.
+                              ? "Ein weiterer Platz"
+                              : `${uebrige.length - 1} weitere Plätze`}{" "}
+                            in der Nähe, geordnet nach „Angenehm jetzt“.
                           </p>
                           <InfoButton
                             title="Wie wird sortiert?"
@@ -566,7 +566,7 @@ export function HomeView() {
                     onClick={() => setSichtbar((n) => n + LISTE_SCHRITT)}
                     className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-card border border-line bg-card text-sm font-semibold text-primary-dark shadow-card transition active:scale-[0.99]"
                   >
-                    Weitere {Math.min(LISTE_SCHRITT, uebrige.length - sichtbar)} Orte
+                    Weitere {Math.min(LISTE_SCHRITT, uebrige.length - sichtbar)} Plätze
                     anzeigen
                     <ChevronDown size={16} aria-hidden />
                   </button>
@@ -621,8 +621,8 @@ export function HomeView() {
                   </p>
                   <p>
                     Der Schatten ist <strong>gerechnet, nicht gemessen</strong>:
-                    aus dem Sonnenstand, den erfassten Bäumen und den Gebäuden
-                    ringsum. Er ist eine gute Schätzung, keine Garantie.
+                    aus dem Sonnenstand, den erfassten Bäumen, den Gebäuden
+                    ringsum und dem Gelände am Horizont. Er ist eine gute Schätzung, keine Garantie.
                   </p>
                   <p>
                     Wetter kommt von Open-Meteo. Meldungen stammen von anderen
@@ -694,7 +694,7 @@ export function HomeView() {
 
       <Sheet
         open={reportPickerOpen}
-        title="An welchem Ort bist du?"
+        title="An welchem Platz bist du?"
         onOpenChange={setReportPickerOpen}
       >
         <ul className="space-y-2">
@@ -716,7 +716,7 @@ export function HomeView() {
             </li>
           ))}
           {nearest.length === 0 && (
-            <li className="text-sm text-muted">Keine Orte in der Nähe geladen.</li>
+            <li className="text-sm text-muted">Keine Plätze in der Nähe geladen.</li>
           )}
         </ul>
       </Sheet>

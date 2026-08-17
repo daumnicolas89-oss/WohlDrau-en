@@ -13,7 +13,7 @@ export const maxDuration = 120;
  * Pflichtfelder o. Ä.) hochzählen: neuer Key = CDN, Disk und Service Worker
  * liefern sofort frische Form statt tagelang alter Objekte an neuen Code.
  */
-export const PLACES_SCHEMA_VERSION = 5;
+import { PLACES_SCHEMA_VERSION } from "@/lib/schemaVersion";
 
 // Größter Filter (2,5 km) + bis zu ~650 m Raster-Versatz des Bbox-Zentrums:
 // erst ab 3500 m ist der äußerste Ring garantiert abgedeckt.
@@ -44,8 +44,19 @@ function respond(value: FetchPlacesResult, source: string) {
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
-  const lat = Number(params.get("lat"));
-  const lng = Number(params.get("lng") ?? params.get("lon"));
+  // Number(null) und Number("") sind 0 – ein nacktes /api/… liefe also mit
+  // „gültigen" Koordinaten am Nullpunkt im Atlantik los und legte das
+  // Ergebnis auch noch in den Cache. Erst prüfen, dass wirklich etwas kam.
+  const latRaw = params.get("lat");
+  const lngRaw = params.get("lng") ?? params.get("lon");
+  if (!latRaw || !lngRaw) {
+    return NextResponse.json(
+      { error: "lat und lng sind erforderlich." },
+      { status: 400 },
+    );
+  }
+  const lat = Number(latRaw);
+  const lng = Number(lngRaw);
   const radius = Math.min(
     MAX_RADIUS_M,
     Math.max(500, Number(params.get("radius")) || 3000),

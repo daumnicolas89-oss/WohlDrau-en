@@ -1,3 +1,4 @@
+import { PLACES_SCHEMA_VERSION } from "./schemaVersion";
 /**
  * Letzter-Besuch-Speicher: Beim Öffnen zeigt die App sofort den Stand des
  * letzten Besuchs und aktualisiert still im Hintergrund – statt Sekunden auf
@@ -7,7 +8,9 @@
  */
 
 /** Bei Formatänderungen hochzählen, dann wird alter Stand ignoriert. */
-const VERSION = 3;
+// An die Datenform der API gekoppelt: Ändert sich das Schema, läuft der
+// Schnellstart-Speicher ins Leere statt alte Objektformen zu hydrieren.
+const VERSION = PLACES_SCHEMA_VERSION;
 
 interface Envelope<T> {
   v: number;

@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>PlatzDa zeigt dir Spielplätze und Parks in deiner Nähe. Dafür braucht die App deinen Standort – er dient nur der Suche und wird nicht gespeichert.</string>
+	<string>PlatzDa zeigt dir Spielplätze und Parks in deiner Nähe. Dafür braucht die App deinen Standort. Er wird nicht bei uns gespeichert – nur dein Gerät merkt sich den letzten Ort.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

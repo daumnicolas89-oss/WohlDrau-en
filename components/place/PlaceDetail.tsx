@@ -95,7 +95,11 @@ export function PlaceDetail({
     : placeHint
       ? { ...geo.coords, ...placeHint }
       : viewer;
-  const searchRadius = fromList ? radius : radiusForDistance(placeHint ? 500 : 4000);
+  // Ohne Orts-Hinweis (alter/gekürzter Link) suchen wir großräumig – aber
+  // nur so weit, wie der Server wirklich liefert (MAX_RADIUS_M = 3500).
+  // Vorher wünschte sich der Client 5000 m, bekam still 3500, und Orte in
+  // der Differenzzone endeten fälschlich in „Diesen Platz finden wir nicht".
+  const searchRadius = fromList ? radius : placeHint ? radiusForDistance(500) : 3500;
   const places = usePlaces(searchOrigin, searchRadius);
   const wetter = useWeather(searchOrigin);
   const weather = wetter.weather;
@@ -150,7 +154,7 @@ export function PlaceDetail({
       spaeter,
       weatherAt(scoringWeather, spaeter).cloudCover,
     );
-    return shadeOutlook(place.shade.index, dann.index);
+    return shadeOutlook(place.shade, dann);
   }, [place, scoringWeather, now]);
 
   /** Lohnt der Schatten-Verlauf? Nur wenn in den nächsten Stunden überhaupt
@@ -220,7 +224,7 @@ export function PlaceDetail({
       {!loading && !error && !place && (
         <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
           <p className="font-display text-lg font-semibold text-dark">
-            Diesen Ort finden wir nicht
+            Diesen Platz finden wir nicht
           </p>
           <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
             Vielleicht liegt er außerhalb des geladenen Umkreises oder er wurde
@@ -343,7 +347,7 @@ export function PlaceDetail({
               <Hinweis ton="warnung" Icon={Info}>
                 Der Zugang ist laut Karte eingeschränkt (z. B. ein Schulhof).
                 Solche Plätze sind oft nur außerhalb der Schulzeit offen, schau
-                am besten vorher, ob offen ist.
+                am besten vorher nach, ob er gerade offen ist.
               </Hinweis>
             )}
 
@@ -365,8 +369,9 @@ export function PlaceDetail({
                 <InfoButton title="Woher weiß die App das?">
                   <p>
                     Der Schatten wird aus dem Sonnenstand, den in OpenStreetMap
-                    erfassten Bäumen und den Gebäuden ringsum berechnet. Es ist
-                    eine Schätzung, keine Messung vor Ort.
+                    erfassten Bäumen, den Gebäuden ringsum und dem Gelände am
+                    Horizont berechnet. Es ist eine Schätzung, keine Messung
+                    vor Ort.
                   </p>
                   <p>
                     Je mehr Bäume in einer Gegend erfasst sind, desto genauer
@@ -514,8 +519,12 @@ export function PlaceDetail({
                 <EmptyState
                   className="px-2 py-4"
                   Icon={Megaphone}
-                  titel="Noch nichts gemeldet"
-                  text="Wenn du dort bist, hilft eine kurze Rückmeldung den nächsten Eltern."
+                  titel={online ? "Noch nichts gemeldet" : "Meldungen gerade nicht ladbar"}
+                  text={
+                    online
+                      ? "Wenn du dort bist, hilft eine kurze Rückmeldung den nächsten Eltern."
+                      : "Ohne Netz wissen wir nicht, ob andere Eltern etwas gemeldet haben."
+                  }
                 >
                   <Button onClick={() => setReportOpen(true)}>
                     Jetzt melden

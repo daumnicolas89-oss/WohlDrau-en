@@ -55,7 +55,7 @@ export const SCORE_ERKLAERUNG =
   "Der Wert fasst vier Dinge zusammen: wie viel Schatten es dort gerade gibt, " +
   "welche Ausstattung bekannt ist, was andere Eltern in den letzten Stunden " +
   "gemeldet haben und wie weit der Weg ist. Wie stark der Schatten zählt, " +
-  "hängt vom Wetter ab – bei Hitze entscheidet er fast allein, an milden Tagen " +
+  "hängt vom Wetter ab – bei Hitze zählt er fast die Hälfte, an milden Tagen " +
   "kaum. Deshalb kann derselbe Platz morgens anders dastehen als mittags.";
 
 /**
@@ -70,14 +70,13 @@ export function gewichtsSatz(weights: {
   status: number;
   distance: number;
 }): string {
-  const groesste = Math.max(weights.shade, weights.amenity, weights.distance);
-  if (weights.shade === groesste) {
+  // Nur zwei Fälle: Entweder führt der Schatten, oder es ist mild – dann
+  // teilen sich Ausstattung und Nähe das frei gewordene Gewicht. Ein eigener
+  // Entfernungs-Zweig kann nie eintreten (max. 0,22 gegen min. 0,25).
+  if (weights.shade >= weights.amenity) {
     return "Heute zählt vor allem der Schatten.";
   }
-  if (weights.amenity === groesste) {
-    return "Heute ist es mild – deshalb zählt vor allem, was der Platz bietet.";
-  }
-  return "Heute ist es mild – deshalb zählt vor allem, wie nah der Platz ist.";
+  return "Heute ist es mild – deshalb zählen vor allem Ausstattung und Nähe.";
 }
 
 /**
@@ -203,8 +202,20 @@ export function shadeReason(place: Place, at: Date): string {
 }
 
 /** Was sich in der nächsten Stunde ändert, nur wenn es der Rede wert ist. */
-export function shadeOutlook(jetzt: number, spaeter: number): string | null {
-  const differenz = spaeter - jetzt;
+export function shadeOutlook(
+  jetzt: { index: number; state: ShadeState },
+  spaeter: { index: number; state: ShadeState },
+): string | null {
+  // Kurz vor Sonnenuntergang meldet die Stunde danach den Sentinel „voller
+  // Schatten" (no-sun, index 1). Daraus „deutlich mehr Schatten" zu machen
+  // wäre Unsinn – die Sonne geht schlicht unter, und genau das sagen wir.
+  if (spaeter.state === "no-sun") {
+    return jetzt.state === "no-sun"
+      ? null
+      : "Die Sonne geht in der nächsten Stunde unter.";
+  }
+  if (jetzt.state === "no-sun") return null;
+  const differenz = spaeter.index - jetzt.index;
   if (differenz > 0.18) return "In einer Stunde ist hier deutlich mehr Schatten.";
   if (differenz < -0.18) return "In einer Stunde wird es hier sonniger.";
   return null;
@@ -226,7 +237,7 @@ export function amenitySentence(place: Place): string {
   if (tags.fenced === true) teile.push("eingezäunt");
   if (tags.changing_table === true) teile.push("Wickeltisch");
   if (tags.drinking_water === true) teile.push("Trinkwasser");
-  if (tags.shelter === true) teile.push("überdachter Bereich");
+  if (tags.shelter === true) teile.push("Unterstand");
 
   if (teile.length === 0) return "Zur Ausstattung ist nichts eingetragen";
   const satz = teile.join(", ");
@@ -245,7 +256,7 @@ export function amenityBreakdownSentence(place: Place): string {
   if (tags.fenced === true) vorhanden.push("Zaun");
   if (tags.changing_table === true) vorhanden.push("Wickeltisch");
   if (tags.drinking_water === true) vorhanden.push("Trinkwasser");
-  if (tags.shelter === true) vorhanden.push("überdachter Bereich");
+  if (tags.shelter === true) vorhanden.push("Unterstand");
 
   const fehlend: string[] = [];
   if (tags.toilet !== true) fehlend.push("Toilette");
@@ -278,7 +289,7 @@ export function statusSentence(
   const alter = formatAge(neueste.createdAt, now);
   const tone: Tone = option.tone === "good" ? "good" : option.tone === "bad" ? "bad" : "neutral";
   return {
-    text: `${alter} gemeldet: ${option.label.toLowerCase()}`,
+    text: `${alter} gemeldet: ${option.label}`,
     tone,
   };
 }

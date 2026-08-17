@@ -3,7 +3,9 @@ import { PlaceDetail } from "@/components/place/PlaceDetail";
 function coords(lat?: string, lng?: string) {
   const parsedLat = Number(lat);
   const parsedLng = Number(lng);
-  return Number.isFinite(parsedLat) && Number.isFinite(parsedLng)
+  // Number("") ist 0 – ohne die Leerstring-Prüfung würde ?lat=&lng= als
+  // Nullpunkt im Atlantik durchgehen (app/platz/page.tsx macht es genauso).
+  return Number.isFinite(parsedLat) && Number.isFinite(parsedLng) && lat && lng
     ? { lat: parsedLat, lng: parsedLng }
     : null;
 }

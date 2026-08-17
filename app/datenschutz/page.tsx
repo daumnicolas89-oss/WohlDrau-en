@@ -197,8 +197,10 @@ export default function DatenschutzPage() {
         <Abschnitt titel="Speicherung auf deinem Gerät">
           <p>
             Für Komfort speichern wir einige Angaben lokal in deinem Browser
-            (localStorage): zuletzt bekannter Standort, Filter-Einstellungen und
-            eine zufällige Spam-Schutz-Kennung. Diese verbleiben auf deinem Gerät,
+            (localStorage): zuletzt bekannter Standort, Filter-Einstellungen,
+            gemerkte Plätze, die Anzieh-Einstellungen (Altersgruppe und
+            Wärmeempfinden deines Kindes), von dir ausgeblendete Meldungen
+            sowie eine zufällige Spam-Schutz-Kennung. Diese verbleiben auf deinem Gerät,
             werden nicht an uns übermittelt und lassen sich über die
             Browser-Einstellungen löschen. Es werden{" "}
             <strong>keine Tracking-Cookies</strong> gesetzt.

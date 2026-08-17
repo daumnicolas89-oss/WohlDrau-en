@@ -302,7 +302,8 @@ export function WeatherHeader({
         <Hinweis ton="info" aufHimmel Icon={MapPin} className="relative mt-3">
           Der Standort lässt sich gerade nicht bestimmen. Im Gebäude oder ohne
           GPS-Empfang passiert das schnell. Angezeigt wird der zuletzt bekannte
-          Ort; über den Ortsnamen oben kannst du es erneut versuchen.
+          Ort oder eine Beispielstadt; über den Ortsnamen oben kannst du es
+          erneut versuchen.
         </Hinweis>
       )}
 

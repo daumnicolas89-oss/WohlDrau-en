@@ -63,13 +63,16 @@ export function clothingAdvice(
   const t = felt(apparentTemperature, age, sensitivity);
   const little = age === "baby" || age === "toddler";
 
-  // Ein ganzer Einstiegssatz zur Temperatur – kein Stichwort-Stakkato.
+  // Ein ganzer Einstiegssatz – ohne Wetterbehauptung: `t` ist die fürs Kind
+  // ANGEPASSTE Temperatur (Alter + Empfindlichkeit). Bei „friert leicht" und
+  // echten 25 °C sagte der Satz früher „bei den milden Temperaturen" – direkt
+  // unter der großen 25 im Wetterkopf las sich das wie ein Widerspruch.
   let lead: string;
-  if (t >= 22) lead = "Bei den warmen Temperaturen reichen leichte Sachen.";
+  if (t >= 22) lead = "Leichte Sachen reichen heute.";
   else if (t >= 15)
-    lead = "Bei den milden Temperaturen genügen ein Langarm-Shirt und eine leichte Jacke.";
-  else if (t >= 8) lead = "Es ist kühl. Ein Pullover und eine Jacke sind jetzt richtig.";
-  else lead = "Bei der Kälte heißt es dick einpacken, am besten mit Mütze.";
+    lead = "Ein Langarm-Shirt und eine leichte Jacke passen jetzt gut.";
+  else if (t >= 8) lead = "Ein Pullover und eine Jacke sind jetzt richtig.";
+  else lead = "Jetzt heißt es dick einpacken, am besten mit Mütze.";
 
   // Die wichtigsten Zusätze – als natürlicher zweiter Satz.
   const hinweise: string[] = [];

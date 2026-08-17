@@ -99,14 +99,27 @@ const ANONYMOUS_ID_KEY = "wohldraussen-anonymous-id";
  * Grober Absender-Fingerprint für Rate-Limiting, bewusst kein Tracking:
  * eine Zufalls-ID im localStorage, die der Nutzer jederzeit löschen kann.
  */
+/** Fällt localStorage aus (Privatmodus, volle Quota), hält diese Variable
+ *  die Kennung wenigstens für die laufende Sitzung stabil. */
+let sitzungsId: string | null = null;
+
 export function anonymousId(): string {
   if (typeof localStorage === "undefined") return "unknown";
-  let id = localStorage.getItem(ANONYMOUS_ID_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(ANONYMOUS_ID_KEY, id);
+  // Einziger Zweck ist der Spam-Schutz – eine Meldung darf niemals daran
+  // scheitern, dass sich die Kennung nicht SPEICHERN lässt. Vorher warf
+  // setItem im strengen Privatmodus und der Nutzer sah die rohe
+  // Browser-Fehlermeldung statt eines Danke.
+  try {
+    let id = localStorage.getItem(ANONYMOUS_ID_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(ANONYMOUS_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    sitzungsId ??= crypto.randomUUID();
+    return sitzungsId;
   }
-  return id;
 }
 
 const IN_APP_NAV_KEY = "wohldraussen-in-app-nav";

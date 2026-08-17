@@ -57,7 +57,7 @@ export function ReportStatusModal({
       <Sheet
         open
         title="Danke, deine Rückmeldung ist da"
-        description="Sie hilft den nächsten Eltern und ist etwa drei Stunden sichtbar."
+        description="Sie ist jetzt etwa drei Stunden für andere sichtbar."
         onOpenChange={(next) => {
           if (!next) onClose();
         }}
@@ -81,7 +81,7 @@ export function ReportStatusModal({
     <Sheet
       open
       title="Wie ist es dort gerade?"
-      description={`Für ${placeName}. Deine Rückmeldung hilft anderen Eltern und ist etwa drei Stunden sichtbar, anonym, ohne Anmeldung.`}
+      description={`Für ${placeName}. Anonym, ohne Anmeldung – deine Rückmeldung hilft den nächsten Eltern.`}
       onOpenChange={(next) => {
         if (!next) onClose();
       }}

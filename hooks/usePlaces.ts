@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PLACES_SCHEMA_VERSION } from "@/lib/schemaVersion";
 import { loadLastVisit, saveLastVisit } from "@/lib/lastVisit";
 import { apiUrl } from "@/lib/appMode";
 import { haversine } from "@/lib/utils";
@@ -109,7 +110,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         // Route): neue Version = neue URL = CDN/Service-Worker liefern nie
         // tagelang alte Objektformen an neuen Client-Code.
         const res = await fetch(
-          apiUrl(`/api/places?v=5&lat=${gridLat}&lng=${gridLng}&radius=${radius}`),
+          apiUrl(`/api/places?v=${PLACES_SCHEMA_VERSION}&lat=${gridLat}&lng=${gridLng}&radius=${radius}`),
           { signal: controller.signal },
         );
         if (!res.ok) {

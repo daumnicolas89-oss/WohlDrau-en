@@ -17,8 +17,19 @@ function ok(value: Weather) {
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
-  const lat = Number(params.get("lat"));
-  const lng = Number(params.get("lng") ?? params.get("lon"));
+  // Number(null) und Number("") sind 0 – ein nacktes /api/… liefe also mit
+  // „gültigen" Koordinaten am Nullpunkt im Atlantik los und legte das
+  // Ergebnis auch noch in den Cache. Erst prüfen, dass wirklich etwas kam.
+  const latRaw = params.get("lat");
+  const lngRaw = params.get("lng") ?? params.get("lon");
+  if (!latRaw || !lngRaw) {
+    return NextResponse.json(
+      { error: "lat und lng sind erforderlich." },
+      { status: 400 },
+    );
+  }
+  const lat = Number(latRaw);
+  const lng = Number(lngRaw);
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return NextResponse.json(

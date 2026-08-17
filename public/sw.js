@@ -61,7 +61,7 @@ function offlineSeite() {
   return new Response(
     `<!doctype html><html lang="de"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Keine Verbindung – PlatzDa</title>
+<title>Keine Verbindung · PlatzDa</title>
 <style>
   body{margin:0;min-height:100dvh;display:flex;flex-direction:column;
        align-items:center;justify-content:center;gap:1rem;padding:2rem;

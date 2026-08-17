@@ -75,7 +75,8 @@ export default function SoFunktioniertsPage() {
           </p>
           <p>
             Der Schatten ist <strong>gerechnet, nicht gemessen</strong>. Er kommt
-            aus dem Sonnenstand, den erfassten Bäumen und den Gebäuden ringsum.
+            aus dem Sonnenstand, den erfassten Bäumen, den Gebäuden ringsum und
+            dem Gelände am Horizont.
             Eine gute Schätzung, keine Garantie.
           </p>
         </Abschnitt>
@@ -83,7 +84,7 @@ export default function SoFunktioniertsPage() {
         <Abschnitt Icon={Sparkles} titel="Die Liste und die „Beste Wahl“">
           <p>
             Ganz oben steht der Favorit für <strong>genau jetzt</strong>, darunter
-            eine ruhige Liste weiterer Orte, nach Angenehmheit sortiert. Tippe
+            eine ruhige Liste weiterer Orte, sortiert danach, wie angenehm es dort gerade ist. Tippe
             einen Ort an, um alle Details zu sehen.
           </p>
         </Abschnitt>
@@ -95,7 +96,7 @@ export default function SoFunktioniertsPage() {
           </p>
         </Abschnitt>
 
-        <Abschnitt Icon={MapPin} titel="Standort & einen Ort suchen">
+        <Abschnitt Icon={MapPin} titel="Standort und Ortssuche">
           <p>
             Beim Öffnen fragt die App nach deinem Standort, um Orte in der Nähe zu
             zeigen. Über den <strong>Ortsnamen oben</strong> kannst du deinen
@@ -103,12 +104,12 @@ export default function SoFunktioniertsPage() {
             Praktisch, um vorab zu schauen, wohin man fährt.
           </p>
           <p>
-            Dein Standort wird nur verwendet, um die Karte auf dich zu zentrieren.
+            Dein Standort wird nur verwendet, um Orte in deiner Nähe zu finden und das Wetter dafür zu laden.
             Es gibt <strong>kein Konto und keinen Login.</strong>
           </p>
         </Abschnitt>
 
-        <Abschnitt Icon={Navigation} titel="Hinkommen & Karte/Satellit">
+        <Abschnitt Icon={Navigation} titel="Hinkommen, Karte und Satellit">
           <p>
             Auf der Detailseite bringt dich <strong>„Route dorthin“</strong> direkt
             zur Navigation. In der Karten-Ansicht kannst du zwischen{" "}

@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "PlatzDa",
     short_name: "PlatzDa",
     description:
-      "Zeigt in Echtzeit, wo es sich gerade lohnt, rauszugehen, Schatten, Toilette, Zaun, Entfernung.",
+      "Zeigt in Echtzeit, wo es sich gerade lohnt, rauszugehen: Schatten, Toilette, Zaun, Entfernung.",
     lang: "de",
     start_url: "/",
     display: "standalone",

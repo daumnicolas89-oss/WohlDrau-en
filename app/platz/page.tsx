@@ -27,7 +27,7 @@ function PlatzInhalt() {
     return (
       <main className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center gap-4 bg-background p-8 text-center">
         <p className="font-display text-lg font-semibold text-dark">
-          Diesen Ort finden wir nicht.
+          Diesen Platz finden wir nicht.
         </p>
         <Link
           href="/"

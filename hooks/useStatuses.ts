@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { anonymousId } from "@/lib/utils";
+import { useModeration } from "@/store/useModeration";
 import { apiUrl } from "@/lib/appMode";
 import type { PlaceStatus, PlaceStatusType } from "@/types";
 
@@ -17,6 +18,12 @@ export interface UseStatusesResult {
 
 export function useStatuses(placeIds: string[]): UseStatusesResult {
   const [statuses, setStatuses] = useState<PlaceStatus[]>([]);
+  // Gemeldetes/Blockiertes wird HIER ausgefiltert, nicht erst in der Anzeige:
+  // Vorher griff die Moderation nur auf der Detailseite – der Score, die
+  // Platzkarten und der Hauptgrund zeigten einen eben gemeldeten Beitrag
+  // munter weiter. Das brach die eigene Zusage „verschwindet sofort".
+  const hiddenIds = useModeration((m) => m.hiddenIds);
+  const blockedAuthors = useModeration((m) => m.blockedAuthors);
   const [nonce, setNonce] = useState(0);
   // Die Liste selbst ändert sich bei jedem Render, nur ihr Inhalt zählt.
   const key = placeIds.slice(0, 300).join(",");
@@ -66,5 +73,15 @@ export function useStatuses(placeIds: string[]): UseStatusesResult {
     [],
   );
 
-  return { statuses, report };
+  const sichtbar = useMemo(
+    () =>
+      statuses.filter(
+        (s) =>
+          !hiddenIds.includes(s.id) &&
+          (s.authorKey === undefined || !blockedAuthors.includes(s.authorKey)),
+      ),
+    [statuses, hiddenIds, blockedAuthors],
+  );
+
+  return { statuses: sichtbar, report };
 }

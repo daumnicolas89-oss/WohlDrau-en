@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { gewichtsSatz, mainDriver, surfaceLabel } from "../lib/wording";
+import { gewichtsSatz, mainDriver, shadeOutlook, surfaceLabel } from "../lib/wording";
 import { scorePlace } from "../lib/scoring";
 import { NOON, place, weather } from "./helpers";
 
@@ -9,7 +9,7 @@ describe("gewichtsSatz", () => {
     // An milden Tagen wiegt Schatten nur 15 % – der frühere feste Satz
     // widersprach damit der Aufschlüsselung direkt darunter.
     const mild = { shade: 0.15, amenity: 0.43, status: 0.2, distance: 0.22 };
-    assert.match(gewichtsSatz(mild), /was der Platz bietet/);
+    assert.match(gewichtsSatz(mild), /Ausstattung und Nähe/);
     assert.doesNotMatch(gewichtsSatz(mild), /vor allem der Schatten/);
   });
 
@@ -67,5 +67,30 @@ describe("surfaceLabel", () => {
   it("doppelt sich nicht und lässt Unbekanntes lesbar durch", () => {
     assert.equal(surfaceLabel("sand;sand"), "Sand");
     assert.equal(surfaceLabel("acrylic_paint"), "acrylic paint");
+  });
+});
+
+describe("shadeOutlook", () => {
+  it("verkauft den Sonnenuntergang nicht als mehr Schatten", () => {
+    // Der no-sun-Sentinel (index 1) machte aus dem Sonnenuntergang die
+    // Aussage „deutlich mehr Schatten" – kurz vor Abend auf jeder Detailseite.
+    const jetzt = { index: 0.13, state: "sunny" as const };
+    const dann = { index: 1, state: "no-sun" as const };
+    assert.equal(
+      shadeOutlook(jetzt, dann),
+      "Die Sonne geht in der nächsten Stunde unter.",
+    );
+  });
+
+  it("schweigt, wenn schon Nacht ist", () => {
+    const nacht = { index: 1, state: "no-sun" as const };
+    assert.equal(shadeOutlook(nacht, nacht), null);
+  });
+
+  it("meldet echte Änderungen weiterhin", () => {
+    const a = { index: 0.2, state: "sunny" as const };
+    const b = { index: 0.5, state: "partial" as const };
+    assert.match(shadeOutlook(a, b) ?? "", /deutlich mehr Schatten/);
+    assert.match(shadeOutlook(b, a) ?? "", /sonniger/);
   });
 });

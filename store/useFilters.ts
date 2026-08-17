@@ -141,7 +141,7 @@ export function activeFilterChips(state: FilterState): ActiveFilterChip[] {
     chips.push({ key: "preferFenced", label: "Eingezäunt", reset: { preferFenced: false } });
   }
   if (state.preferWater) {
-    chips.push({ key: "preferWater", label: "Wasser", reset: { preferWater: false } });
+    chips.push({ key: "preferWater", label: "Planschwasser", reset: { preferWater: false } });
   }
   if (state.preferWheelchair) {
     chips.push({

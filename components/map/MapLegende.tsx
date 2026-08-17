@@ -14,7 +14,7 @@ export function MapLegende() {
   return (
     <div className="pointer-events-none absolute top-3 left-3 z-[905] rounded-2xl bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
       <p className="text-[11px] leading-snug font-semibold text-dark">
-        Zahl = wie angenehm es dort ist
+        Zahl = wie angenehm es dort gerade ist
       </p>
       <ul className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
         {punkte.map((p) => (
