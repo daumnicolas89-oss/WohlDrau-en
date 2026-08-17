@@ -57,9 +57,11 @@ export default function Map({
     () =>
       places.slice(0, MAX_MARKERS).map((place, index) => ({
         place,
+        bewertung: scoreWording(place.pleasantScore),
         icon: placeMarkerIcon(
           TONE_COLORS[scoreWording(place.pleasantScore).tone],
-          index + 1,
+          place.pleasantScore,
+          index === 0,
         ),
       })),
     [places],
@@ -88,7 +90,7 @@ export default function Map({
         pathOptions={ORIGIN_MARKER_STYLE}
       />
 
-      {markers.map(({ place, icon }) => (
+      {markers.map(({ place, bewertung, icon }) => (
         <Marker
           key={place.id}
           position={[place.lat, place.lng]}
@@ -100,7 +102,7 @@ export default function Map({
                   `&plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}&r=${radius}`,
               ),
           }}
-          title={`${place.name}, ${formatDistance(place.distance ?? 0)}`}
+          title={`${place.name}: ${bewertung.label}, ${place.pleasantScore} von 100, ${formatDistance(place.distance ?? 0)}`}
         />
       ))}
     </MapContainer>

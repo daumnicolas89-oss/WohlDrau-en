@@ -36,6 +36,7 @@ import { EmptyState } from "./ui/EmptyState";
 import { FilterChips } from "./filters/FilterChips";
 import { FilterSheet } from "./filters/FilterSheet";
 import { MapControls } from "./map/MapControls";
+import { MapLegende } from "./map/MapLegende";
 import Link from "next/link";
 import { PlaceCard } from "./place/PlaceCard";
 import { PlacesLoading } from "./place/PlacesLoading";
@@ -384,6 +385,7 @@ export function HomeView() {
               radius={radius}
               style={filters.mapStyle}
             />
+            {visible.length > 0 && <MapLegende />}
             <button
               type="button"
               onClick={() =>
