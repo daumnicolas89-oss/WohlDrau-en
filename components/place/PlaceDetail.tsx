@@ -25,6 +25,7 @@ import {
   scoreWording,
   shadeOutlook,
   shadeReason,
+  surfaceLabel,
 } from "@/lib/wording";
 import type { PlaceStatusType } from "@/types";
 import { useFavorites } from "@/store/useFavorites";
@@ -284,12 +285,12 @@ export function PlaceDetail({
                 score={place.pleasantScore}
                 tone={bewertung.tone}
                 size={92}
-                label={`Lohnt es sich gerade? ${bewertung.label}, ${place.pleasantScore} von 100.`}
+                label={`Angenehm jetzt: ${place.pleasantScore} von 100, ${bewertung.label}.`}
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-1">
                   <p className="text-[11px] font-semibold tracking-wide text-muted uppercase">
-                    Lohnt es sich gerade?
+                    Angenehm jetzt
                   </p>
                   <InfoButton
                     title="Wie kommt dieser Wert zustande?"
@@ -441,7 +442,7 @@ export function PlaceDetail({
                   {place.tags.surface && (
                     <div className="flex gap-2">
                       <dt>Untergrund:</dt>
-                      <dd className="text-dark">{place.tags.surface}</dd>
+                      <dd className="text-dark">{surfaceLabel(place.tags.surface)}</dd>
                     </div>
                   )}
                   {place.shadeInputs.areaM2 && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   ChevronDown,
@@ -52,6 +52,26 @@ const Map = dynamic(() => import("./map/Map"), {
   ssr: false,
   loading: () => <div className="size-full animate-pulse bg-[#eef1f2]" />,
 });
+
+/** Ein Knopf, zwei Plätze: oben in der Karte, unten in der Liste. */
+function ToiletButton({
+  onClick,
+  className = "",
+}: {
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-card text-sm font-semibold text-dark shadow-card transition duration-200 active:scale-[0.98] ${className}`}
+    >
+      <Toilet size={16} aria-hidden className="text-primary-dark" />
+      Öffentliche Toilette suchen
+    </button>
+  );
+}
 
 export function HomeView() {
   const filters = useFilters();
@@ -145,6 +165,22 @@ export function HomeView() {
         : visible,
     };
   }, [visible, favorites.ids]);
+
+  /**
+   * „Wir kennen hier kaum Bäume" ist eine wichtige Ehrlichkeit – aber wenn
+   * der Satz auf zehn Karten hintereinander steht, liest ihn niemand mehr.
+   * Betrifft er die Mehrheit, steht er einmal über der Liste; betrifft er
+   * einzelne Plätze, bleibt er dort, wo er unterscheidet.
+   */
+  const vieleUnsicher = useMemo(() => {
+    // Gezählt wird, was gerade wirklich auf dem Bildschirm steht – nicht alle
+    // 95 Orte im Umkreis. Wiederholung stört dort, wo man sie sieht.
+    const gezeigt = uebrige.slice(0, sichtbar);
+    const unsicher = gezeigt.filter(
+      (p) => p.shadeInputs.confidence === "low" && p.shadeInputs.inGreen,
+    ).length;
+    return unsicher >= 3;
+  }, [uebrige, sichtbar]);
 
   // „Heute am angenehmsten: 16–18 Uhr" – aus der Stunden-Vorhersage, nur wenn
   // der Tag wirklich eine bessere Zeit hat (sonst wäre es Rauschen).
@@ -302,15 +338,12 @@ export function HomeView() {
         </p>
       )}
 
-      {!loading && !error && (
-        <button
-          type="button"
-          onClick={() => setToiletOpen(true)}
-          className="mx-4 mt-3 flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-card text-sm font-semibold text-dark shadow-card transition duration-200 active:scale-[0.98]"
-        >
-          <Toilet size={16} aria-hidden className="text-primary-dark" />
-          Öffentliche Toilette suchen
-        </button>
+      {/* In der Kartenansicht bleibt der Knopf oben – dort ist die Karte
+          selbst die Antwort. In der Liste stand er zwischen Wetter und
+          erstem Platz und schob genau das nach unten, weswegen man die App
+          öffnet; dort steht er jetzt am Ende. */}
+      {!loading && !error && filters.viewMode === "map" && (
+        <ToiletButton onClick={() => setToiletOpen(true)} className="mx-4 mt-3" />
       )}
 
       {!online && (
@@ -402,36 +435,6 @@ export function HomeView() {
           <div className="animate-fade-in space-y-4 p-4 pb-32">
             <FilterChips />
 
-            {/* Direkt zum nächsten Spielplatz – egal wie er bewertet ist.
-                Entfällt, wenn er sowieso als beste Wahl ganz oben steht. */}
-            {nearestPlayground &&
-              visible[0]?.id !== nearestPlayground.place.id &&
-              !favorites.ids.includes(nearestPlayground.place.id) && (
-              <Link
-                href={placeHref(
-                  nearestPlayground.place.id,
-                  `lat=${coords.lat.toFixed(5)}&lng=${coords.lng.toFixed(5)}` +
-                    `&plat=${nearestPlayground.place.lat.toFixed(5)}` +
-                    `&plng=${nearestPlayground.place.lng.toFixed(5)}&r=${radius}`,
-                )}
-                className="flex items-center gap-3 rounded-card border border-line bg-card px-4 py-3 shadow-card transition active:scale-[0.99]"
-              >
-                <ToyBrick size={20} aria-hidden className="shrink-0 text-primary-dark" />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
-                    Nächster Spielplatz
-                  </span>
-                  <span className="flex items-baseline gap-1.5 text-sm font-medium text-dark">
-                    <span className="truncate">{nearestPlayground.place.name}</span>
-                    <span className="shrink-0 text-muted">
-                      · {formatDistance(nearestPlayground.distance)}
-                    </span>
-                  </span>
-                </span>
-                <ChevronRight size={16} aria-hidden className="shrink-0 text-muted" />
-              </Link>
-            )}
-
             {visible.length > 0 ? (
               <>
                 {/* Gemerkt, aber gerade nicht sichtbar (Entfernung/Filter):
@@ -460,44 +463,92 @@ export function HomeView() {
                         rank={1}
                         now={now.getTime()}
                         favorite
+                        areaTreeHint={vieleUnsicher}
                       />
                     ))}
                   </section>
                 )}
 
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm text-muted">
-                    {visible.length} {visible.length === 1 ? "Ort" : "Orte"} in der
-                    Nähe, oben steht, wo es{" "}
-                    {filters.timeOffsetMin === 0
-                      ? "gerade"
-                      : `in ${filters.timeOffsetMin} Minuten`}{" "}
-                    am angenehmsten ist.
-                  </p>
-                  <InfoButton
-                    title="Wie wird sortiert?"
-                    ariaLabel="Erklärung zur Sortierung"
-                  >
-                    <p>{SCORE_ERKLAERUNG}</p>
-                    <p>
-                      Der Wert steht als Ring auf jeder Karte. Je voller der
-                      Ring, desto besser passt der Ort zu diesem Moment.
-                    </p>
-                  </InfoButton>
-                </div>
+                {/* Die Antwort steht ganz oben. Alles Erklärende –
+                    Alternative, Anzahl, Sortier-Erklärung – kommt erst
+                    danach: Wer die App öffnet, will den Platz sehen, nicht
+                    die Begründung. */}
                 {uebrige.slice(0, sichtbar).map((place, index) => (
-                  <PlaceCard
-                    key={place.id}
-                    place={place}
-                    origin={coords}
-                    radius={radius}
-                    // „Beste Wahl gerade" nur, wenn der Ort wirklich der
-                    // Spitzenreiter der GESAMT-Sortierung ist. Ist der ein
-                    // gemerkter Platz, führt er oben die „Meine Plätze"-Sektion
-                    // an – dann trägt hier niemand fälschlich das Banner.
-                    rank={place.id === visible[0]?.id ? 0 : index + 1}
-                    now={now.getTime()}
-                  />
+                  <Fragment key={place.id}>
+                    <PlaceCard
+                      place={place}
+                      origin={coords}
+                      radius={radius}
+                      // „Beste Wahl gerade" nur, wenn der Ort wirklich der
+                      // Spitzenreiter der GESAMT-Sortierung ist. Ist der ein
+                      // gemerkter Platz, führt er oben die „Meine Plätze"-Sektion
+                      // an – dann trägt hier niemand fälschlich das Banner.
+                      rank={place.id === visible[0]?.id ? 0 : index + 1}
+                      now={now.getTime()}
+                      areaTreeHint={vieleUnsicher}
+                    />
+                    {index === 0 && (
+                      <>
+                    {/* Direkt zum nächsten Spielplatz – egal wie er bewertet ist.
+                        Entfällt, wenn er sowieso als beste Wahl ganz oben steht. */}
+                    {nearestPlayground &&
+                      visible[0]?.id !== nearestPlayground.place.id &&
+                      !favorites.ids.includes(nearestPlayground.place.id) && (
+                      <Link
+                        href={placeHref(
+                          nearestPlayground.place.id,
+                          `lat=${coords.lat.toFixed(5)}&lng=${coords.lng.toFixed(5)}` +
+                            `&plat=${nearestPlayground.place.lat.toFixed(5)}` +
+                            `&plng=${nearestPlayground.place.lng.toFixed(5)}&r=${radius}`,
+                        )}
+                        className="flex items-center gap-3 rounded-card border border-line bg-card px-4 py-3 shadow-card transition active:scale-[0.99]"
+                      >
+                        <ToyBrick size={20} aria-hidden className="shrink-0 text-primary-dark" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[11px] font-semibold tracking-[0.14em] text-muted uppercase">
+                            Nächster Spielplatz
+                          </span>
+                          <span className="flex items-baseline gap-1.5 text-sm font-medium text-dark">
+                            <span className="truncate">{nearestPlayground.place.name}</span>
+                            <span className="shrink-0 text-muted">
+                              · {formatDistance(nearestPlayground.distance)}
+                            </span>
+                          </span>
+                        </span>
+                        <ChevronRight size={16} aria-hidden className="shrink-0 text-muted" />
+                      </Link>
+                    )}
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                          <p className="text-sm text-muted">
+                            {uebrige.length - 1 === 1
+                              ? "Ein weiterer Ort"
+                              : `${uebrige.length - 1} weitere Orte`}{" "}
+                            in der Nähe, nach demselben Wert geordnet.
+                          </p>
+                          <InfoButton
+                            title="Wie wird sortiert?"
+                            ariaLabel="Erklärung zur Sortierung"
+                          >
+                            <p>{SCORE_ERKLAERUNG}</p>
+                            <p>
+                              Der Wert steht als Ring auf jeder Karte. Je voller
+                              der Ring, desto besser passt der Ort zu diesem
+                              Moment.
+                            </p>
+                          </InfoButton>
+                        </div>
+
+                        {/* Einmal für die ganze Liste statt auf jeder Zeile. */}
+                        {(vieleUnsicher || places.treeDataQuality === "low") && (
+                          <p className="rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
+                            Bei den meisten Plätzen hier sind kaum Bäume in
+                            OpenStreetMap erfasst. Vor Ort kann es also
+                            schattiger sein, als wir zeigen – umgekehrt kaum.
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </Fragment>
                 ))}
 
                 {/* Eine endlose Liste erschlägt. Die ersten zehn beantworten
@@ -546,11 +597,8 @@ export function HomeView() {
               </div>
             )}
 
-            {places.treeDataQuality === "low" && visible.length > 0 && (
-              <p className="rounded-2xl bg-accent-soft p-3 text-xs leading-relaxed text-accent-ink">
-                In dieser Gegend sind nur wenige Bäume in OpenStreetMap erfasst.
-                Die Schattenangaben sind hier gröber geschätzt als anderswo.
-              </p>
+            {!loading && !error && (
+              <ToiletButton onClick={() => setToiletOpen(true)} className="w-full" />
             )}
 
             {visible.length > 0 && (

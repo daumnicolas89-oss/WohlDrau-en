@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { breakdownRows, weatherFactorNote } from "@/lib/wording";
+import { breakdownRows, gewichtsSatz, weatherFactorNote } from "@/lib/wording";
 import type { Place, Weather } from "@/types";
 import { TONE_COLORS, TONE_TEXT } from "@/components/ui/ScoreRing";
 
@@ -22,7 +22,23 @@ export function ScoreBreakdown({
   now: number;
 }) {
   const rows = breakdownRows(place, weather, at, now);
-  const wetterHinweis = weatherFactorNote(place.breakdown.weatherFactor);
+  const b = place.breakdown;
+  const wetterHinweis = weatherFactorNote(b.weatherFactor);
+
+  // Die Schlusszeile behauptete früher, der Wert entstehe „aus diesen vier
+  // Teilen" – Unterstand-Bonus, Zugangs-Abzug und Wetterdämpfer fehlten, die
+  // Rechnung ging für jeden nachprüfbar nicht auf.
+  const zusaetze: string[] = [];
+  if (b.shelterBonus > 0) zusaetze.push(`+${b.shelterBonus} für den Unterstand`);
+  if (b.accessMalus > 0)
+    zusaetze.push(`−${b.accessMalus} für den eingeschränkten Zugang`);
+  // Der Wetterabzug steht schon im Hinweiskasten darüber – hier nur, wenn
+  // dieser fehlt, sonst nennt die Seite dieselbe Zahl zweimal.
+  if (!wetterHinweis && b.weatherFactor < 0.995) {
+    zusaetze.push(
+      `−${Math.round((1 - b.weatherFactor) * 100)} % wegen Regen oder Wind`,
+    );
+  }
 
   return (
     <details className="group rounded-card bg-card shadow-card">
@@ -70,8 +86,11 @@ export function ScoreBreakdown({
           </p>
         )}
 
-        <p className="text-xs leading-relaxed text-muted">
-          Aus diesen vier Teilen entsteht der Gesamtwert von{" "}
+        <p className="border-t border-line pt-3 text-xs leading-relaxed text-muted">
+          {gewichtsSatz(b.weights)} Die vier Teile werden mit diesen Anteilen
+          verrechnet
+          {zusaetze.length > 0 && <>, dazu kommt {zusaetze.join(" und ")}</>}. So
+          entsteht der Gesamtwert von{" "}
           <span className="font-semibold text-dark">{place.pleasantScore}</span> von
           100.
         </p>

@@ -140,6 +140,8 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     distanceScore: distanceScoreOf(distanceM),
     weatherFactor: weatherFactorOf(w.precipitationProbability, weather.windSpeed),
     weights,
+    shelterBonus: 0,
+    accessMalus: 0,
   };
 
   // Ein Unterstand zählt das ganze Jahr, nur aus verschiedenen Gründen:
@@ -173,6 +175,9 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     breakdown.distanceScore * weights.distance +
     shelterBonus -
     accessMalus;
+
+  breakdown.shelterBonus = shelterBonus;
+  breakdown.accessMalus = accessMalus;
 
   const reasons: string[] = [];
   const warnings: string[] = [];

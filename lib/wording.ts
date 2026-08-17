@@ -52,10 +52,83 @@ export function scoreWording(score: number): Wording {
 }
 
 export const SCORE_ERKLAERUNG =
-  "Der Wert fasst vier Dinge zusammen: wie viel Schatten es dort gerade gibt " +
-  "(zählt am meisten), welche Ausstattung erfasst ist, was andere Eltern in " +
-  "den letzten Stunden gemeldet haben und wie weit der Weg ist. 100 wäre " +
-  "perfekt für dieses Wetter.";
+  "Der Wert fasst vier Dinge zusammen: wie viel Schatten es dort gerade gibt, " +
+  "welche Ausstattung bekannt ist, was andere Eltern in den letzten Stunden " +
+  "gemeldet haben und wie weit der Weg ist. Wie stark der Schatten zählt, " +
+  "hängt vom Wetter ab – bei Hitze entscheidet er fast allein, an milden Tagen " +
+  "kaum. Deshalb kann derselbe Platz morgens anders dastehen als mittags.";
+
+/**
+ * Was zählt bei DIESEM Wetter am meisten? Der feste Satz oben behauptete
+ * früher pauschal „Schatten zählt am meisten" – an milden Tagen wiegt der
+ * aber nur 15 %, und die Aufschlüsselung zeigte das auch so an. Die App
+ * widersprach sich selbst.
+ */
+export function gewichtsSatz(weights: {
+  shade: number;
+  amenity: number;
+  status: number;
+  distance: number;
+}): string {
+  const groesste = Math.max(weights.shade, weights.amenity, weights.distance);
+  if (weights.shade === groesste) {
+    return "Heute zählt vor allem der Schatten.";
+  }
+  if (weights.amenity === groesste) {
+    return "Heute ist es mild – deshalb zählt vor allem, was der Platz bietet.";
+  }
+  return "Heute ist es mild – deshalb zählt vor allem, wie nah der Platz ist.";
+}
+
+/**
+ * OpenStreetMap-Untergründe sind englische Rohwerte („fine_gravel"). So etwas
+ * gehört nicht in eine Eltern-App – und Mehrfachwerte („sand;grass") schon
+ * gar nicht als Semikolon-Kette.
+ */
+const UNTERGRUND: Record<string, string> = {
+  sand: "Sand",
+  grass: "Rasen",
+  artificial_turf: "Kunstrasen",
+  grass_paver: "Rasengittersteine",
+  woodchips: "Holzhäcksel",
+  wood_chips: "Holzhäcksel",
+  bark_mulch: "Rindenmulch",
+  mulch: "Rindenmulch",
+  gravel: "Kies",
+  fine_gravel: "Feinkies",
+  pebblestone: "Kiesel",
+  compacted: "Wassergebundene Decke",
+  dirt: "Erdboden",
+  earth: "Erdboden",
+  soil: "Erdboden",
+  ground: "Naturboden",
+  unpaved: "Unbefestigt",
+  paved: "Befestigt",
+  asphalt: "Asphalt",
+  concrete: "Beton",
+  paving_stones: "Pflastersteine",
+  sett: "Kopfsteinpflaster",
+  rubber: "Fallschutzmatten",
+  tartan: "Kunststoffbelag",
+  synthetic: "Kunststoffbelag",
+  wood: "Holz",
+  metal: "Metall",
+  clay: "Tenne",
+  stone: "Stein",
+  rock: "Fels",
+};
+
+export function surfaceLabel(raw: string): string {
+  const teile = raw
+    .split(";")
+    .map((t) => t.trim().toLowerCase())
+    .filter(Boolean)
+    .map((t) => UNTERGRUND[t] ?? t.replace(/_/g, " "));
+  const einmalig = [...new Set(teile)];
+  if (einmalig.length === 0) return raw;
+  if (einmalig.length === 1) return einmalig[0];
+  return `${einmalig.slice(0, -1).join(", ")} und ${einmalig[einmalig.length - 1]}`;
+}
 
 /* ---------------------------------------------------------------- Schatten */
 
@@ -264,11 +337,14 @@ function schattenGrund(state: Place["shade"]["state"]): string {
 
 export function mainDriver(place: Place): Driver {
   const b = place.breakdown;
+  // Die tatsächlich verwendeten Gewichte, nicht die Standardwerte: bei mildem
+  // Wetter wiegt Schatten nur 15 %, dann darf er nicht als Hauptgrund gelten.
+  const w = b.weights;
   const beitraege = [
-    { key: "shade", delta: (b.shadeScore - 50) * 0.45 },
-    { key: "amenity", delta: (b.amenityScore - 50) * 0.25 },
-    { key: "status", delta: (b.statusScore - 50) * 0.2 },
-    { key: "distance", delta: (b.distanceScore - 50) * 0.1 },
+    { key: "shade", delta: (b.shadeScore - 50) * w.shade },
+    { key: "amenity", delta: (b.amenityScore - 50) * w.amenity },
+    { key: "status", delta: (b.statusScore - 50) * w.status },
+    { key: "distance", delta: (b.distanceScore - 50) * w.distance },
   ].sort((a, z) => Math.abs(z.delta) - Math.abs(a.delta));
 
   const staerkster = beitraege[0];

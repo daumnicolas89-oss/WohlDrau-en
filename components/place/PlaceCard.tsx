@@ -11,7 +11,7 @@ import { PlaceKindTag } from "./PlaceKindTag";
 /** „Im Grünen, aber kaum Bäume getaggt": der echte Schatten kann höher sein als
  *  gezeigt. Dieser Ehrlichkeits-Hinweis gehört an jede betroffene Karte. */
 const WENIG_BAEUME_HINT =
-  "Wenige Bäume erfasst, hier kann es schattiger sein als angezeigt.";
+  "Wir kennen hier kaum Bäume – es kann schattiger sein, als wir zeigen.";
 const ZUGANG_HINT = "Zugang evtl. eingeschränkt, z. B. Schulhof.";
 
 /**
@@ -27,6 +27,7 @@ export function PlaceCard({
   rank,
   now,
   favorite = false,
+  areaTreeHint = false,
 }: {
   place: Place;
   origin: { lat: number; lng: number };
@@ -37,6 +38,12 @@ export function PlaceCard({
   now: number;
   /** Gemerkter Platz („Meine Plätze"): kleiner Stern am Namen. */
   favorite?: boolean;
+  /**
+   * Für die ganze Gegend steht der Baum-Hinweis schon einmal über der Liste.
+   * Dann wäre er auf jeder einzelnen Zeile nur Rauschen – zehnmal derselbe
+   * Satz liest am Ende niemand mehr.
+   */
+  areaTreeHint?: boolean;
 }) {
   // Der Link trägt beides: den Standort des Nutzers (für die Entfernung) und
   // den des Ortes (damit die Detailseite gezielt dort nachladen kann).
@@ -79,18 +86,24 @@ export function PlaceCard({
                 className="shrink-0 fill-accent text-accent"
               />
             )}
-            <span className="truncate">{place.name}</span>
+            <span className="[display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
+              {place.name}
+            </span>
           </h3>
-          <PlaceKindTag
-            kind={place.kind}
-            iconSize={14}
-            className="mt-0.5 text-xs font-medium text-muted"
-          />
-          <p className="mt-0.5 truncate text-sm text-muted">
-            {shadeWording(place.shade.state, place.shade.index).label} ·{" "}
-            {formatDistance(distance)}
+          {/* Die Zahl im Ring allein sagt niemandem etwas. Das Wort davor
+              beantwortet „ist 54 gut?" ohne Nachdenken. */}
+          <p className="mt-0.5 truncate text-sm">
+            <span className={`font-semibold ${TONE_TEXT[bewertung.tone]}`}>
+              {bewertung.label}
+            </span>
+            <span className="text-muted"> · {formatDistance(distance)}</span>
           </p>
-          {wenigBaumdaten && (
+          <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted">
+            <PlaceKindTag kind={place.kind} iconSize={14} className="font-medium" />
+            <span aria-hidden className="text-dark/25">·</span>
+            {shadeWording(place.shade.state, place.shade.index).label}
+          </p>
+          {wenigBaumdaten && !areaTreeHint && (
             <p className="mt-0.5 text-xs leading-snug text-muted">
               {WENIG_BAEUME_HINT}
             </p>

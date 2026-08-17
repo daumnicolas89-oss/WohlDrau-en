@@ -195,7 +195,7 @@ export function FilterSheet({
         <div>
           <h3 className="text-sm font-semibold text-dark">Wichtig für mich</h3>
           <p className="mb-1 text-xs leading-relaxed text-muted">
-            Solche Orte kommen zuerst nach oben. Ausgeblendet wird nichts.
+            Solche Orte rutschen in der Liste nach oben. Diese Wünsche blenden nichts aus.
           </p>
           <ToggleRow
             label="Toilette"
@@ -229,9 +229,18 @@ export function FilterSheet({
             match={{ hits: counts.wheelchair, total: counts.total }}
             onChange={(value) => filters.set("preferWheelchair", value)}
           />
+        </div>
+
+        {/* Eigene Gruppe: dieser Schalter blendet wirklich aus und stand
+            vorher direkt unter dem Satz „Ausgeblendet wird nichts". */}
+        <div>
+          <h3 className="text-sm font-semibold text-dark">Ausblenden</h3>
+          <p className="mb-1 text-xs leading-relaxed text-muted">
+            Diese Orte tauchen in der Liste dann gar nicht mehr auf.
+          </p>
           <ToggleRow
-            label="Orte mit Warnungen ausblenden"
-            hint="Zum Beispiel „zu sonnig“ oder „sehr voll“, blendet aus"
+            label="Orte mit Warnungen"
+            hint="Zum Beispiel „zu sonnig“ oder „sehr voll“, von Eltern gemeldet"
             checked={filters.hideReportedProblems}
             onChange={(value) => filters.set("hideReportedProblems", value)}
           />
@@ -240,7 +249,8 @@ export function FilterSheet({
         <p className="rounded-2xl bg-background p-3 text-xs leading-relaxed text-muted">
           Die Angaben stammen aus OpenStreetMap, das Freiwillige pflegen. Vieles
           ist dort nicht eingetragen, Zäune besonders selten. Deshalb sortieren
-          diese Wünsche die Orte nur nach oben, statt welche auszublenden.
+          die Wünsche unter „Wichtig für mich“ die Orte nur nach oben, statt welche
+          auszublenden.
         </p>
       </div>
     </Sheet>

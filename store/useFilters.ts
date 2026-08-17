@@ -71,8 +71,15 @@ export const useFilters = create<FilterStore>()(
           const next = state.types.includes(type)
             ? state.types.filter((t) => t !== type)
             : [...state.types, type];
-          // Ohne Ortsart gäbe es nichts zu zeigen.
-          return { types: next.length ? next : state.types };
+          // Die letzte Art abzuwählen tat vorher gar nichts – der Knopf sah
+          // kaputt aus. Stattdessen springt die Auswahl auf die andere Art:
+          // „nur Grünflächen" statt „nichts".
+          if (next.length) return { types: next };
+          return {
+            types: (["playground", "park"] as PlaceType[]).filter(
+              (t) => t !== type,
+            ),
+          };
         }),
       reset: () => set({ ...DEFAULT_FILTERS }),
     }),

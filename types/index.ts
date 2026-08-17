@@ -112,6 +112,10 @@ export interface ScoreBreakdown {
    * damit es auch an milden Tagen einen echten Sieger gibt.
    */
   weights: { shade: number; amenity: number; status: number; distance: number };
+  /** Aufschläge/Abzüge außerhalb der vier Teile – sonst geht die Rechnung
+   *  in der Aufschlüsselung sichtbar nicht auf. */
+  shelterBonus: number;
+  accessMalus: number;
 }
 
 /** Bewerteter Ort – das, womit die UI arbeitet. */

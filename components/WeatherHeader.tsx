@@ -34,26 +34,6 @@ import { Logo } from "./Logo";
 import { OutfitSheet } from "./OutfitSheet";
 import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
 
-function Wert({
-  label,
-  children,
-  breit = false,
-}: {
-  label: string;
-  children: React.ReactNode;
-  /** Die Sonne-Spalte trägt „keine (UV 0,0)" und braucht mehr Platz als „28 %". */
-  breit?: boolean;
-}) {
-  return (
-    <div className={`min-w-0 ${breit ? "flex-[1.5]" : "flex-1"}`}>
-      <dt className="text-[11px] font-medium tracking-wide text-muted uppercase">
-        {label}
-      </dt>
-      <dd className="mt-0.5 text-[15px] font-semibold text-dark">{children}</dd>
-    </div>
-  );
-}
-
 export function WeatherHeader({
   weather,
   weatherError = false,
@@ -148,7 +128,7 @@ export function WeatherHeader({
 
   return (
     <header
-      className={`sky-hero relative overflow-hidden px-4 pt-[max(1.15rem,calc(env(safe-area-inset-top)+0.75rem))] ${kompakt ? "pb-3" : "pb-6"}`}
+      className={`sky-hero relative overflow-hidden px-4 pt-[max(1.15rem,calc(env(safe-area-inset-top)+0.75rem))] ${kompakt ? "pb-3" : "pb-4"}`}
       style={mood ? { background: SKY_GRADIENT[mood] } : undefined}
     >
       {mood && <SkyScene mood={mood} />}
@@ -189,22 +169,36 @@ export function WeatherHeader({
       )}
 
       {!kompakt && values && weather && uv && (
-        <div className="relative mt-5">
-          <div className="flex items-start gap-2">
-            <span className="font-display text-[52px] leading-[0.9] font-bold tracking-tight text-dark tabular-nums">
-              {Math.round(values.temperature)}
-            </span>
-            <span className="mt-1 font-display text-2xl font-semibold text-dark/70">
-              °C
-            </span>
-            <span className="mt-auto pb-2 pl-1 text-sm text-muted">
-              gefühlt {Math.round(values.apparentTemperature)}°
-            </span>
+        <div className="relative mt-4">
+          {/* Grad, Gefühlt und der Anzieh-Knopf teilen sich eine Zeile. Vorher
+              standen sie untereinander – zusammen mit dem Werte-Kasten begann
+              der erste Platz erst nach einer halben Bildschirmhöhe. Die App
+              stellte damit ihre Begründung vor ihre Antwort. */}
+          <div className="flex items-end justify-between gap-3">
+            <div className="flex items-end gap-1.5">
+              <span className="font-display text-[44px] leading-[0.85] font-bold tracking-tight text-dark tabular-nums">
+                {Math.round(values.temperature)}
+              </span>
+              <span className="font-display text-xl leading-none font-semibold text-dark/70">
+                °C
+              </span>
+              <span className="pb-0.5 pl-1 text-[13px] leading-none text-muted">
+                gefühlt {Math.round(values.apparentTemperature)}°
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setOutfitOpen(true)}
+              className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 text-sm font-semibold text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
+            >
+              <Shirt size={15} aria-hidden className="text-primary-dark" />
+              Was anziehen?
+            </button>
           </div>
 
-          {/* Der emotionale Kern: ein Satz, der sagt, worauf es jetzt ankommt –
-              deshalb als Überschrift, nicht als Fußnote. */}
-          <p className="mt-4 font-display text-2xl leading-snug font-semibold text-balance text-dark">
+          {/* Der eine Satz, der sagt, worauf es jetzt ankommt. */}
+          <p className="mt-2.5 font-display text-xl leading-snug font-semibold text-balance text-dark">
             {weatherAdvice(
               values.apparentTemperature,
               values.uvIndex,
@@ -213,11 +207,10 @@ export function WeatherHeader({
             )}
           </p>
 
-          {/* Sicherheits-Banner: Glätte, Schnee, Kälte – oder Hitze/UV im Sommer.
-              Ruhig, aber deutlich. Er belegt den einzigen Hinweis-Platz des
-              Kopfes (siehe unten). */}
+          {/* Sicherheits-Banner: Glätte, Schnee, Kälte – oder Hitze/UV im
+              Sommer. Ruhig, aber deutlich, und immer sichtbar. */}
           {alert && alertMeta && (
-            <div className="mt-3 flex items-start gap-2 rounded-2xl border border-white/70 bg-white/70 p-3 text-sm leading-snug text-dark backdrop-blur">
+            <div className="mt-2.5 flex items-start gap-2 rounded-2xl border border-white/70 bg-white/70 px-3 py-2.5 text-sm leading-snug text-dark backdrop-blur">
               <alertMeta.Icon
                 size={16}
                 aria-hidden
@@ -227,59 +220,57 @@ export function WeatherHeader({
             </div>
           )}
 
-          {/* Jede Zahl bekommt ihre Bezeichnung, „0 %“ allein ist ein Rätsel.
-              Das Tageslicht gehört zu diesen Werten, nicht zum Anzieh-Knopf. */}
-          <div className="mt-4 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 backdrop-blur">
-            <dl className="flex gap-3">
-              <Wert label="Sonne" breit>
-                {dayAt ? (
-                  <>
-                    <span className={TONE_TEXT[uv.tone]}>{uv.label}</span>{" "}
-                    <span className="font-normal text-muted">
-                      · UV {values.uvIndex.toFixed(1).replace(".", ",")}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    keine{" "}
-                    <span className="font-normal text-muted">
-                      (UV {values.uvIndex.toFixed(1).replace(".", ",")})
-                    </span>
-                  </>
-                )}
-              </Wert>
-              <span aria-hidden className="w-px self-stretch bg-dark/12" />
-              <Wert label="Regen">
-                {Math.round(values.precipitationProbability)} %
-              </Wert>
-              <span aria-hidden className="w-px self-stretch bg-dark/12" />
-              <Wert label="Wind">
-                <span className={regime === "cold" ? "text-accent-ink" : undefined}>
-                  {Math.round(weather.windSpeed)} km/h
+          {/* Eine Zeile statt eines Kastens – jede Zahl behält ihre
+              Bezeichnung, „10 %" allein bliebe ein Rätsel. */}
+          <dl className="mt-2.5 flex items-center gap-2 overflow-hidden rounded-full border border-white/70 bg-white/55 px-3 py-2 text-xs backdrop-blur">
+            {/* „Sonne sehr hoch · UV 9,2" sprengte die Zeile und kürzte
+                ausgerechnet an Hitzetagen das Wort weg. Kurzform: Zahl wie bei
+                Regen und Wind, das einordnende Wort dahinter. */}
+            <div className="flex min-w-0 items-baseline gap-1">
+              <dt className="shrink-0 text-muted">UV</dt>
+              <dd className="flex min-w-0 items-baseline gap-1">
+                <span className="shrink-0 font-semibold text-dark">
+                  {values.uvIndex.toFixed(1).replace(".", ",")}
                 </span>
-              </Wert>
-            </dl>
-            {(tageslicht || besteZeit || regenRadar) && (
-              <div className="mt-2 space-y-0.5 border-t border-line/60 pt-2 text-[13px] text-muted">
-                {regenRadar && (
-                  <p className="font-semibold text-accent-ink">{regenRadar}</p>
+                {dayAt && (
+                  <span className={`truncate font-semibold ${TONE_TEXT[uv.tone]}`}>
+                    {uv.label}
+                  </span>
                 )}
-                {besteZeit && <p className="font-medium text-dark">{besteZeit}</p>}
-                {tageslicht && <p>{tageslicht}</p>}
-              </div>
-            )}
-          </div>
+              </dd>
+            </div>
+            <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
+            <div className="flex shrink-0 items-baseline gap-1">
+              <dt className="text-muted">Regen</dt>
+              <dd className="font-semibold text-dark">
+                {Math.round(values.precipitationProbability)} %
+              </dd>
+            </div>
+            <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
+            <div className="flex shrink-0 items-baseline gap-1">
+              <dt className="text-muted">Wind</dt>
+              <dd
+                className={`font-semibold ${regime === "cold" ? "text-accent-ink" : "text-dark"}`}
+              >
+                {Math.round(weather.windSpeed)} km/h
+              </dd>
+            </div>
+          </dl>
 
-          {/* Der Absprung zum Anzieh-Fenster kommt zuletzt: erst die Lage,
-              dann die Handlung. */}
-          <button
-            type="button"
-            onClick={() => setOutfitOpen(true)}
-            className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/70 bg-white/60 px-4 py-2.5 text-[15px] font-semibold text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
-          >
-            <Shirt size={16} aria-hidden className="text-primary-dark" />
-            Was anziehen?
-          </button>
+          {/* Aufziehender Regen ist dringend und bleibt eigenständig. Beste
+              Zeit und Sonnenuntergang sind Beiwerk und teilen sich eine Zeile. */}
+          {regenRadar && (
+            <p className="mt-2 text-[13px] leading-snug font-semibold text-accent-ink">
+              {regenRadar}
+            </p>
+          )}
+          {(besteZeit || tageslicht) && (
+            <p className="mt-1.5 text-[13px] leading-snug text-muted">
+              {besteZeit && <span className="font-medium text-dark">{besteZeit}</span>}
+              {besteZeit && tageslicht && " · "}
+              {tageslicht}
+            </p>
+          )}
         </div>
       )}
 
