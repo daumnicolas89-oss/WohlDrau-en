@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /** Ab hier ist klar: Es liegt nicht am Handy, sondern an OpenStreetMap. */
-const PATIENCE_MS = 8000;
+const PATIENCE_MS = 5000;
 
 /** Schlanke Zeile, deckungsgleich mit der echten Listen-Zeile (Ring + zwei
  *  Textzeilen), damit beim Laden nichts umspringt. */
@@ -63,6 +63,25 @@ export function PlacesLoading({
 
   return (
     <div className="space-y-3 p-4">
+      {/* Der Hinweis stand früher UNTER den Platzhaltern – auf dem Handy also
+          außerhalb des Bildschirms. Wer wartet, sah nur leere Kästen und
+          hielt die App für kaputt. Jetzt steht er da, wo man hinschaut. */}
+      <p
+        className="flex items-center justify-center gap-2 text-center text-sm text-muted"
+        aria-live="polite"
+      >
+        <span
+          aria-hidden
+          className="size-3 shrink-0 animate-spin rounded-full border-2 border-line border-t-primary-dark"
+        />
+        {slow ? "Das dauert heute länger …" : "Orte werden geladen …"}
+      </p>
+      {slow && (
+        <p className="text-center text-xs leading-relaxed text-muted">
+          Beim ersten Besuch einer Gegend holen wir die Kartendaten live von
+          OpenStreetMap. Beim nächsten Mal geht es sofort.
+        </p>
+      )}
       <div className="animate-pulse space-y-3">
         {hero ? (
           <>
@@ -82,15 +101,6 @@ export function PlacesLoading({
           </>
         )}
       </div>
-      <p className="text-center text-sm text-muted" aria-live="polite">
-        Orte, Wetter und Sonnenstand werden geladen …
-      </p>
-      {slow && (
-        <p className="text-center text-xs leading-relaxed text-muted">
-          Beim ersten Besuch einer Gegend holen wir die Kartendaten live von
-          OpenStreetMap. Das kann eine Minute dauern. Beim nächsten Mal geht es sofort.
-        </p>
-      )}
     </div>
   );
 }

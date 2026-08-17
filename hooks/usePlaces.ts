@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PLACES_SCHEMA_VERSION } from "@/lib/schemaVersion";
+
+/** Overpass braucht für eine neue Gegend bis ~60 s. Danach ist etwas kaputt,
+ *  und Warten hilft nicht mehr – dann lieber ehrlich sein und neu anbieten. */
+const FETCH_TIMEOUT_MS = 75_000;
 import { loadLastVisit, saveLastVisit } from "@/lib/lastVisit";
 import { apiUrl } from "@/lib/appMode";
 import { haversine } from "@/lib/utils";
@@ -95,6 +99,14 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
 
   useEffect(() => {
     const controller = new AbortController();
+    // Ohne Zeitlimit wartete die App unbegrenzt: kein Fehler, kein Ausweg,
+    // nur Skelette. Auf dem Handy im Funkloch bleibt eine fetch-Anfrage
+    // beliebig lange hängen. Nach dieser Zeit brechen wir ab und sagen es.
+    const abbruch = setTimeout(() => controller.abort("timeout"), FETCH_TIMEOUT_MS);
+    let abgelaufen = false;
+    const abgelaufenPruefen = setTimeout(() => {
+      abgelaufen = true;
+    }, FETCH_TIMEOUT_MS - 50);
 
     async function load() {
       setLoading(true);
@@ -127,15 +139,31 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
           anchor: { lat, lng },
         });
       } catch (err) {
+        // Selbst abgebrochen wegen Zeitüberschreitung: Das ist KEIN stiller
+        // Abbruch, sondern der Fall, den der Nutzer erklärt bekommen muss.
+        if (abgelaufen) {
+          setError(
+            "Die Orte brauchen gerade zu lange. Das liegt meist an OpenStreetMap " +
+              "oder an schwachem Empfang.",
+          );
+          setLoading(false);
+          return;
+        }
         if (controller.signal.aborted) return;
         setError(err instanceof Error ? err.message : "Etwas ist schiefgelaufen");
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        clearTimeout(abbruch);
+        clearTimeout(abgelaufenPruefen);
+        if (!controller.signal.aborted || abgelaufen) setLoading(false);
       }
     }
 
     load();
-    return () => controller.abort();
+    return () => {
+      clearTimeout(abbruch);
+      clearTimeout(abgelaufenPruefen);
+      controller.abort();
+    };
   }, [lat, lng, radius, nonce]);
 
   const reload = useCallback(() => setNonce((n) => n + 1), []);
