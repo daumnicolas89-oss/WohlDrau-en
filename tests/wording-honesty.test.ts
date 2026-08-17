@@ -94,3 +94,29 @@ describe("shadeOutlook", () => {
     assert.match(shadeOutlook(b, a) ?? "", /sonniger/);
   });
 });
+
+describe("mainDriver bei Regenwetter", () => {
+  it("nennt den Regen, wenn der Dämpfer stärker drückt als jeder Einzelteil", () => {
+    // Realfall Bürgerpark: 75 % Regenrisiko → Faktor 0,625 → Wert 35.
+    // Die App nannte als Grund „Ausstattung" – der wahre Grund war der Regen.
+    const regen = weather({
+      windSpeed: 12,
+      hourly: {
+        time: ["2026-06-21T13:00"],
+        temperature: [17],
+        apparentTemperature: [16],
+        cloudCover: [95],
+        precipitationProbability: [75],
+        uvIndex: [1],
+      },
+    });
+    const bewertet = scorePlace(place({}), {
+      weather: regen,
+      at: NOON,
+      distanceM: 200,
+      statuses: [],
+      now: NOON.getTime(),
+    });
+    assert.match(mainDriver(bewertet).text, /Regen/);
+  });
+});

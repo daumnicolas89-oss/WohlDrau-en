@@ -314,7 +314,7 @@ export function PlaceDetail({
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-1">
                   <p className="text-[11px] font-semibold tracking-wide text-sky-muted uppercase">
-                    Angenehm jetzt
+                    Wie angenehm ist es jetzt?
                   </p>
                   <InfoButton
                     title="Wie kommt dieser Wert zustande?"

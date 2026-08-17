@@ -374,6 +374,24 @@ export function mainDriver(place: Place): Driver {
   const staerkster = beitraege[0];
   const positiv = staerkster.delta > 0;
 
+  // Der Wetter-Dämpfer multipliziert den GANZEN Wert – bei 75 % Regenrisiko
+  // drückt er stärker als jeder Einzelteil. Dann muss der Grund „Regen"
+  // heißen, nicht „Ausstattung": Nutzer sehen „Eher unangenehm" bei dichten
+  // Wolken und fragen sich sonst zu Recht, wie das zustande kommt.
+  const daempfungPunkte =
+    b.weatherFactor < 1
+      ? (place.pleasantScore * (1 - b.weatherFactor)) / b.weatherFactor
+      : 0;
+  if (
+    b.weatherDriver &&
+    daempfungPunkte >= 8 &&
+    daempfungPunkte > Math.abs(staerkster.delta)
+  ) {
+    return b.weatherDriver === "rain"
+      ? { text: "Der angesagte Regen drückt gerade jeden Platz.", tone: "bad" }
+      : { text: "Der kräftige Wind drückt gerade jeden Platz.", tone: "bad" };
+  }
+
   if (Math.abs(staerkster.delta) < 4) {
     return { text: "Alles im Mittelfeld, nichts sticht heraus.", tone: "neutral" };
   }

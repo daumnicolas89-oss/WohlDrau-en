@@ -98,10 +98,15 @@ function distanceScoreOf(distanceM: number): number {
 }
 
 /** Regen und starker Wind machen jeden Ort schlechter, nicht nur einen. */
-function weatherFactorOf(precipitationProbability: number, windSpeed: number): number {
+function weatherFactorOf(
+  precipitationProbability: number,
+  windSpeed: number,
+): { factor: number; driver: "rain" | "wind" | null } {
   const rain = clamp(precipitationProbability / 100) * 0.5;
   const wind = clamp((windSpeed - 18) / 30) * 0.15;
-  return clamp(1 - rain - wind, 0.4, 1);
+  const factor = clamp(1 - rain - wind, 0.4, 1);
+  const driver = factor >= 0.97 ? null : rain >= wind ? "rain" : "wind";
+  return { factor, driver };
 }
 
 export interface ScoreContext {
@@ -138,7 +143,10 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     amenityScore: amenityScoreOf(place),
     statusScore: statusScoreOf(fresh, now),
     distanceScore: distanceScoreOf(distanceM),
-    weatherFactor: weatherFactorOf(w.precipitationProbability, weather.windSpeed),
+    ...(() => {
+      const wetter = weatherFactorOf(w.precipitationProbability, weather.windSpeed);
+      return { weatherFactor: wetter.factor, weatherDriver: wetter.driver };
+    })(),
     weights,
     shelterBonus: 0,
     accessMalus: 0,

@@ -116,6 +116,8 @@ export interface ScoreBreakdown {
    *  in der Aufschlüsselung sichtbar nicht auf. */
   shelterBonus: number;
   accessMalus: number;
+  /** Was den Dämpfer dominiert – damit der Hauptgrund „Regen" sagen kann. */
+  weatherDriver: "rain" | "wind" | null;
 }
 
 /** Bewerteter Ort – das, womit die UI arbeitet. */
