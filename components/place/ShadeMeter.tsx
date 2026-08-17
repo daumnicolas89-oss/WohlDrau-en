@@ -21,6 +21,7 @@ export function ShadeMeter({
   size = "sm",
   reason,
   estimateHint = false,
+  spaeter = false,
 }: {
   state: ShadeState;
   /** 0..1 */
@@ -29,8 +30,10 @@ export function ShadeMeter({
   reason?: string;
   /** Kennzeichnet den Wert als Schätzung, auf der Karte, wo der Platz fehlt. */
   estimateHint?: boolean;
+  /** Zeitvorschau: Beschriftung in Zukunftsform. */
+  spaeter?: boolean;
 }) {
-  const wording = shadeWording(state, shadeIndex);
+  const wording = shadeWording(state, shadeIndex, spaeter);
   const Icon = ICONS[state];
   const tone: Tone = wording.tone;
   const prozent = Math.round(shadeIndex * 100);

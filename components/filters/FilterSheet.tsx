@@ -38,7 +38,7 @@ function SegmentedControl<T extends string | number>({
               type="button"
               aria-pressed={active}
               onClick={() => onChange(choice.value)}
-              className={`min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold transition ${
+              className={`min-h-11 flex-1 rounded-xl px-2 text-sm font-semibold whitespace-nowrap transition max-[359px]:text-[13px] ${
                 active
                   ? "bg-card text-dark shadow-card ring-1 ring-primary-dark/45"
                   : "text-muted active:bg-card/60"
@@ -68,8 +68,16 @@ function ToggleRow({
   onChange: (checked: boolean) => void;
 }) {
   const scarce = match && match.total > 0 && match.hits / match.total < 0.1;
+  // Bei null Treffern würde der Schalter exakt nichts bewirken – dann soll
+  // er es auch nicht versprechen. Die Zeile bleibt sichtbar (ehrlich: „nur
+  // 0 von 95 erfasst"), nur der Schalter ist aus dem Spiel.
+  const wirkungslos = match !== undefined && match.total > 0 && match.hits === 0;
   return (
-    <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 border-b border-line py-3 last:border-b-0">
+    <label
+      className={`flex min-h-14 items-center justify-between gap-4 border-b border-line py-3 last:border-b-0 ${
+        wirkungslos ? "cursor-default opacity-50" : "cursor-pointer"
+      }`}
+    >
       <span>
         <span className="block text-[15px] font-medium text-dark">
           {label}
@@ -87,6 +95,7 @@ function ToggleRow({
       <input
         type="checkbox"
         checked={checked}
+        disabled={wirkungslos}
         onChange={(event) => onChange(event.target.checked)}
         className="peer sr-only"
       />

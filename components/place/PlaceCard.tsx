@@ -28,6 +28,7 @@ export function PlaceCard({
   now,
   favorite = false,
   areaTreeHint = false,
+  zeitLabel,
 }: {
   place: Place;
   origin: { lat: number; lng: number };
@@ -38,6 +39,12 @@ export function PlaceCard({
   now: number;
   /** Gemerkter Platz („Meine Plätze"): kleiner Stern am Namen. */
   favorite?: boolean;
+  /**
+   * Zeitvorschau der Liste („in 30 Min"/„in 1 Std"): Banner und
+   * Schatten-Beschriftung wechseln die Zeitform, sonst behauptet die Karte
+   * „gerade", während die Werte für später gerechnet sind.
+   */
+  zeitLabel?: string;
   /**
    * Für die ganze Gegend steht der Baum-Hinweis schon einmal über der Liste.
    * Dann wäre er auf jeder einzelnen Zeile nur Rauschen – zehnmal derselbe
@@ -50,7 +57,11 @@ export function PlaceCard({
   const href = placeHref(
     place.id,
     `lat=${origin.lat.toFixed(5)}&lng=${origin.lng.toFixed(5)}` +
-      `&plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}&r=${radius}`,
+      `&plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}&r=${radius}` +
+      // Der Wert, den die Liste gerade zeigt: Lädt die Detailseite frischeres
+      // Wetter und rechnet spürbar anders, kann sie den Sprung ERKLÄREN,
+      // statt wie ein Fehler auszusehen (56 in der Liste, 40 im Kopf).
+      `&ls=${place.pleasantScore}`,
   );
 
   const bewertung = scoreWording(place.pleasantScore);
@@ -58,6 +69,7 @@ export function PlaceCard({
   const meldung = statusSentence(place.lastStatuses, now);
   const chips = factChips(place);
   const beste = rank === 0;
+  const spaeter = zeitLabel !== undefined && zeitLabel !== "gerade";
   const wenigBaumdaten =
     place.shadeInputs.confidence === "low" && place.shadeInputs.inGreen;
   const eingeschraenkt = place.tags.restrictedAccess === true;
@@ -101,7 +113,7 @@ export function PlaceCard({
           <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted">
             <PlaceKindTag kind={place.kind} iconSize={14} className="font-medium" />
             <span aria-hidden className="text-dark/25">·</span>
-            {shadeWording(place.shade.state, place.shade.index).label}
+            {shadeWording(place.shade.state, place.shade.index, spaeter).label}
           </p>
           {wenigBaumdaten && !areaTreeHint && (
             <p className="mt-0.5 text-xs leading-snug text-muted">
@@ -127,7 +139,7 @@ export function PlaceCard({
       {beste && (
         <p className="flex items-center gap-1.5 bg-accent-soft px-4 py-2 text-[11px] font-semibold tracking-[0.14em] text-accent-ink uppercase">
           <Sun size={14} aria-hidden />
-          Beste Wahl gerade
+          Beste Wahl {zeitLabel ?? "gerade"}
         </p>
       )}
 
@@ -161,6 +173,7 @@ export function PlaceCard({
             state={place.shade.state}
             shadeIndex={place.shade.index}
             estimateHint
+            spaeter={spaeter}
           />
           {wenigBaumdaten && (
             <p className="mt-1.5 text-xs leading-relaxed text-muted">

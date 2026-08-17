@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { shadeWindow } from "@/lib/sun";
-import { formatTime } from "@/lib/utils";
 import { shadeShort, type Tone } from "@/lib/wording";
 import type { OsmPlace, ShadeState, Weather } from "@/types";
 import { TONE_COLORS } from "@/components/ui/ScoreRing";
@@ -41,8 +40,8 @@ export function ShadeTimeline({
               className="flex h-20 items-end rounded-lg bg-background"
               role="img"
               // title erreicht nur die Maus – das aria-label auch Touch-Reader.
-              aria-label={`${index === 0 ? "Jetzt" : formatTime(at)}: ${shadeShort(shade.state, shade.index)}`}
-              title={`${index === 0 ? "Jetzt" : formatTime(at)}: ${shadeShort(shade.state, shade.index)}`}
+              aria-label={`${index === 0 ? "Jetzt" : `${at.getHours()} Uhr`}: ${shadeShort(shade.state, shade.index)}`}
+              title={`${index === 0 ? "Jetzt" : `${at.getHours()} Uhr`}: ${shadeShort(shade.state, shade.index)}`}
             >
               <div
                 className="w-full rounded-lg"
@@ -53,7 +52,7 @@ export function ShadeTimeline({
               />
             </div>
             <p className="mt-1.5 text-center text-[11px] font-medium text-muted">
-              {index === 0 ? "jetzt" : formatTime(at)}
+              {index === 0 ? "jetzt" : `${at.getHours()} Uhr`}
             </p>
           </div>
         ))}

@@ -167,8 +167,17 @@ export interface ShadeStep {
 
 /** Der Schatten für die nächsten Stunden, Schritt für Schritt. */
 export function shadeWindow(place: OsmPlace, weather: Weather, from: Date): ShadeStep[] {
+  // Ab dem zweiten Balken auf volle Stunden gerastert: Beschriftungen wie
+  // „12:59, 13:59, 14:59" lasen sich wie ein Rechenfehler. Der erste Balken
+  // bleibt „jetzt", danach 13:00, 14:00 … – das ist auch ehrlicher, weil die
+  // Wetter-Vorhersage ohnehin in Stundenschritten vorliegt.
+  const naechsteVolle = new Date(from);
+  naechsteVolle.setMinutes(60, 0, 0);
   return Array.from({ length: SHADE_WINDOW_STEPS }, (_, index) => {
-    const at = new Date(from.getTime() + index * SHADE_WINDOW_STEP_MINUTES * 60_000);
+    const at =
+      index === 0
+        ? from
+        : new Date(naechsteVolle.getTime() + (index - 1) * SHADE_WINDOW_STEP_MINUTES * 60_000);
     return { at, shade: computeShade(place, at, weatherAt(weather, at).cloudCover) };
   });
 }

@@ -35,7 +35,7 @@ export function MapControls({
                 tick();
                 filters.set("timeOffsetMin", choice.value);
               }}
-              className={`min-h-11 flex-1 rounded-xl text-sm font-semibold transition ${
+              className={`min-h-11 flex-1 rounded-xl text-sm font-semibold whitespace-nowrap transition max-[359px]:text-[13px] ${
                 active
                   ? "bg-card text-dark shadow-card ring-1 ring-primary-dark/45"
                   : "text-muted active:bg-card/60"

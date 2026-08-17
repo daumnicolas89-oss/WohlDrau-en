@@ -223,7 +223,7 @@ export function WeatherHeader({
 
           {/* Eine Zeile statt eines Kastens – jede Zahl behält ihre
               Bezeichnung, „10 %" allein bliebe ein Rätsel. */}
-          <dl className="mt-2.5 flex items-center gap-2 overflow-hidden rounded-full border border-white/70 bg-white/55 px-3 py-2 text-xs backdrop-blur">
+          <dl className="mt-2.5 flex items-center gap-1.5 overflow-hidden rounded-full border border-white/70 bg-white/55 px-2.5 py-2 text-xs backdrop-blur min-[360px]:gap-2 min-[360px]:px-3">
             {/* „Sonne sehr hoch · UV 9,2" sprengte die Zeile und kürzte
                 ausgerechnet an Hitzetagen das Wort weg. Kurzform: Zahl wie bei
                 Regen und Wind, das einordnende Wort dahinter. */}

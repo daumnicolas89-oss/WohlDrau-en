@@ -45,6 +45,10 @@ function PlatzInhalt() {
       origin={coords(params.get("lat"), params.get("lng"))}
       placeHint={coords(params.get("plat"), params.get("plng"))}
       radius={Number.isFinite(r) && r > 0 ? r : null}
+      listScore={(() => {
+        const ls = Number(params.get("ls"));
+        return params.get("ls") && Number.isFinite(ls) ? ls : null;
+      })()}
     />
   );
 }

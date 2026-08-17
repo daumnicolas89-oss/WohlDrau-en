@@ -146,11 +146,24 @@ const UEBERWIEGEND_AB = 0.15;
  * einem Drittel Schatten ist nicht „voll in der Sonne" – das widerspräche der
  * Prozentzahl direkt darunter und dem, was Eltern vor Ort sehen.
  */
-export function shadeWording(state: ShadeState, index?: number): Wording {
+export function shadeWording(
+  state: ShadeState,
+  index?: number,
+  /** Zeitvorschau (+30 Min/+1 Std): „Aktuell" wäre dann gelogen. */
+  spaeter = false,
+): Wording {
   if (state === "sunny" && index !== undefined && index >= UEBERWIEGEND_AB) {
-    return { label: "Überwiegend in der Sonne", tone: "bad" };
+    return { label: spaeter ? "Dann überwiegend sonnig" : "Überwiegend in der Sonne", tone: "bad" };
   }
-  return SCHATTEN_WORTE[state];
+  const w = SCHATTEN_WORTE[state];
+  if (!spaeter) return w;
+  return {
+    ...w,
+    label: w.label
+      .replace("Aktuell viel Schatten", "Dann viel Schatten")
+      .replace("Aktuell voll in der Sonne", "Dann voll in der Sonne")
+      .replace("Teilweise sonnig", "Dann teils sonnig"),
+  };
 }
 
 /** Kurzform für die Karte, wo der Platz knapp ist. */

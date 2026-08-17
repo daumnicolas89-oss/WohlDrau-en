@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   ChevronDown,
@@ -15,7 +15,7 @@ import {
   WifiOff,
 } from "lucide-react";
 import { selectPlaces } from "@/lib/select";
-import { formatDistance, haversine } from "@/lib/utils";
+import { formatDistance, hasInAppHistory, haversine } from "@/lib/utils";
 import type { OsmPlace, PlaceStatusType } from "@/types";
 import { FALLBACK_LABEL, useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
@@ -132,7 +132,26 @@ export function HomeView() {
   const online = useOnline();
 
   const [filterOpen, setFilterOpen] = useState(false);
-  const [sichtbar, setSichtbar] = useState(LISTE_SCHRITT);
+  // Wie viele Listenplätze aufgeklappt sind UND wo man stand, überlebt den
+  // Ausflug auf eine Detailseite (sessionStorage, nicht localStorage: beim
+  // nächsten echten Besuch startet die Liste bewusst wieder oben). Vorher
+  // landete man nach „Zurück" bei Platz 1 mit eingeklappter Liste – wer
+  // Platz 15 mit Platz 17 vergleichen wollte, scrollte jedes Mal von vorn.
+  const [sichtbar, setSichtbar] = useState(() => {
+    try {
+      const n = Number(sessionStorage.getItem("platzda:liste:sichtbar"));
+      return Number.isFinite(n) && n >= LISTE_SCHRITT ? n : LISTE_SCHRITT;
+    } catch {
+      return LISTE_SCHRITT;
+    }
+  });
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("platzda:liste:sichtbar", String(sichtbar));
+    } catch {
+      // Ohne sessionStorage eben ohne Gedächtnis – kein Beinbruch.
+    }
+  }, [sichtbar]);
   // Neuer Ort oder anderer Umkreis: wieder oben mit zehn anfangen, sonst
   // bleibt eine weit ausgeklappte Liste aus der alten Gegend stehen.
   const listenKontext = `${coords.lat.toFixed(2)}:${coords.lng.toFixed(2)}:${filters.maxDistanceM}`;
@@ -296,6 +315,51 @@ export function HomeView() {
     if (!reportTarget) return;
     await report(reportTarget.id, type, message);
   }
+
+  // Scrollposition: beim Wegnavigieren gemerkt, nach Rückkehr einmalig
+  // wiederhergestellt – erst wenn die Liste wirklich steht, sonst scrollt
+  // man ins Leere einer noch leeren Seite.
+  useEffect(() => {
+    // Fortlaufend statt beim Verlassen: Beim Seitenwechsel hat der Browser
+    // teils schon nach oben gescrollt, bevor ein Unmount-Handler liefe.
+    let ticket = 0;
+    const merken = () => {
+      if (ticket) return;
+      ticket = window.requestAnimationFrame(() => {
+        ticket = 0;
+        try {
+          sessionStorage.setItem("platzda:liste:scroll", String(window.scrollY));
+        } catch {
+          /* egal */
+        }
+      });
+    };
+    window.addEventListener("scroll", merken, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", merken);
+      if (ticket) window.cancelAnimationFrame(ticket);
+    };
+  }, []);
+  const scrollHergestellt = useRef(false);
+  useEffect(() => {
+    if (scrollHergestellt.current || loading || visible.length === 0) return;
+    scrollHergestellt.current = true;
+    if (!hasInAppHistory()) return;
+    try {
+      const y = Number(sessionStorage.getItem("platzda:liste:scroll"));
+      if (Number.isFinite(y) && y > 0) window.scrollTo(0, y);
+    } catch {
+      /* egal */
+    }
+  }, [loading, visible.length]);
+
+  // „gerade" / „in 30 Min" / „in 1 Std" – für Banner und Zählzeile.
+  const zeitLabel =
+    filters.timeOffsetMin === 0
+      ? "gerade"
+      : filters.timeOffsetMin === 30
+        ? "in 30 Min"
+        : "in 1 Std";
 
   const istKarte = !loading && !error && filters.viewMode === "map";
 
@@ -471,6 +535,7 @@ export function HomeView() {
                         now={now.getTime()}
                         favorite
                         areaTreeHint={vieleUnsicher}
+                        zeitLabel={zeitLabel}
                       />
                     ))}
                   </section>
@@ -493,6 +558,7 @@ export function HomeView() {
                       rank={place.id === visible[0]?.id ? 0 : index + 1}
                       now={now.getTime()}
                       areaTreeHint={vieleUnsicher}
+                      zeitLabel={zeitLabel}
                     />
                     {index === 0 && (
                       <>
@@ -530,7 +596,10 @@ export function HomeView() {
                             {uebrige.length - 1 === 1
                               ? "Ein weiterer Platz"
                               : `${uebrige.length - 1} weitere Plätze`}{" "}
-                            in der Nähe, geordnet nach „Angenehm jetzt“.
+                            in der Nähe,{" "}
+                            {filters.timeOffsetMin === 0
+                              ? "geordnet nach „Angenehm jetzt“."
+                              : `geordnet danach, wie angenehm es dort ${zeitLabel} ist.`}
                           </p>
                           <InfoButton
                             title="Wie wird sortiert?"

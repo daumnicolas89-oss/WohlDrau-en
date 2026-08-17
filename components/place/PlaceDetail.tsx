@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -64,12 +64,15 @@ export function PlaceDetail({
   origin,
   placeHint,
   radius,
+  listScore = null,
 }: {
   placeId: string;
   origin: { lat: number; lng: number } | null;
   placeHint: { lat: number; lng: number } | null;
   /** Suchradius der Liste, aus der dieser Link kam. */
   radius: number | null;
+  /** Wert, den die Liste beim Antippen zeigte – erklärt sichtbare Sprünge. */
+  listScore?: number | null;
 }) {
   const router = useRouter();
   // Zurück heißt: an genau die Stelle der Liste, wo man war (Scroll bleibt
@@ -146,6 +149,15 @@ export function PlaceDetail({
   );
 
   /** Wie sieht es in einer Stunde aus? Beantwortet „lohnt es sich später eher?“ */
+  // Tab, Verlauf und „Teilen" zeigen sonst nur den generischen App-Titel.
+  useEffect(() => {
+    if (!place) return;
+    document.title = `${place.name} · PlatzDa`;
+    return () => {
+      document.title = "PlatzDa, wo es sich jetzt lohnt, rauszugehen";
+    };
+  }, [place]);
+
   const ausblick = useMemo(() => {
     if (!place) return null;
     const spaeter = new Date(now.getTime() + 60 * 60_000);
@@ -323,6 +335,16 @@ export function PlaceDetail({
                 <p className="mt-0.5 text-sm text-sky-muted">
                   {place.pleasantScore} von 100
                 </p>
+                {/* Liste zeigte z. B. 56, hier stehen nach frischem Wetter 40:
+                    ohne dieses eine Sätzchen sieht der Sprung wie ein Fehler
+                    aus – mit ihm ist er ein Beleg, dass live gerechnet wird. */}
+                {listScore !== null &&
+                  Math.abs(place.pleasantScore - listScore) >= 8 && (
+                    <p className="mt-1 text-xs leading-snug text-sky-muted">
+                      Frisch gerechnet – das Wetter hat sich seit der Liste
+                      aktualisiert.
+                    </p>
+                  )}
               </div>
             </div>
 
