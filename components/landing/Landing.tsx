@@ -9,8 +9,8 @@ const TESTFLIGHT_URL = "https://testflight.apple.com/join/Ad9Py8Xd";
  * - Das Produkt ist SICHTBAR: echter App-Screenshot im Geräterahmen im Hero,
  *   darunter die Schatten-Vorhersage der Detailseite als zweiter Screenshot –
  *   die Seite zeigt die App beim Rechnen, statt eine Grafik zu behaupten.
- * - EINE Zeichensprache: Baum und Sonne der Abend-Vignette im Finale sind
- *   aus dem Logo abgeleitet (Teal-Silhouette, Strahlen-Sonne).
+ * - Keine gezeichneten Illustrationen: zweimal als „billig" aussortiert.
+ *   Bildsprache der Seite = echte App-Screenshots plus das Logo, sonst nichts.
  * - `normal-nums`: Die App braucht Tabellenziffern (tickende Werte), eine
  *   Textseite nicht – ohne dies rendert Inter jeden Bindestrich gesperrt
  *   („Test - App" statt „Test-App").
@@ -249,7 +249,7 @@ export function Landing() {
 
       {/* ---- Finale: dieselbe Szene, nur als Abend ---- */}
       <section className="mx-auto w-full max-w-xl px-5 pt-12 pb-6 lg:max-w-4xl lg:px-0 lg:pt-16">
-        <div className="landing-finale relative overflow-hidden rounded-card px-6 pt-12 pb-0 text-center lg:pt-14">
+        <div className="landing-finale rounded-card px-6 py-12 text-center lg:py-14">
           <p className="font-display text-xl font-semibold text-balance text-dark">
             Der nächste schöne Nachmittag kommt bestimmt.
           </p>
@@ -268,13 +268,6 @@ export function Landing() {
               kontakt@nicolas-daum.ai
             </a>
           </p>
-          {/* Abend-Vignette: die Signatur-Szene, nur später am Tag – Sonne
-              halb versunken im Westen, langer Schatten nach Osten. */}
-          <div aria-hidden className="relative mx-auto mt-8 h-16 w-full max-w-sm">
-            <span className="absolute right-1/2 bottom-0 h-2 w-36 rounded-[50%] bg-primary-dark/20" />
-            <Baum className="absolute bottom-0 left-1/2 h-14 w-auto -translate-x-1/2" />
-            <Sonne className="landing-sonne absolute right-[10%] -bottom-3 size-9" />
-          </div>
         </div>
       </section>
 
@@ -301,50 +294,5 @@ export function Landing() {
         </div>
       </footer>
     </div>
-  );
-}
-
-/** Der Baum aus dem Logo, als Silhouette: eine Farbe, ein Stamm im selben
- *  Teal – kein brauner Fremdkörper. Wird in Szene UND Abend-Finale benutzt,
- *  damit die Seite EINE Zeichensprache spricht. */
-function Baum({ className }: { className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 76 88" className={className}>
-      <rect
-        x="35"
-        y="46"
-        width="6"
-        height="42"
-        rx="3"
-        fill="var(--color-primary-dark)"
-      />
-      <circle cx="38" cy="28" r="24" fill="var(--color-primary-dark)" />
-      <circle cx="19" cy="41" r="13" fill="var(--color-primary-dark)" />
-      <circle cx="57" cy="41" r="13" fill="var(--color-primary-dark)" />
-    </svg>
-  );
-}
-
-/** Die Sonne aus dem Logo: flache Scheibe mit Strahlen statt Verlaufs-Kugel –
- *  dieselbe Bauart wie im Markenzeichen und im App-Screenshot. */
-function Sonne({ className }: { className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 40 40" className={className}>
-      <g
-        stroke="var(--color-sonne)"
-        strokeWidth="3"
-        strokeLinecap="round"
-      >
-        <line x1="32.5" y1="20" x2="37.5" y2="20" />
-        <line x1="28.8" y1="28.8" x2="32.4" y2="32.4" />
-        <line x1="20" y1="32.5" x2="20" y2="37.5" />
-        <line x1="11.2" y1="28.8" x2="7.6" y2="32.4" />
-        <line x1="2.5" y1="20" x2="7.5" y2="20" />
-        <line x1="11.2" y1="11.2" x2="7.6" y2="7.6" />
-        <line x1="20" y1="7.5" x2="20" y2="2.5" />
-        <line x1="28.8" y1="11.2" x2="32.4" y2="7.6" />
-      </g>
-      <circle cx="20" cy="20" r="9.5" fill="var(--color-sonne)" />
-    </svg>
   );
 }

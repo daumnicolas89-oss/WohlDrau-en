@@ -13,10 +13,6 @@
   --color-accent: #e9c46a;
   --color-accent-soft: #fbf2dc;
   --color-accent-ink: #866a1e;
-  /* Das eine Sonnengold der Landing-Signatur – Scheibe UND Strahlen,
-     abgeleitet aus der Logo-Sonne. Nicht vier Gelbs, eins. */
-  --color-sonne: #f2b13d;
-
   --color-warning: #e76f51;
   --color-warning-soft: #fbe7e1;
   --color-warning-ink: #b4452a;
@@ -223,14 +219,10 @@ textarea,
   }
 }
 
-/* Landing-Abendvignette: Baum, Schatten und halb versunkene Strahlen-Sonne
-   im Finale-Band. (Die frühere animierte Tages-Szene ist einem echten
-   App-Screenshot gewichen – Nicolas' Entscheidung: Produkt statt Grafik.) */
-.landing-sonne {
-  filter: drop-shadow(0 0 12px rgb(242 177 61 / 0.5));
-}
 /* Das Finale endet mit derselben Geste, mit der die Seite beginnt: ein
-   flacher Abendhimmel – Licht oben, Wärme am Horizont. */
+   flacher Abendhimmel – Licht oben, Wärme am Horizont. Bewusst OHNE
+   gezeichnete Deko: Nicolas hat Illustrationen zweimal als „billig"
+   aussortiert – auf dieser Seite zeigen nur echte Screenshots das Produkt. */
 .landing-finale {
   background: linear-gradient(180deg, #fdf6ea 0%, #f8ddab 100%);
 }
