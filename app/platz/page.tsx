@@ -49,6 +49,7 @@ function PlatzInhalt() {
         const ls = Number(params.get("ls"));
         return params.get("ls") && Number.isFinite(ls) ? ls : null;
       })()}
+      previewLabel={params.get("tv")}
     />
   );
 }

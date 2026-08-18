@@ -8,7 +8,17 @@ export function useNow(intervalMs = 60_000): Date {
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), intervalMs);
-    return () => clearInterval(id);
+    // Kommt die App aus dem Hintergrund zurück (iOS friert Timer ein),
+    // wäre „jetzt" sonst bis zum nächsten Takt die Uhrzeit von vorhin –
+    // nach einer Nacht in der Tasche rechnete alles kurz mit gestern Abend.
+    const aufwachen = () => {
+      if (document.visibilityState === "visible") setNow(new Date());
+    };
+    document.addEventListener("visibilitychange", aufwachen);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", aufwachen);
+    };
   }, [intervalMs]);
 
   return now;

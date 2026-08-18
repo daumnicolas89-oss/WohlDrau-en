@@ -262,7 +262,15 @@ export function scorePlace(place: OsmPlace, ctx: ScoreContext): Place {
     warnings.push(`${Math.round(w.precipitationProbability)} % Regenrisiko`);
   }
   if (shade.state === "sunny" && desiredShade(w.apparentTemperature, w.uvIndex) > 0.55) {
-    warnings.push("Wenig Schatten bei starker Sonne");
+    // Bei lückenhaften Baumdaten im Grünen wäre „Wenig Schatten" eine
+    // Behauptung, die wir nicht halten können – der Platz kann real
+    // beschattet sein. Dann warnen wir vor dem Nichtwissen, nicht vor
+    // der Sonne.
+    warnings.push(
+      place.shadeInputs.confidence === "low" && place.shadeInputs.inGreen
+        ? "Schattenlage hier unbekannt, bei dieser Sonne vorher prüfen"
+        : "Wenig Schatten bei starker Sonne",
+    );
   }
 
   return {

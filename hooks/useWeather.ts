@@ -80,6 +80,7 @@ export function useWeather(coords: Coords): UseWeatherResult {
     async function load() {
       setLoading(true);
       setError(null);
+      letzterAbruf.current = Date.now();
       try {
         const res = await fetch(apiUrl(`/api/weather?lat=${lat}&lng=${lng}`), {
           signal: controller.signal,
@@ -109,11 +110,30 @@ export function useWeather(coords: Coords): UseWeatherResult {
   // Wetter altert: alle 10 Minuten (die Cache-Dauer des Servers) still
   // nachladen, solange die App sichtbar ist. Wer sie eine Stunde offen hat,
   // schaut nie auf verstaubte Grade.
+  /** Wann zuletzt frisch geladen wurde – fürs Nachführen beim Aufwachen.
+   *  0 = „noch nie": Der erste sichtbare Moment lädt ohnehin frisch. */
+  const letzterAbruf = useRef(0);
+
   useEffect(() => {
     const id = setInterval(() => {
-      if (document.visibilityState === "visible") setNonce((n) => n + 1);
+      if (document.visibilityState === "visible") {
+        letzterAbruf.current = Date.now();
+        setNonce((n) => n + 1);
+      }
     }, 10 * 60_000);
-    return () => clearInterval(id);
+    // iOS friert Intervalle im Hintergrund ein: Wer die App nach Stunden
+    // wieder öffnet, sähe sonst bis zum nächsten Takt das Wetter von vorhin.
+    const aufwachen = () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - letzterAbruf.current < 10 * 60_000) return;
+      letzterAbruf.current = Date.now();
+      setNonce((n) => n + 1);
+    };
+    document.addEventListener("visibilitychange", aufwachen);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", aufwachen);
+    };
   }, []);
 
   const reload = useCallback(() => setNonce((n) => n + 1), []);

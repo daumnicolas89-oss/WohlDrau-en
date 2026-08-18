@@ -65,7 +65,10 @@ export function PlaceCard({
       // statt wie ein Fehler auszusehen (56 in der Liste, 40 im Kopf).
       // In der Zeitvorschau entfällt er: Die Detailseite rechnet für JETZT,
       // ein Später-Wert würde die Erklärung („Wetter aktualisiert") erlügen.
-      (spaeter || vorlaeufig ? "" : `&ls=${place.pleasantScore}`),
+      (spaeter || vorlaeufig ? "" : `&ls=${place.pleasantScore}`) +
+      // Aus der Zeitvorschau geöffnet: Die Detailseite rechnet für JETZT
+      // und soll den Unterschied benennen können („Vorschau galt für …").
+      (spaeter && zeitLabel ? `&tv=${encodeURIComponent(zeitLabel)}` : ""),
   );
 
   const bewertung = scoreWording(place.pleasantScore);

@@ -31,10 +31,11 @@ export default async function PlacePage({
     plng?: string;
     r?: string;
     ls?: string;
+    tv?: string;
   }>;
 }) {
   const { id } = await params;
-  const { lat, lng, plat, plng, r , ls } = await searchParams;
+  const { lat, lng, plat, plng, r , ls, tv } = await searchParams;
   const radius = Number(r);
 
   return (
@@ -44,6 +45,7 @@ export default async function PlacePage({
       placeHint={coords(plat, plng)}
       radius={Number.isFinite(radius) && radius > 0 ? radius : null}
       listScore={ls && Number.isFinite(Number(ls)) ? Number(ls) : null}
+      previewLabel={tv ?? null}
     />
   );
 }

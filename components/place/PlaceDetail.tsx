@@ -66,6 +66,7 @@ export function PlaceDetail({
   placeHint,
   radius,
   listScore = null,
+  previewLabel = null,
 }: {
   placeId: string;
   origin: { lat: number; lng: number } | null;
@@ -74,6 +75,8 @@ export function PlaceDetail({
   radius: number | null;
   /** Wert, den die Liste beim Antippen zeigte – erklärt sichtbare Sprünge. */
   listScore?: number | null;
+  /** Kam der Tipp aus der Zeitvorschau („in 30 Min"/„in 1 Std")? */
+  previewLabel?: string | null;
 }) {
   const router = useRouter();
   // Zurück heißt: an genau die Stelle der Liste, wo man war (Scroll bleibt
@@ -348,7 +351,17 @@ export function PlaceDetail({
                 {/* Liste zeigte z. B. 56, hier stehen nach frischem Wetter 40:
                     ohne dieses eine Sätzchen sieht der Sprung wie ein Fehler
                     aus – mit ihm ist er ein Beleg, dass live gerechnet wird. */}
-                {listScore !== null &&
+                {/* Aus der Zeitvorschau: Die Liste zeigte den Später-Wert,
+                    hier steht der Jetzt-Wert – ohne diesen Satz sieht der
+                    Unterschied wie ein Fehler aus. */}
+                {previewLabel && (
+                  <p className="mt-1 text-xs leading-snug text-sky-muted">
+                    Deine Vorschau galt für {previewLabel} – hier siehst du
+                    den Wert für jetzt.
+                  </p>
+                )}
+                {!previewLabel &&
+                  listScore !== null &&
                   Math.abs(place.pleasantScore - listScore) >= 8 && (
                     <p className="mt-1 text-xs leading-snug text-sky-muted">
                       Frisch gerechnet – das Wetter hat sich seit der Liste
