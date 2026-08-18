@@ -10,7 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description:
       "Zeigt in Echtzeit, wo es sich gerade lohnt, rauszugehen: Schatten, Toilette, Zaun, Entfernung.",
     lang: "de",
-    start_url: "/",
+    start_url: "/app",
     display: "standalone",
     orientation: "portrait",
     background_color: "#F8F9FA",

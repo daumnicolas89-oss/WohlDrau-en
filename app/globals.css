@@ -210,3 +210,25 @@ textarea,
     scroll-behavior: auto !important;
   }
 }
+
+/* Landing-Signatur: Die Sonne wandert ihren Bogen, der Baumschatten läuft
+   gegenläufig unter dem Baum entlang – die Produktwahrheit als Bild. Bewusst
+   langsam (24 s), damit es Atmosphäre ist, kein Effekt. */
+@keyframes wander-sonne {
+  from { left: 6%; transform: translateY(14px); }
+  25%  { transform: translateY(2px); }
+  50%  { transform: translateY(-2px); }
+  75%  { transform: translateY(2px); }
+  to   { left: calc(94% - 1.75rem); transform: translateY(14px); }
+}
+@keyframes wander-schatten {
+  from { left: 62%; opacity: 0.5; }
+  50%  { opacity: 0.9; }
+  to   { left: calc(38% - 6rem); opacity: 0.5; }
+}
+.wander-sonne { animation: wander-sonne 24s ease-in-out infinite alternate; }
+.wander-schatten { animation: wander-schatten 24s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  .wander-sonne { animation: none; left: 20%; transform: translateY(4px); }
+  .wander-schatten { animation: none; left: 54%; }
+}

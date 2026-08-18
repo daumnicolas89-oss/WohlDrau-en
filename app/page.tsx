@@ -1,29 +1,16 @@
-"use client";
-
-import dynamic from "next/dynamic";
-
-function Splash() {
-  return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col items-center justify-center gap-3 bg-background p-8 text-center">
-      <p className="font-display text-2xl font-bold text-dark">PlatzDa</p>
-      <p className="text-sm text-muted">
-        Wir schauen kurz, wo es sich gerade lohnt …
-      </p>
-    </div>
-  );
-}
+import { IS_APP_SHELL } from "@/lib/appMode";
+import { AppEntry } from "@/components/AppEntry";
+import { Landing } from "@/components/landing/Landing";
 
 /**
- * Der Startbildschirm hängt komplett an Standort, Uhrzeit und gespeicherten
- * Filtern, alles Dinge, die es auf dem Server nicht gibt. Deshalb wird er
- * bewusst nur im Browser gerendert, statt eine Hydration-Diskrepanz zu
- * riskieren.
+ * Die Startroute trägt zwei Gesichter, entschieden zur BAUZEIT:
+ * - Web (platzda.app): die Landing Page – die Haustür zur iPhone-App.
+ * - App-Hülle (Capacitor): direkt die App. Die Hülle lädt ihre Oberfläche
+ *   von "/", eine Werbeseite für sich selbst wäre dort absurd.
+ * Die App selbst bleibt im Web unter /app erreichbar (alte Home-Bildschirm-
+ * Installationen, geteilte Links, Android) – nur beworben wird sie nicht mehr.
  */
-const HomeView = dynamic(
-  () => import("@/components/HomeView").then((m) => m.HomeView),
-  { ssr: false, loading: () => <Splash /> },
-);
-
 export default function Page() {
-  return <HomeView />;
+  if (IS_APP_SHELL) return <AppEntry />;
+  return <Landing />;
 }
