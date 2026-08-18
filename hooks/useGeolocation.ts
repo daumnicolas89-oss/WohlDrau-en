@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { nativerStandort } from "@/lib/native";
 
 export interface Coords {
@@ -85,7 +85,12 @@ export function useGeolocation(enabled = true) {
     setStatus(error.code === error.PERMISSION_DENIED ? "denied" : "unavailable");
   }, []);
 
+  /** Wann der letzte echte GPS-Fix gelang – Basis für das stille
+   *  Nachführen, wenn die App aus dem Hintergrund zurückkommt. */
+  const letzterFix = useRef(0);
+
   const merken = useCallback((next: Coords) => {
+    letzterFix.current = Date.now();
     setCoords(next);
     setStatus("granted");
     try {
@@ -123,6 +128,21 @@ export function useGeolocation(enabled = true) {
     }
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, OPTIONS);
   }, [merken, handleSuccess, handleError]);
+
+  // Die App wird draußen benutzt: Wer sie nach der U-Bahn-Fahrt wieder
+  // öffnet, steht woanders. Ohne dieses Nachführen klebte die App am
+  // Start-Standort – selbst der Aktualisieren-Knopf lud nur die alten
+  // Koordinaten neu (Nicolas' Feldtest-Fund).
+  useEffect(() => {
+    if (!enabled) return;
+    const nachfuehren = () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - letzterFix.current < 2 * 60_000) return;
+      void holen();
+    };
+    document.addEventListener("visibilitychange", nachfuehren);
+    return () => document.removeEventListener("visibilitychange", nachfuehren);
+  }, [enabled, holen]);
 
   useEffect(() => {
     if (!enabled) return;

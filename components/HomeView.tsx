@@ -307,6 +307,10 @@ export function HomeView() {
   const refreshing = places.loading && places.places.length > 0;
 
   const reload = () => {
+    // Aktualisieren heißt für den Nutzer „wo bin ich, was gibt es HIER" –
+    // nicht „lade die alte Gegend nochmal". Ohne den Standort-Refresh
+    // klebte die App nach einer Ortsveränderung am Start-Standort fest.
+    if (!manual) geo.locate();
     places.reload();
     wetter.reload();
   };

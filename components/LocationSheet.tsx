@@ -82,51 +82,24 @@ export function LocationSheet({
         if (!next) onClose();
       }}
     >
-      <button
-        type="button"
-        onClick={useGps}
-        className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-line px-4 text-left font-semibold text-dark transition active:bg-background"
-      >
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-dark">
-          <Crosshair size={20} />
-        </span>
-        {geoStatus === "locating" ? "Standort wird bestimmt …" : "Meinen Standort verwenden"}
-      </button>
-
-      {geoStatus === "denied" && (
-        <Hinweis className="mt-2">
-          {/* In der App gibt es keine Adressleiste und kein Schloss-Symbol –
-              der Browser-Hinweis führte dort ins Leere. */}
-          {IS_APP_SHELL
-            ? "Der Standort ist für PlatzDa nicht freigegeben. Erlaube ihn in den iPhone-Einstellungen unter PlatzDa → Standort – oder such einfach unten deinen Ort."
-            : "Der Standort ist im Browser blockiert. Erlaube ihn über das Schloss-Symbol in der Adressleiste – oder such einfach unten deinen Ort."}
-        </Hinweis>
-      )}
-
-      {manual && (
-        <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-primary-soft px-4 py-3 text-sm text-primary-dark">
-          <span>
-            Du schaust dir gerade <span className="font-semibold">{manual.label}</span> an.
-          </span>
-          <button
-            type="button"
-            onClick={useGps}
-            className="shrink-0 font-semibold underline"
-          >
-            Zu mir zurück
-          </button>
-        </div>
-      )}
-
-      <form onSubmit={search} className="mt-4 flex gap-2">
-        <div className="flex flex-1 items-center gap-2 rounded-2xl border border-line bg-background px-3 focus-within:border-primary">
+      {/* Reihenfolge nach Nutzerabsicht: Wer hier landet, will meist einen
+          Ort EINGEBEN – das Feld steht deshalb oben und die Ergebnisse
+          erscheinen direkt darunter, nicht unterhalb der Tastatur. Der
+          GPS-Knopf bleibt als klar getrennte Alternative darunter. */}
+      <form onSubmit={search} className="flex gap-2">
+        <div className="flex flex-1 items-center gap-2 rounded-2xl border-2 border-line bg-background px-3 transition-colors focus-within:border-primary-dark">
           <Search size={20} aria-hidden className="shrink-0 text-muted" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Stadt oder Ort suchen …"
             aria-label="Ort suchen"
-            className="min-h-12 w-full bg-transparent text-base outline-none"
+            // Der globale Tastatur-Fokusring legte sich hier als „grüner
+            // Kasten" ÜBER das Feld (bei Textfeldern feuert :focus-visible
+            // auch beim Antippen). Der Rahmen des Feldes übernimmt die
+            // Fokus-Anzeige – deshalb hier bewusst ohne Outline.
+            style={{ outline: "none" }}
+            className="min-h-12 w-full bg-transparent text-base"
           />
         </div>
         <button
@@ -147,20 +120,64 @@ export function LocationSheet({
       )}
 
       {results.length > 0 && (
-        <ul className="mt-3 space-y-1">
+        <ul className="mt-2 space-y-1">
           {results.map((result) => (
             <li key={`${result.lat},${result.lng}`}>
               <button
                 type="button"
                 onClick={() => pick(result)}
-                className="flex min-h-12 w-full items-center rounded-2xl px-3 text-left text-[15px] text-dark transition active:bg-background"
+                className="flex min-h-12 w-full items-center gap-2.5 rounded-2xl px-3 text-left text-[15px] text-dark transition active:bg-background"
               >
+                <Search size={15} aria-hidden className="shrink-0 text-muted" />
                 {result.label}
               </button>
             </li>
           ))}
         </ul>
       )}
+
+      {manual && (
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-primary-soft px-4 py-3 text-sm text-primary-dark">
+          <span>
+            Du schaust dir gerade <span className="font-semibold">{manual.label}</span> an.
+          </span>
+          <button
+            type="button"
+            onClick={useGps}
+            className="shrink-0 font-semibold underline"
+          >
+            Zu mir zurück
+          </button>
+        </div>
+      )}
+
+      <div className="mt-4 flex items-center gap-3" aria-hidden>
+        <span className="h-px flex-1 bg-line" />
+        <span className="text-xs text-muted">oder</span>
+        <span className="h-px flex-1 bg-line" />
+      </div>
+
+      <button
+        type="button"
+        onClick={useGps}
+        className="mt-4 flex min-h-14 w-full items-center gap-3 rounded-2xl border border-line px-4 text-left font-semibold text-dark transition active:bg-background"
+      >
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-dark">
+          <Crosshair size={20} />
+        </span>
+        {geoStatus === "locating" ? "Standort wird bestimmt …" : "Meinen Standort verwenden"}
+      </button>
+
+      {geoStatus === "denied" && (
+        <Hinweis className="mt-2">
+          {/* In der App gibt es keine Adressleiste und kein Schloss-Symbol –
+              der Browser-Hinweis führte dort ins Leere. */}
+          {IS_APP_SHELL
+            ? "Der Standort ist für PlatzDa nicht freigegeben. Erlaube ihn in den iPhone-Einstellungen unter PlatzDa → Standort – oder such einfach oben deinen Ort."
+            : "Der Standort ist im Browser blockiert. Erlaube ihn über das Schloss-Symbol in der Adressleiste – oder such einfach oben deinen Ort."}
+        </Hinweis>
+      )}
+
     </Sheet>
   );
 }
