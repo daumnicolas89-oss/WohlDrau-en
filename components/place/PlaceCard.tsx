@@ -217,11 +217,14 @@ export function PlaceCard({
             spaeter={spaeter}
             bedeckt={bedeckt(place.shade)}
           />
-          {wenigBaumdaten && (
-            <p className="mt-1.5 text-xs leading-relaxed text-muted">
-              {WENIG_BAEUME_HINT}
-            </p>
-          )}
+          {/* Nicht doppelt: Trägt die Karte unten schon die Warnung
+              „Schattenlage hier unbekannt …", erübrigt sich der Hinweis. */}
+          {wenigBaumdaten &&
+            !place.warnings.some((w) => w.startsWith("Schattenlage")) && (
+              <p className="mt-1.5 text-xs leading-relaxed text-muted">
+                {WENIG_BAEUME_HINT}
+              </p>
+            )}
           {eingeschraenkt && (
             <p className="mt-1.5 text-xs leading-relaxed font-medium text-accent-ink">
               {ZUGANG_HINT}

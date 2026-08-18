@@ -96,7 +96,10 @@ function ToggleRow({
       <input
         type="checkbox"
         checked={checked}
-        disabled={wirkungslos}
+        // Nur das EINSCHALTEN ist bei 0 Treffern gesperrt – ein bereits
+        // aktiver Schalter muss immer abschaltbar bleiben, sonst hängt er
+        // eingeschaltet-ausgegraut fest.
+        disabled={wirkungslos && !checked}
         onChange={(event) => onChange(event.target.checked)}
         className="peer sr-only"
       />
@@ -138,10 +141,20 @@ export function FilterSheet({
   const kindAlter = useKind((k) => k.age);
   const setKindAlter = useKind((k) => k.setAge);
 
-  // Vorschlag nur zeigen, solange er etwas ändern würde – wer die Wünsche
-  // schon so gesetzt hat, braucht keinen Hinweis auf das Offensichtliche.
+  // Vorschlag nur zeigen, solange er etwas ändern würde – und nur für
+  // Wünsche, die in DIESER Gegend überhaupt Treffer haben. Sonst schaltet
+  // er einen wirkungslosen (und deshalb gesperrten) Schalter ein, der
+  // eingeschaltet-ausgegraut festhängt.
+  const trefferFuer: Record<(typeof ALTERS_WUENSCHE)["baby"]["keys"][number], number> = {
+    preferToilet: counts.toilet,
+    preferChangingTable: counts.changingTable,
+    preferFenced: counts.fenced,
+    preferWater: counts.water,
+  };
   const empfehlung = ALTERS_WUENSCHE[kindAlter];
-  const fehlende = empfehlung.keys.filter((k) => !filters[k]);
+  const fehlende = empfehlung.keys.filter(
+    (k) => !filters[k] && trefferFuer[k] > 0,
+  );
   const vorschlag = fehlende.length > 0 ? empfehlung : null;
   const vorschlagAnnehmen = () => {
     for (const key of fehlende) filters.set(key, true);

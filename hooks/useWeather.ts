@@ -80,7 +80,6 @@ export function useWeather(coords: Coords): UseWeatherResult {
     async function load() {
       setLoading(true);
       setError(null);
-      letzterAbruf.current = Date.now();
       try {
         const res = await fetch(apiUrl(`/api/weather?lat=${lat}&lng=${lng}`), {
           signal: controller.signal,
@@ -90,6 +89,10 @@ export function useWeather(coords: Coords): UseWeatherResult {
           throw new Error(body.error ?? "Wetter nicht verfügbar");
         }
         const fresh = (await res.json()) as Weather;
+        // Stempel NUR bei Erfolg: Stünde er vor dem Abruf, würde ein
+        // Fehlschlag im Funkloch das Aufwach-Nachladen 10 Minuten blockieren
+        // – genau in dem Szenario, für das es gebaut ist.
+        letzterAbruf.current = Date.now();
         setWeather(fresh);
         saveLastVisit<CachedWeather>(LAST_WEATHER_KEY, {
           weather: fresh,
@@ -116,17 +119,13 @@ export function useWeather(coords: Coords): UseWeatherResult {
 
   useEffect(() => {
     const id = setInterval(() => {
-      if (document.visibilityState === "visible") {
-        letzterAbruf.current = Date.now();
-        setNonce((n) => n + 1);
-      }
+      if (document.visibilityState === "visible") setNonce((n) => n + 1);
     }, 10 * 60_000);
     // iOS friert Intervalle im Hintergrund ein: Wer die App nach Stunden
     // wieder öffnet, sähe sonst bis zum nächsten Takt das Wetter von vorhin.
     const aufwachen = () => {
       if (document.visibilityState !== "visible") return;
       if (Date.now() - letzterAbruf.current < 10 * 60_000) return;
-      letzterAbruf.current = Date.now();
       setNonce((n) => n + 1);
     };
     document.addEventListener("visibilitychange", aufwachen);

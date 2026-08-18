@@ -354,7 +354,7 @@ export function PlaceDetail({
                 {/* Aus der Zeitvorschau: Die Liste zeigte den Später-Wert,
                     hier steht der Jetzt-Wert – ohne diesen Satz sieht der
                     Unterschied wie ein Fehler aus. */}
-                {previewLabel && (
+                {(previewLabel === "in 30 Min" || previewLabel === "in 1 Std") && (
                   <p className="mt-1 text-xs leading-snug text-sky-muted">
                     Deine Vorschau galt für {previewLabel} – hier siehst du
                     den Wert für jetzt.

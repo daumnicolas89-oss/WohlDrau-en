@@ -62,33 +62,6 @@ export function useGeolocation(enabled = true) {
     available() ? "locating" : "unavailable",
   );
 
-  const handleSuccess = useCallback((position: GeolocationPosition) => {
-    const next: Coords = {
-      lat: position.coords.latitude,
-      lng: position.coords.longitude,
-      accuracyM: position.coords.accuracy ?? null,
-      source: "gps",
-    };
-    setCoords(next);
-    setStatus("granted");
-    try {
-      localStorage.setItem(
-        LAST_KNOWN_KEY,
-        JSON.stringify({ lat: next.lat, lng: next.lng }),
-      );
-    } catch {
-      // Privater Modus o. Ä., der Standort funktioniert trotzdem.
-    }
-  }, []);
-
-  const handleError = useCallback((error: GeolocationPositionError) => {
-    setStatus(error.code === error.PERMISSION_DENIED ? "denied" : "unavailable");
-  }, []);
-
-  /** Wann der letzte echte GPS-Fix gelang – Basis für das stille
-   *  Nachführen, wenn die App aus dem Hintergrund zurückkommt. */
-  const letzterFix = useRef(0);
-
   const merken = useCallback((next: Coords) => {
     letzterFix.current = Date.now();
     setCoords(next);
@@ -102,6 +75,30 @@ export function useGeolocation(enabled = true) {
       // Privater Modus o. Ä., der Standort funktioniert trotzdem.
     }
   }, []);
+
+  // Ein Pfad fürs Übernehmen (Web wie nativ): merken() stempelt auch den
+  // Fix-Zeitpunkt – ohne ihn feuerte das Nachführen im Browser bei JEDEM
+  // Tab-Wechsel ungedrosselt, samt erneutem Berechtigungsdialog.
+  const handleSuccess = useCallback(
+    (position: GeolocationPosition) => {
+      merken({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracyM: position.coords.accuracy ?? null,
+        source: "gps",
+      });
+    },
+    [merken],
+  );
+
+  const handleError = useCallback((error: GeolocationPositionError) => {
+    setStatus(error.code === error.PERMISSION_DENIED ? "denied" : "unavailable");
+  }, []);
+
+  /** Wann der letzte echte GPS-Fix gelang – Basis für das stille
+   *  Nachführen, wenn die App aus dem Hintergrund zurückkommt. */
+  const letzterFix = useRef(0);
+
 
   /**
    * In der App über iOS, im Browser über die Web-Schnittstelle. Der native
