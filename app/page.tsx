@@ -1,6 +1,17 @@
+import type { Viewport } from "next";
 import { IS_APP_SHELL } from "@/lib/appMode";
 import { AppEntry } from "@/components/AppEntry";
 import { Landing } from "@/components/landing/Landing";
+
+/** Die Browser-Chrome soll zum bernsteinfarbenen Hero passen, nicht zum
+ *  Teal der App – gilt nur für diese Route, alle anderen erben das Teal
+ *  aus dem Layout. (In der App-Hülle ist theme-color ohne Wirkung.) */
+export const viewport: Viewport = {
+  themeColor: "#fdebc9",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 /**
  * Die Startroute trägt zwei Gesichter, entschieden zur BAUZEIT:

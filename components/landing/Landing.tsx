@@ -4,19 +4,22 @@ import { StandaloneRedirect } from "./StandaloneRedirect";
 const TESTFLIGHT_URL = "https://testflight.apple.com/join/Ad9Py8Xd";
 
 /**
- * Die Haustür von platzda.app – nach zwei Kritiken (Design-Direktor,
- * Conversion-Texter) umgebaut:
+ * Die Haustür von platzda.app – in drei Kritik-Runden (Design-Direktion,
+ * Conversion-Text, System-Audit) geschliffen:
  * - Das Produkt ist SICHTBAR: echter App-Screenshot im Geräterahmen, auf dem
  *   Handy rechts angeschnitten, auf Desktop als zweite Hero-Spalte.
- * - Desktop ist Komposition, nicht Zoom: eigene Typo-Skala ab lg, Glow an
- *   der Inhaltsspalte, EIN asymmetrisches Zwei-Spalten-Moment.
- * - Die Signatur (wandernder Schatten) folgt echter Physik – das Element
- *   behauptet „wir rechnen Schatten richtig", also muss es selbst stimmen.
- * - Texte ohne Werbesprech-Muster; der Absender hat einen Namen.
+ * - EINE Zeichensprache: Baum und Sonne der Szene sind aus dem Logo
+ *   abgeleitet (einfarbige Teal-Silhouette, Strahlen-Sonne) – die Seite
+ *   konkurriert nicht mehr mit ihrem eigenen Markenzeichen.
+ * - Die Signatur (wandernder Schatten) folgt echter Physik, und das Finale
+ *   schließt die Klammer: dieselbe Szene, nur als Abend.
+ * - `normal-nums`: Die App braucht Tabellenziffern (tickende Werte), eine
+ *   Textseite nicht – ohne dies rendert Inter jeden Bindestrich gesperrt
+ *   („Test - App" statt „Test-App").
  */
 export function Landing() {
   return (
-    <div className="min-h-dvh bg-background text-dark">
+    <div className="min-h-dvh bg-background text-dark normal-nums">
       <StandaloneRedirect />
 
       {/* ---- Kopf: derselbe Himmel wie in der App, plus das Produkt ---- */}
@@ -55,8 +58,10 @@ export function Landing() {
           </div>
 
           {/* Das Produkt selbst: echte App-Oberfläche, echter Sonnentag.
-              Mobil rechts angeschnitten (Scroll-Sog), Desktop aufrecht. */}
-          <div className="mt-10 -mr-14 ml-auto w-60 rotate-2 sm:-mr-8 lg:m-0 lg:w-64 lg:rotate-0">
+              Mobil rechts angeschnitten (Scroll-Sog); die sm-Formel bindet
+              den Anschnitt an den VIEWPORT statt an den Container, damit das
+              Telefon auch zwischen 640 und 1023 px an der Kante bleibt. */}
+          <div className="mt-10 -mr-14 ml-auto w-60 rotate-2 sm:mr-[calc((36rem-100vw)/2-2rem)] lg:mt-0 lg:mr-0 lg:ml-0 lg:w-64 lg:rotate-0">
             <div className="rounded-[2.7rem] border-[9px] border-dark/90 bg-dark/90 shadow-float">
               <div className="overflow-hidden rounded-[2.1rem]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -82,10 +87,7 @@ export function Landing() {
           {/* Die Szene: Himmel, Wiese, ein Baum – randlos bis an die Karte,
               ab lg als breites Panorama. */}
           <div className="landing-szene relative h-44 overflow-hidden lg:h-52">
-            <span
-              aria-hidden
-              className="wander-sonne landing-sonne absolute top-4 size-8 rounded-full"
-            />
+            <Sonne className="wander-sonne landing-sonne absolute top-4 size-9" />
             {/* Wiese als flacher Hügel: eine große Ellipse, deren Kuppe die
                 Horizontlinie zeichnet. */}
             <div
@@ -96,19 +98,9 @@ export function Landing() {
                 nach Osten, negativ kippt nach Westen. */}
             <span
               aria-hidden
-              className="wander-schatten absolute bottom-8 left-1/2 h-2.5 w-24 rounded-[50%] bg-[#3f5a3c]/30"
+              className="wander-schatten absolute bottom-8 left-1/2 h-2.5 w-24 rounded-[50%] bg-primary-dark/25"
             />
-            <svg
-              aria-hidden
-              viewBox="0 0 76 88"
-              className="absolute bottom-8 left-1/2 h-[104px] w-auto -translate-x-1/2"
-            >
-              <rect x="35" y="46" width="6" height="42" rx="3" fill="#7a5b3a" />
-              <circle cx="38" cy="28" r="24" fill="#1e766c" />
-              <circle cx="19" cy="41" r="13" fill="#2a9d8f" />
-              <circle cx="57" cy="41" r="13" fill="#2a9d8f" />
-              <circle cx="29" cy="21" r="12" fill="#37a08e" />
-            </svg>
+            <Baum className="absolute bottom-8 left-1/2 h-[104px] w-auto -translate-x-1/2" />
           </div>
           <p className="px-6 pt-5 pb-6 text-center text-[15px] leading-relaxed text-balance text-muted lg:text-base">
             Schatten wandert mit der Sonne.{" "}
@@ -125,7 +117,7 @@ export function Landing() {
           Hero (lg:px-0, weil dort das Padding außen am Header sitzt) –
           H1 und H2s fluchten auf einer Achse statt zu springen. */}
       <section className="mx-auto w-full max-w-xl px-5 pt-14 lg:max-w-4xl lg:px-0 lg:pt-20">
-        <h2 className="font-display text-2xl leading-snug font-bold sm:text-3xl">
+        <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Was du weißt, bevor ihr losgeht
         </h2>
         <div className="mt-6 space-y-6 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
@@ -165,7 +157,7 @@ export function Landing() {
 
       {/* ---- Echte Sequenz, darum nummeriert ---- */}
       <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-16">
-        <h2 className="font-display text-2xl leading-snug font-bold sm:text-3xl">
+        <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           So testest du PlatzDa
         </h2>
         <ol className="mt-6 space-y-4 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
@@ -191,7 +183,7 @@ export function Landing() {
                 {i + 1}
               </span>
               <div>
-                <h3 className="font-display text-[17px] font-semibold">{titel}</h3>
+                <h3 className="font-display text-lg font-semibold">{titel}</h3>
                 <p className="mt-0.5 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
                   {text}
                 </p>
@@ -203,7 +195,7 @@ export function Landing() {
 
       {/* ---- Der Absender: ein Ich mit Namen ---- */}
       <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-16">
-        <h2 className="font-display text-2xl leading-snug font-bold sm:text-3xl">
+        <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Wer dahintersteckt
         </h2>
         <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
@@ -212,7 +204,7 @@ export function Landing() {
           schreib mir:{" "}
           <a
             href="mailto:kontakt@nicolas-daum.ai"
-            className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2"
+            className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2 transition-colors hover:text-primary-darker"
           >
             kontakt@nicolas-daum.ai
           </a>
@@ -221,7 +213,7 @@ export function Landing() {
 
       {/* ---- Ehrlichkeit: die Fußnote zu allem darüber ---- */}
       <section className="mx-auto w-full max-w-xl px-5 pt-6 lg:max-w-4xl lg:px-0">
-        <p className="rounded-card bg-primary-soft p-5 text-[15px] leading-relaxed text-primary-dark lg:max-w-2xl">
+        <p className="rounded-card bg-primary-soft p-5 text-[15px] leading-relaxed text-primary-dark lg:max-w-2xl lg:text-base">
           Orte und Ausstattung stammen von OpenStreetMap, das Wetter von
           Open-Meteo. Der Schatten ist{" "}
           <span className="font-semibold">gerechnet, nicht gemessen</span> – eine
@@ -231,12 +223,12 @@ export function Landing() {
 
       {/* ---- Kurz gefragt ---- */}
       <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-16">
-        <h2 className="font-display text-2xl leading-snug font-bold sm:text-3xl">
+        <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Kurz gefragt
         </h2>
         <dl className="mt-6 space-y-5 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
           <div>
-            <dt className="font-display text-[17px] font-semibold">
+            <dt className="font-display text-lg font-semibold">
               Was ist TestFlight?
             </dt>
             <dd className="mt-1 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
@@ -246,7 +238,7 @@ export function Landing() {
             </dd>
           </div>
           <div>
-            <dt className="font-display text-[17px] font-semibold">
+            <dt className="font-display text-lg font-semibold">
               Kostet das etwas?
             </dt>
             <dd className="mt-1 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
@@ -254,7 +246,7 @@ export function Landing() {
             </dd>
           </div>
           <div>
-            <dt className="font-display text-[17px] font-semibold">
+            <dt className="font-display text-lg font-semibold">
               Was passiert mit meinen Daten?
             </dt>
             <dd className="mt-1 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
@@ -266,12 +258,15 @@ export function Landing() {
         </dl>
       </section>
 
-      {/* ---- Finale: dieselbe Geste wie der Anfang, nur als Abend ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-16 pb-6 lg:max-w-4xl lg:px-0">
-        <div className="landing-finale rounded-card px-6 py-12 text-center lg:py-14">
+      {/* ---- Finale: dieselbe Szene, nur als Abend ---- */}
+      <section className="mx-auto w-full max-w-xl px-5 pt-12 pb-6 lg:max-w-4xl lg:px-0 lg:pt-16">
+        <div className="landing-finale relative overflow-hidden rounded-card px-6 pt-12 pb-0 text-center lg:pt-14">
+          <p className="font-display text-xl font-semibold text-balance text-dark">
+            Der nächste schöne Nachmittag kommt bestimmt.
+          </p>
           <a
             href={TESTFLIGHT_URL}
-            className="inline-flex min-h-16 items-center justify-center rounded-full bg-primary-dark px-10 text-lg font-semibold text-white shadow-float transition-[background-color,transform] hover:bg-primary-darker active:scale-[0.98]"
+            className="mt-6 inline-flex min-h-16 items-center justify-center rounded-full bg-primary-dark px-10 text-lg font-semibold text-white shadow-float transition-[background-color,transform] hover:bg-primary-darker active:scale-[0.98]"
           >
             Jetzt mittesten
           </a>
@@ -279,30 +274,88 @@ export function Landing() {
             Android? Noch nicht – schreib mir, wenn du dabei sein willst:{" "}
             <a
               href="mailto:kontakt@nicolas-daum.ai"
-              className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2"
+              className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2 transition-colors hover:text-primary-darker"
             >
               kontakt@nicolas-daum.ai
             </a>
           </p>
+          {/* Abend-Vignette: die Signatur-Szene, nur später am Tag – Sonne
+              halb versunken im Westen, langer Schatten nach Osten. */}
+          <div aria-hidden className="relative mx-auto mt-8 h-16 w-full max-w-sm">
+            <span className="absolute right-1/2 bottom-0 h-2 w-36 rounded-[50%] bg-primary-dark/20" />
+            <Baum className="absolute bottom-0 left-1/2 h-14 w-auto -translate-x-1/2" />
+            <Sonne className="landing-sonne absolute right-[10%] -bottom-3 size-9" />
+          </div>
         </div>
       </section>
 
-      <footer className="mx-auto w-full max-w-xl px-5 pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <footer className="mx-auto w-full max-w-xl px-5 pb-[max(2rem,env(safe-area-inset-bottom))] lg:max-w-4xl lg:px-0">
         <div className="flex flex-wrap justify-center gap-x-4 border-t border-line pt-4 text-xs text-muted">
-          <Link href="/impressum" className="py-2 underline underline-offset-2">
+          <Link
+            href="/impressum"
+            className="py-2 underline underline-offset-2 transition-colors hover:text-dark"
+          >
             Impressum
           </Link>
-          <Link href="/datenschutz" className="py-2 underline underline-offset-2">
+          <Link
+            href="/datenschutz"
+            className="py-2 underline underline-offset-2 transition-colors hover:text-dark"
+          >
             Datenschutz
           </Link>
           <Link
             href="/so-funktionierts"
-            className="py-2 underline underline-offset-2"
+            className="py-2 underline underline-offset-2 transition-colors hover:text-dark"
           >
             So funktioniert&apos;s
           </Link>
         </div>
       </footer>
     </div>
+  );
+}
+
+/** Der Baum aus dem Logo, als Silhouette: eine Farbe, ein Stamm im selben
+ *  Teal – kein brauner Fremdkörper. Wird in Szene UND Abend-Finale benutzt,
+ *  damit die Seite EINE Zeichensprache spricht. */
+function Baum({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 76 88" className={className}>
+      <rect
+        x="35"
+        y="46"
+        width="6"
+        height="42"
+        rx="3"
+        fill="var(--color-primary-dark)"
+      />
+      <circle cx="38" cy="28" r="24" fill="var(--color-primary-dark)" />
+      <circle cx="19" cy="41" r="13" fill="var(--color-primary-dark)" />
+      <circle cx="57" cy="41" r="13" fill="var(--color-primary-dark)" />
+    </svg>
+  );
+}
+
+/** Die Sonne aus dem Logo: flache Scheibe mit Strahlen statt Verlaufs-Kugel –
+ *  dieselbe Bauart wie im Markenzeichen und im App-Screenshot. */
+function Sonne({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 40 40" className={className}>
+      <g
+        stroke="var(--color-sonne)"
+        strokeWidth="3"
+        strokeLinecap="round"
+      >
+        <line x1="32.5" y1="20" x2="37.5" y2="20" />
+        <line x1="28.8" y1="28.8" x2="32.4" y2="32.4" />
+        <line x1="20" y1="32.5" x2="20" y2="37.5" />
+        <line x1="11.2" y1="28.8" x2="7.6" y2="32.4" />
+        <line x1="2.5" y1="20" x2="7.5" y2="20" />
+        <line x1="11.2" y1="11.2" x2="7.6" y2="7.6" />
+        <line x1="20" y1="7.5" x2="20" y2="2.5" />
+        <line x1="28.8" y1="11.2" x2="32.4" y2="7.6" />
+      </g>
+      <circle cx="20" cy="20" r="9.5" fill="var(--color-sonne)" />
+    </svg>
   );
 }

@@ -22,6 +22,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.platzda.app"),
   title: "PlatzDa, wo es sich jetzt lohnt, rauszugehen",
   description:
     "Findet Spielplätze, Parks und Wäldchen in deiner Nähe und rechnet aus, wie viel Schatten dort in dieser Stunde wirklich liegt.",
@@ -31,6 +32,21 @@ export const metadata: Metadata = {
     capable: true,
     title: "PlatzDa",
     statusBarStyle: "default",
+  },
+  /* Der wichtigste Verbreitungsweg der Seite ist der Link im
+     Eltern-Gruppenchat – ohne diese Angaben zeigt die Vorschau dort
+     nur nackten Text. Das Bild liegt als app/opengraph-image.png bei. */
+  openGraph: {
+    title: "PlatzDa – wo es mit Kind jetzt schön draußen ist",
+    description:
+      "Findet Spielplätze, Parks und Wäldchen in deiner Nähe und rechnet aus, wie viel Schatten dort in dieser Stunde wirklich liegt.",
+    url: "https://www.platzda.app",
+    siteName: "PlatzDa",
+    locale: "de_DE",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 

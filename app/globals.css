@@ -13,6 +13,9 @@
   --color-accent: #e9c46a;
   --color-accent-soft: #fbf2dc;
   --color-accent-ink: #866a1e;
+  /* Das eine Sonnengold der Landing-Signatur – Scheibe UND Strahlen,
+     abgeleitet aus der Logo-Sonne. Nicht vier Gelbs, eins. */
+  --color-sonne: #f2b13d;
 
   --color-warning: #e76f51;
   --color-warning-soft: #fbe7e1;
@@ -232,11 +235,10 @@ textarea,
 .landing-wiese {
   background: linear-gradient(180deg, #cfe0c4 0%, #c3d7b6 100%);
 }
+/* Weiches Leuchten um die Strahlen-Sonne (SVG), statt Verlaufs-Kugel:
+   dieselbe flache Bauart wie im Logo, nur mit Halo. */
 .landing-sonne {
-  background: radial-gradient(circle at 35% 35%, #f7c45c, #f0a52c 75%);
-  box-shadow:
-    0 0 0 8px rgb(242 172 51 / 0.18),
-    0 0 32px 12px rgb(242 172 51 / 0.28);
+  filter: drop-shadow(0 0 12px rgb(242 177 61 / 0.5));
 }
 /* Das Finale endet mit derselben Geste, mit der die Seite beginnt: ein
    flacher Abendhimmel – Licht oben, Wärme am Horizont. */
@@ -255,9 +257,9 @@ textarea,
 @keyframes wander-sonne {
   0%   { left: 7%;  transform: translateY(52px); opacity: 0; }
   6%   { opacity: 1; }
-  50%  { left: calc(50% - 1rem); transform: translateY(-8px); }
-  91%  { left: calc(93% - 2rem); transform: translateY(52px); opacity: 1; }
-  96%  { left: calc(93% - 2rem); transform: translateY(52px); opacity: 0; }
+  50%  { left: calc(50% - 1.125rem); transform: translateY(-8px); }
+  91%  { left: calc(93% - 2.25rem); transform: translateY(52px); opacity: 1; }
+  96%  { left: calc(93% - 2.25rem); transform: translateY(52px); opacity: 0; }
   100% { left: 7%; transform: translateY(52px); opacity: 0; }
 }
 @keyframes wander-schatten {
