@@ -24,7 +24,7 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "PlatzDa, wo es sich jetzt lohnt, rauszugehen",
   description:
-    "Zeigt in Echtzeit, welche Spielplätze und Parks in deiner Nähe gerade angenehm sind: Schatten, Toilette, Zaun, Entfernung.",
+    "Findet Spielplätze, Parks und Wäldchen in deiner Nähe und rechnet aus, wie viel Schatten dort in dieser Stunde wirklich liegt.",
   applicationName: "PlatzDa",
   manifest: "/manifest.webmanifest",
   appleWebApp: {

@@ -59,6 +59,15 @@
 /* Der Himmel-Kopf: die eine mutige Fläche der App. Ein warmer Sonnen-Schimmer
    oben rechts über einem kühlen Himmel-Verlauf, der unten ins Papier übergeht.
    Bewusst blass – dunkle Schrift bleibt auch bei praller Sonne klar lesbar. */
+/* Landing: Der Sonnen-Glow hängt an der INHALTSSPALTE (50 % + Versatz),
+   nicht an der Viewport-Kante – auf 1440 px leuchtete er sonst 350 px
+   neben dem Text in der leeren Ecke. */
+@utility landing-hero {
+  background:
+    radial-gradient(120% 85% at calc(50% + 300px) -18%, rgb(249 197 82 / 0.5), rgb(249 197 82 / 0) 55%),
+    linear-gradient(176deg, #fde7c6 0%, #f4ecdd 45%, #eaf1ec 75%, var(--color-background) 100%);
+}
+
 @utility sky-hero {
   background:
     radial-gradient(125% 85% at 84% -18%, rgb(249 197 82 / 0.45), rgb(249 197 82 / 0) 54%),
@@ -211,24 +220,32 @@ textarea,
   }
 }
 
-/* Landing-Signatur: Die Sonne wandert ihren Bogen, der Baumschatten läuft
-   gegenläufig unter dem Baum entlang – die Produktwahrheit als Bild. Bewusst
-   langsam (24 s), damit es Atmosphäre ist, kein Effekt. */
+/* Landing-Signatur: Ein Sonnentag in 24 Sekunden. Die Sonne zieht ihren
+   Bogen und läuft NIE rückwärts (kurze „Nacht"-Blende statt alternate).
+   Der Schatten hängt mit seinem Ursprung am Stamm und folgt der Physik:
+   morgens lang nach Westen, mittags kurz, abends lang nach Osten –
+   negatives scaleX wechselt die Seite und bleibt dabei verankert. */
 @keyframes wander-sonne {
-  from { left: 6%; transform: translateY(14px); }
-  25%  { transform: translateY(2px); }
-  50%  { transform: translateY(-2px); }
-  75%  { transform: translateY(2px); }
-  to   { left: calc(94% - 1.75rem); transform: translateY(14px); }
+  0%   { left: 8%;  transform: translateY(36px); opacity: 0; }
+  5%   { opacity: 1; }
+  50%  { transform: translateY(0); }
+  91%  { left: calc(92% - 1.75rem); transform: translateY(36px); opacity: 1; }
+  96%  { opacity: 0; }
+  100% { left: 8%; transform: translateY(36px); opacity: 0; }
 }
 @keyframes wander-schatten {
-  from { left: 62%; opacity: 0.5; }
-  50%  { opacity: 0.9; }
-  to   { left: calc(38% - 6rem); opacity: 0.5; }
+  0%   { transform: scale(1.7, 0.5); opacity: 0; }
+  5%   { opacity: 0.6; }
+  50%  { transform: scale(0.32, 0.5); opacity: 0.85; }
+  91%  { transform: scale(-1.7, 0.5); opacity: 0.6; }
+  96%, 100% { opacity: 0; }
 }
-.wander-sonne { animation: wander-sonne 24s ease-in-out infinite alternate; }
-.wander-schatten { animation: wander-schatten 24s ease-in-out infinite alternate; }
+.wander-sonne { animation: wander-sonne 24s ease-in-out infinite; }
+.wander-schatten {
+  transform-origin: left center;
+  animation: wander-schatten 24s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce) {
-  .wander-sonne { animation: none; left: 20%; transform: translateY(4px); }
-  .wander-schatten { animation: none; left: 54%; }
+  .wander-sonne { animation: none; left: 30%; transform: translateY(8px); opacity: 1; }
+  .wander-schatten { animation: none; transform: scale(0.6, 0.5); opacity: 0.7; }
 }
