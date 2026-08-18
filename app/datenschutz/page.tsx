@@ -198,8 +198,8 @@ export default function DatenschutzPage() {
           <p>
             Für Komfort speichern wir einige Angaben lokal in deinem Browser
             (localStorage): zuletzt bekannter Standort, Filter-Einstellungen,
-            gemerkte Plätze, die Anzieh-Einstellungen (Altersgruppe und
-            Wärmeempfinden deines Kindes), von dir ausgeblendete Meldungen
+            gemerkte Plätze, das Kind-Profil (Altersgruppe und
+            Wärmeempfinden, steuert Anzieh-Tipps und Sortier-Wünsche), von dir ausgeblendete Meldungen
             sowie eine zufällige Spam-Schutz-Kennung. Diese verbleiben auf deinem Gerät,
             werden nicht an uns übermittelt und lassen sich über die
             Browser-Einstellungen löschen. Es werden{" "}

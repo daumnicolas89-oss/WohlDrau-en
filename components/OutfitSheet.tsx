@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Hinweis } from "./ui/Hinweis";
+import { AGES, useKind } from "@/store/useKind";
 import {
   clothingAdvice,
   outfitFor,
-  type AgeGroup,
   type OutfitItem,
   type WarmthSensitivity,
 } from "@/lib/outdoorTips";
@@ -18,28 +17,12 @@ interface OutfitParams {
   windSpeed: number;
 }
 
-const AGES: { key: AgeGroup; label: string; sub: string }[] = [
-  { key: "baby", label: "Baby", sub: "0–1 J" },
-  { key: "toddler", label: "Kleinkind", sub: "1–3 J" },
-  { key: "kita", label: "Kita", sub: "3–6 J" },
-  { key: "school", label: "Schule", sub: "6+ J" },
-];
-
 const SENSITIVITIES: { key: WarmthSensitivity; label: string }[] = [
   { key: "chilly", label: "Friert leicht" },
   { key: "neutral", label: "Normal" },
   { key: "warm", label: "Schwitzt leicht" },
 ];
 
-const AGE_KEY = "platzda:outfit:age";
-const SENS_KEY = "platzda:outfit:sensitivity";
-
-function isAge(v: string | null): v is AgeGroup {
-  return v === "baby" || v === "toddler" || v === "kita" || v === "school";
-}
-function isSensitivity(v: string | null): v is WarmthSensitivity {
-  return v === "chilly" || v === "neutral" || v === "warm";
-}
 
 function ItemGrid({ items }: { items: OutfitItem[] }) {
   return (
@@ -118,40 +101,12 @@ export function OutfitSheet({
   onClose: () => void;
   params: OutfitParams;
 }) {
-  // Die zuletzt gewählten Einstellungen merken – meist immer dasselbe Kind.
-  const [age, setAge] = useState<AgeGroup>(() => {
-    if (typeof window === "undefined") return "kita";
-    try {
-      const a = localStorage.getItem(AGE_KEY);
-      return isAge(a) ? a : "kita";
-    } catch {
-      return "kita";
-    }
-  });
-  const [sensitivity, setSensitivity] = useState<WarmthSensitivity>(() => {
-    if (typeof window === "undefined") return "neutral";
-    try {
-      const s = localStorage.getItem(SENS_KEY);
-      return isSensitivity(s) ? s : "neutral";
-    } catch {
-      return "neutral";
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(AGE_KEY, age);
-    } catch {
-      /* egal */
-    }
-  }, [age]);
-  useEffect(() => {
-    try {
-      localStorage.setItem(SENS_KEY, sensitivity);
-    } catch {
-      /* egal */
-    }
-  }, [sensitivity]);
+  // Ein Kind, ein Profil: Alter und Empfinden kommen aus dem geteilten
+  // Kind-Profil – dieselben Werte steuern auch die Wünsche im Filter.
+  const age = useKind((k) => k.age);
+  const sensitivity = useKind((k) => k.sensitivity);
+  const setAge = useKind((k) => k.setAge);
+  const setSensitivity = useKind((k) => k.setSensitivity);
 
   const outfit = outfitFor(params, age, sensitivity);
   const summary = clothingAdvice(params, age, sensitivity);

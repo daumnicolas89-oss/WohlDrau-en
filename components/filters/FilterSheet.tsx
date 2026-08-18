@@ -2,6 +2,7 @@
 
 import { formatDistance } from "@/lib/utils";
 import { TIME_CHOICES, useFilters, type ShadeRequirement } from "@/store/useFilters";
+import { AGES, ALTERS_WUENSCHE, useKind } from "@/store/useKind";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 
@@ -134,6 +135,17 @@ export function FilterSheet({
   onClose: () => void;
 }) {
   const filters = useFilters();
+  const kindAlter = useKind((k) => k.age);
+  const setKindAlter = useKind((k) => k.setAge);
+
+  // Vorschlag nur zeigen, solange er etwas ändern würde – wer die Wünsche
+  // schon so gesetzt hat, braucht keinen Hinweis auf das Offensichtliche.
+  const empfehlung = ALTERS_WUENSCHE[kindAlter];
+  const fehlende = empfehlung.keys.filter((k) => !filters[k]);
+  const vorschlag = fehlende.length > 0 ? empfehlung : null;
+  const vorschlagAnnehmen = () => {
+    for (const key of fehlende) filters.set(key, true);
+  };
 
   return (
     <Sheet
@@ -202,6 +214,49 @@ export function FilterSheet({
               );
             })}
           </div>
+        </fieldset>
+
+        <fieldset>
+          <legend className="mb-1 text-sm font-semibold text-dark">Für wen suchst du?</legend>
+          <p className="mb-2 text-xs leading-relaxed text-muted">
+            Einmal einstellen, gilt überall – auch beim Anziehen. Bleibt auf
+            deinem Gerät.
+          </p>
+          <div className="flex gap-1 rounded-2xl bg-background p-1">
+            {AGES.map(({ key, label, sub }) => {
+              const active = kindAlter === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setKindAlter(key)}
+                  className={`min-h-11 flex-1 rounded-xl px-1 text-center transition ${
+                    active
+                      ? "bg-card shadow-card ring-1 ring-primary-dark/45"
+                      : "active:bg-card/60"
+                  }`}
+                >
+                  <span className={`block text-sm font-semibold ${active ? "text-dark" : "text-muted"}`}>
+                    {label}
+                  </span>
+                  <span className="block text-[11px] text-muted">{sub}</span>
+                </button>
+              );
+            })}
+          </div>
+          {vorschlag && (
+            <div className="mt-2 rounded-2xl bg-primary-soft px-3.5 py-3 text-sm leading-relaxed text-primary-dark">
+              {vorschlag.label}{" "}
+              <button
+                type="button"
+                onClick={vorschlagAnnehmen}
+                className="font-semibold underline underline-offset-2"
+              >
+                Nach oben sortieren
+              </button>
+            </div>
+          )}
         </fieldset>
 
         <div>
