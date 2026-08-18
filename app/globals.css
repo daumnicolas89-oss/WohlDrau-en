@@ -238,20 +238,35 @@ textarea,
     0 0 0 8px rgb(242 172 51 / 0.18),
     0 0 32px 12px rgb(242 172 51 / 0.28);
 }
+/* Das Finale endet mit derselben Geste, mit der die Seite beginnt: ein
+   flacher Abendhimmel – Licht oben, Wärme am Horizont. */
+.landing-finale {
+  background: linear-gradient(180deg, #fdf6ea 0%, #f8ddab 100%);
+}
+/* Drei Verabredungen, gemessen statt gehofft:
+   1. Der 50-%-Keyframe legt die Sonne EXAKT über den Stamm, genau wenn der
+      Schatten die Seite wechselt – ohne ihn kreuzt die Sonne die Baumachse
+      früher als der Schatten und beide zeigen sekundenlang nach Osten.
+   2. In der Nacht-Blende (91→96 %) bleiben Position und Länge eingefroren;
+      erst unsichtbar (96→100 %) wird zurückgestellt. Sonst rutscht die
+      Sonne halb sichtbar rückwärts.
+   3. Maximal ±1.45 Streckung, damit der Morgenschatten auch in der
+      320-px-Karte endet statt an der Kante abgeschnitten zu werden. */
 @keyframes wander-sonne {
   0%   { left: 7%;  transform: translateY(52px); opacity: 0; }
   6%   { opacity: 1; }
-  50%  { transform: translateY(0); }
+  50%  { left: calc(50% - 1rem); transform: translateY(-8px); }
   91%  { left: calc(93% - 2rem); transform: translateY(52px); opacity: 1; }
-  96%  { opacity: 0; }
+  96%  { left: calc(93% - 2rem); transform: translateY(52px); opacity: 0; }
   100% { left: 7%; transform: translateY(52px); opacity: 0; }
 }
 @keyframes wander-schatten {
-  0%   { transform: scale(1.7, 0.5); opacity: 0; }
+  0%   { transform: scale(1.45, 0.5); opacity: 0; }
   6%   { opacity: 0.7; }
-  50%  { transform: scale(0.32, 0.5); opacity: 1; }
-  91%  { transform: scale(-1.7, 0.5); opacity: 0.7; }
-  96%, 100% { opacity: 0; }
+  50%  { transform: scale(0.08, 0.5); opacity: 1; }
+  91%  { transform: scale(-1.45, 0.5); opacity: 0.7; }
+  96%  { transform: scale(-1.45, 0.5); opacity: 0; }
+  100% { transform: scale(1.45, 0.5); opacity: 0; }
 }
 .wander-sonne { animation: wander-sonne 24s ease-in-out infinite; }
 .wander-schatten {

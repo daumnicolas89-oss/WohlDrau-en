@@ -44,7 +44,7 @@ export function Landing() {
 
             <a
               href={TESTFLIGHT_URL}
-              className="mt-8 inline-flex min-h-14 items-center justify-center rounded-full bg-primary-dark px-8 text-[17px] font-semibold text-white shadow-float transition hover:bg-primary-darker active:scale-[0.98]"
+              className="mt-8 inline-flex min-h-14 items-center justify-center rounded-full bg-primary-dark px-8 text-[17px] font-semibold text-white shadow-float transition-[background-color,transform] hover:bg-primary-darker active:scale-[0.98]"
             >
               Kostenlos testen
             </a>
@@ -64,7 +64,7 @@ export function Landing() {
                   src="/app-vorschau.png"
                   alt="Die PlatzDa-App zeigt die beste Wahl gerade: Spielplatz mit viel Schatten, bewertet mit 82 von 100"
                   width={780}
-                  height={1688}
+                  height={1472}
                   className="w-full"
                 />
               </div>
@@ -76,11 +76,12 @@ export function Landing() {
       {/* ---- Signatur: der Schatten wandert, physikalisch richtig ---- */}
       <section
         aria-label="Schatten wandert über den Tag"
-        className="mx-auto w-full max-w-xl px-5"
+        className="mx-auto w-full max-w-xl px-5 lg:max-w-4xl lg:px-0"
       >
         <div className="relative -mt-6 overflow-hidden rounded-card bg-card shadow-card">
-          {/* Die Szene: Himmel, Wiese, ein Baum – randlos bis an die Karte. */}
-          <div className="landing-szene relative h-44 overflow-hidden">
+          {/* Die Szene: Himmel, Wiese, ein Baum – randlos bis an die Karte,
+              ab lg als breites Panorama. */}
+          <div className="landing-szene relative h-44 overflow-hidden lg:h-52">
             <span
               aria-hidden
               className="wander-sonne landing-sonne absolute top-4 size-8 rounded-full"
@@ -95,7 +96,7 @@ export function Landing() {
                 nach Osten, negativ kippt nach Westen. */}
             <span
               aria-hidden
-              className="wander-schatten absolute bottom-8 left-1/2 h-2.5 w-28 rounded-[50%] bg-[#3f5a3c]/30"
+              className="wander-schatten absolute bottom-8 left-1/2 h-2.5 w-24 rounded-[50%] bg-[#3f5a3c]/30"
             />
             <svg
               aria-hidden
@@ -109,7 +110,7 @@ export function Landing() {
               <circle cx="29" cy="21" r="12" fill="#37a08e" />
             </svg>
           </div>
-          <p className="px-6 pt-5 pb-6 text-center text-[15px] leading-relaxed text-muted lg:text-base">
+          <p className="px-6 pt-5 pb-6 text-center text-[15px] leading-relaxed text-balance text-muted lg:text-base">
             Schatten wandert mit der Sonne.{" "}
             <span className="font-semibold text-dark">
               PlatzDa rechnet ihn voraus
@@ -120,11 +121,14 @@ export function Landing() {
       </section>
 
       {/* ---- Was man vor dem Losgehen weiß ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-14 lg:pt-20">
+      {/* Ab lg liegen alle Sektionen im selben max-w-4xl-Container wie der
+          Hero (lg:px-0, weil dort das Padding außen am Header sitzt) –
+          H1 und H2s fluchten auf einer Achse statt zu springen. */}
+      <section className="mx-auto w-full max-w-xl px-5 pt-14 lg:max-w-4xl lg:px-0 lg:pt-20">
         <h2 className="font-display text-2xl leading-snug font-bold sm:text-3xl">
           Was du weißt, bevor ihr losgeht
         </h2>
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-6 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
           <div className="border-l-2 border-primary/40 pl-4">
             <h3 className="font-display text-lg font-semibold">
               Schatten, der stimmt
@@ -160,11 +164,11 @@ export function Landing() {
       </section>
 
       {/* ---- Echte Sequenz, darum nummeriert ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:pt-16">
+      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-16">
         <h2 className="font-display text-2xl leading-snug font-bold sm:text-3xl">
           So testest du PlatzDa
         </h2>
-        <ol className="mt-6 space-y-4">
+        <ol className="mt-6 space-y-4 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
           {[
             [
               "TestFlight laden",
@@ -198,7 +202,7 @@ export function Landing() {
       </section>
 
       {/* ---- Der Absender: ein Ich mit Namen ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:pt-16">
+      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-16">
         <h2 className="font-display text-2xl leading-snug font-bold sm:text-3xl">
           Wer dahintersteckt
         </h2>
@@ -208,7 +212,7 @@ export function Landing() {
           schreib mir:{" "}
           <a
             href="mailto:kontakt@nicolas-daum.ai"
-            className="font-medium text-primary-dark underline underline-offset-2"
+            className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2"
           >
             kontakt@nicolas-daum.ai
           </a>
@@ -216,8 +220,8 @@ export function Landing() {
       </section>
 
       {/* ---- Ehrlichkeit: die Fußnote zu allem darüber ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-6">
-        <p className="rounded-card bg-primary-soft p-5 text-[15px] leading-relaxed text-primary-dark">
+      <section className="mx-auto w-full max-w-xl px-5 pt-6 lg:max-w-4xl lg:px-0">
+        <p className="rounded-card bg-primary-soft p-5 text-[15px] leading-relaxed text-primary-dark lg:max-w-2xl">
           Orte und Ausstattung stammen von OpenStreetMap, das Wetter von
           Open-Meteo. Der Schatten ist{" "}
           <span className="font-semibold">gerechnet, nicht gemessen</span> – eine
@@ -226,11 +230,11 @@ export function Landing() {
       </section>
 
       {/* ---- Kurz gefragt ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:pt-16">
+      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-16">
         <h2 className="font-display text-2xl leading-snug font-bold sm:text-3xl">
           Kurz gefragt
         </h2>
-        <dl className="mt-6 space-y-5">
+        <dl className="mt-6 space-y-5 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
           <div>
             <dt className="font-display text-[17px] font-semibold">
               Was ist TestFlight?
@@ -262,35 +266,42 @@ export function Landing() {
         </dl>
       </section>
 
-      {/* ---- Finale ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-16 pb-6 text-center">
-        <a
-          href={TESTFLIGHT_URL}
-          className="inline-flex min-h-16 items-center justify-center rounded-full bg-primary-dark px-10 text-lg font-semibold text-white shadow-float transition hover:bg-primary-darker active:scale-[0.98]"
-        >
-          Jetzt mittesten
-        </a>
-        <p className="mt-4 text-sm text-muted">
-          Android? Noch nicht – schreib mir, wenn du dabei sein willst:{" "}
+      {/* ---- Finale: dieselbe Geste wie der Anfang, nur als Abend ---- */}
+      <section className="mx-auto w-full max-w-xl px-5 pt-16 pb-6 lg:max-w-4xl lg:px-0">
+        <div className="landing-finale rounded-card px-6 py-12 text-center lg:py-14">
           <a
-            href="mailto:kontakt@nicolas-daum.ai"
-            className="underline underline-offset-2"
+            href={TESTFLIGHT_URL}
+            className="inline-flex min-h-16 items-center justify-center rounded-full bg-primary-dark px-10 text-lg font-semibold text-white shadow-float transition-[background-color,transform] hover:bg-primary-darker active:scale-[0.98]"
           >
-            kontakt@nicolas-daum.ai
+            Jetzt mittesten
           </a>
-        </p>
+          <p className="mt-4 text-sm text-balance text-muted">
+            Android? Noch nicht – schreib mir, wenn du dabei sein willst:{" "}
+            <a
+              href="mailto:kontakt@nicolas-daum.ai"
+              className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2"
+            >
+              kontakt@nicolas-daum.ai
+            </a>
+          </p>
+        </div>
       </section>
 
-      <footer className="mx-auto flex w-full max-w-xl flex-wrap justify-center gap-x-4 gap-y-1 px-5 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))] text-xs text-muted">
-        <Link href="/impressum" className="underline underline-offset-2">
-          Impressum
-        </Link>
-        <Link href="/datenschutz" className="underline underline-offset-2">
-          Datenschutz
-        </Link>
-        <Link href="/so-funktionierts" className="underline underline-offset-2">
-          So funktioniert&apos;s
-        </Link>
+      <footer className="mx-auto w-full max-w-xl px-5 pb-[max(2rem,env(safe-area-inset-bottom))]">
+        <div className="flex flex-wrap justify-center gap-x-4 border-t border-line pt-4 text-xs text-muted">
+          <Link href="/impressum" className="py-2 underline underline-offset-2">
+            Impressum
+          </Link>
+          <Link href="/datenschutz" className="py-2 underline underline-offset-2">
+            Datenschutz
+          </Link>
+          <Link
+            href="/so-funktionierts"
+            className="py-2 underline underline-offset-2"
+          >
+            So funktioniert&apos;s
+          </Link>
+        </div>
       </footer>
     </div>
   );
