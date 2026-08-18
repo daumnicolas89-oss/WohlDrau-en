@@ -78,31 +78,38 @@ export function Landing() {
         aria-label="Schatten wandert über den Tag"
         className="mx-auto w-full max-w-xl px-5"
       >
-        <div className="relative -mt-6 overflow-hidden rounded-card bg-card px-6 pt-8 pb-6 shadow-card">
-          <div className="relative h-24">
+        <div className="relative -mt-6 overflow-hidden rounded-card bg-card shadow-card">
+          {/* Die Szene: Himmel, Wiese, ein Baum – randlos bis an die Karte. */}
+          <div className="landing-szene relative h-44 overflow-hidden">
             <span
               aria-hidden
-              className="wander-sonne absolute top-1 size-7 rounded-full bg-[#f2ac33]"
+              className="wander-sonne landing-sonne absolute top-4 size-8 rounded-full"
             />
-            <svg
+            {/* Wiese als flacher Hügel: eine große Ellipse, deren Kuppe die
+                Horizontlinie zeichnet. */}
+            <div
               aria-hidden
-              viewBox="0 0 60 64"
-              className="absolute bottom-1 left-1/2 h-16 w-auto -translate-x-1/2"
-            >
-              <rect x="27" y="38" width="6" height="24" rx="2" fill="#7a5b3a" />
-              <circle cx="30" cy="24" r="18" fill="#1e766c" />
-              <circle cx="18" cy="30" r="10" fill="#2a9d8f" />
-              <circle cx="42" cy="30" r="10" fill="#2a9d8f" />
-            </svg>
+              className="landing-wiese absolute -bottom-24 left-1/2 h-40 w-[165%] -translate-x-1/2 rounded-[100%]"
+            />
             {/* Ursprung am Stamm: left 50 %, Origin links – scaleX streckt
                 nach Osten, negativ kippt nach Westen. */}
             <span
               aria-hidden
-              className="wander-schatten absolute bottom-0 left-1/2 h-3 w-24 rounded-[50%] bg-primary-dark/15"
+              className="wander-schatten absolute bottom-8 left-1/2 h-2.5 w-28 rounded-[50%] bg-[#3f5a3c]/30"
             />
+            <svg
+              aria-hidden
+              viewBox="0 0 76 88"
+              className="absolute bottom-8 left-1/2 h-[104px] w-auto -translate-x-1/2"
+            >
+              <rect x="35" y="46" width="6" height="42" rx="3" fill="#7a5b3a" />
+              <circle cx="38" cy="28" r="24" fill="#1e766c" />
+              <circle cx="19" cy="41" r="13" fill="#2a9d8f" />
+              <circle cx="57" cy="41" r="13" fill="#2a9d8f" />
+              <circle cx="29" cy="21" r="12" fill="#37a08e" />
+            </svg>
           </div>
-          <div aria-hidden className="mx-auto h-px w-4/5 bg-line" />
-          <p className="mt-4 text-center text-[15px] leading-relaxed text-muted lg:text-base">
+          <p className="px-6 pt-5 pb-6 text-center text-[15px] leading-relaxed text-muted lg:text-base">
             Schatten wandert mit der Sonne.{" "}
             <span className="font-semibold text-dark">
               PlatzDa rechnet ihn voraus

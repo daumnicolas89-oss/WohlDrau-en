@@ -220,24 +220,37 @@ textarea,
   }
 }
 
-/* Landing-Signatur: Ein Sonnentag in 24 Sekunden. Die Sonne zieht ihren
-   Bogen und läuft NIE rückwärts (kurze „Nacht"-Blende statt alternate).
-   Der Schatten hängt mit seinem Ursprung am Stamm und folgt der Physik:
-   morgens lang nach Westen, mittags kurz, abends lang nach Osten –
-   negatives scaleX wechselt die Seite und bleibt dabei verankert. */
+/* Landing-Signatur: Ein Sonnentag in 24 Sekunden, als kleine Landschaft
+   statt Symbolen auf weißem Grund – Himmel, Wiese, ein Baum. Die Sonne
+   zieht ihren Bogen und läuft NIE rückwärts (kurze „Nacht"-Blende statt
+   alternate). Der Schatten hängt mit seinem Ursprung am Stamm und folgt
+   der Physik: morgens lang nach Westen, mittags kurz, abends lang nach
+   Osten – negatives scaleX wechselt die Seite und bleibt verankert. */
+.landing-szene {
+  background: linear-gradient(180deg, #f7d59d 0%, #fbe9c6 55%, #fdf3e0 100%);
+}
+.landing-wiese {
+  background: linear-gradient(180deg, #cfe0c4 0%, #c3d7b6 100%);
+}
+.landing-sonne {
+  background: radial-gradient(circle at 35% 35%, #f7c45c, #f0a52c 75%);
+  box-shadow:
+    0 0 0 8px rgb(242 172 51 / 0.18),
+    0 0 32px 12px rgb(242 172 51 / 0.28);
+}
 @keyframes wander-sonne {
-  0%   { left: 8%;  transform: translateY(36px); opacity: 0; }
-  5%   { opacity: 1; }
+  0%   { left: 7%;  transform: translateY(52px); opacity: 0; }
+  6%   { opacity: 1; }
   50%  { transform: translateY(0); }
-  91%  { left: calc(92% - 1.75rem); transform: translateY(36px); opacity: 1; }
+  91%  { left: calc(93% - 2rem); transform: translateY(52px); opacity: 1; }
   96%  { opacity: 0; }
-  100% { left: 8%; transform: translateY(36px); opacity: 0; }
+  100% { left: 7%; transform: translateY(52px); opacity: 0; }
 }
 @keyframes wander-schatten {
   0%   { transform: scale(1.7, 0.5); opacity: 0; }
-  5%   { opacity: 0.6; }
-  50%  { transform: scale(0.32, 0.5); opacity: 0.85; }
-  91%  { transform: scale(-1.7, 0.5); opacity: 0.6; }
+  6%   { opacity: 0.7; }
+  50%  { transform: scale(0.32, 0.5); opacity: 1; }
+  91%  { transform: scale(-1.7, 0.5); opacity: 0.7; }
   96%, 100% { opacity: 0; }
 }
 .wander-sonne { animation: wander-sonne 24s ease-in-out infinite; }
@@ -246,6 +259,6 @@ textarea,
   animation: wander-schatten 24s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .wander-sonne { animation: none; left: 30%; transform: translateY(8px); opacity: 1; }
-  .wander-schatten { animation: none; transform: scale(0.6, 0.5); opacity: 0.7; }
+  .wander-sonne { animation: none; left: 26%; transform: translateY(10px); opacity: 1; }
+  .wander-schatten { animation: none; transform: scale(0.85, 0.5); opacity: 0.85; }
 }
