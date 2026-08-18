@@ -223,20 +223,9 @@ textarea,
   }
 }
 
-/* Landing-Signatur: Ein Sonnentag in 24 Sekunden, als kleine Landschaft
-   statt Symbolen auf weißem Grund – Himmel, Wiese, ein Baum. Die Sonne
-   zieht ihren Bogen und läuft NIE rückwärts (kurze „Nacht"-Blende statt
-   alternate). Der Schatten hängt mit seinem Ursprung am Stamm und folgt
-   der Physik: morgens lang nach Westen, mittags kurz, abends lang nach
-   Osten – negatives scaleX wechselt die Seite und bleibt verankert. */
-.landing-szene {
-  background: linear-gradient(180deg, #f7d59d 0%, #fbe9c6 55%, #fdf3e0 100%);
-}
-.landing-wiese {
-  background: linear-gradient(180deg, #cfe0c4 0%, #c3d7b6 100%);
-}
-/* Weiches Leuchten um die Strahlen-Sonne (SVG), statt Verlaufs-Kugel:
-   dieselbe flache Bauart wie im Logo, nur mit Halo. */
+/* Landing-Abendvignette: Baum, Schatten und halb versunkene Strahlen-Sonne
+   im Finale-Band. (Die frühere animierte Tages-Szene ist einem echten
+   App-Screenshot gewichen – Nicolas' Entscheidung: Produkt statt Grafik.) */
 .landing-sonne {
   filter: drop-shadow(0 0 12px rgb(242 177 61 / 0.5));
 }
@@ -244,38 +233,4 @@ textarea,
    flacher Abendhimmel – Licht oben, Wärme am Horizont. */
 .landing-finale {
   background: linear-gradient(180deg, #fdf6ea 0%, #f8ddab 100%);
-}
-/* Drei Verabredungen, gemessen statt gehofft:
-   1. Der 50-%-Keyframe legt die Sonne EXAKT über den Stamm, genau wenn der
-      Schatten die Seite wechselt – ohne ihn kreuzt die Sonne die Baumachse
-      früher als der Schatten und beide zeigen sekundenlang nach Osten.
-   2. In der Nacht-Blende (91→96 %) bleiben Position und Länge eingefroren;
-      erst unsichtbar (96→100 %) wird zurückgestellt. Sonst rutscht die
-      Sonne halb sichtbar rückwärts.
-   3. Maximal ±1.45 Streckung, damit der Morgenschatten auch in der
-      320-px-Karte endet statt an der Kante abgeschnitten zu werden. */
-@keyframes wander-sonne {
-  0%   { left: 7%;  transform: translateY(52px); opacity: 0; }
-  6%   { opacity: 1; }
-  50%  { left: calc(50% - 1.125rem); transform: translateY(-8px); }
-  91%  { left: calc(93% - 2.25rem); transform: translateY(52px); opacity: 1; }
-  96%  { left: calc(93% - 2.25rem); transform: translateY(52px); opacity: 0; }
-  100% { left: 7%; transform: translateY(52px); opacity: 0; }
-}
-@keyframes wander-schatten {
-  0%   { transform: scale(1.45, 0.5); opacity: 0; }
-  6%   { opacity: 0.7; }
-  50%  { transform: scale(0.08, 0.5); opacity: 1; }
-  91%  { transform: scale(-1.45, 0.5); opacity: 0.7; }
-  96%  { transform: scale(-1.45, 0.5); opacity: 0; }
-  100% { transform: scale(1.45, 0.5); opacity: 0; }
-}
-.wander-sonne { animation: wander-sonne 24s ease-in-out infinite; }
-.wander-schatten {
-  transform-origin: left center;
-  animation: wander-schatten 24s ease-in-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .wander-sonne { animation: none; left: 26%; transform: translateY(10px); opacity: 1; }
-  .wander-schatten { animation: none; transform: scale(0.85, 0.5); opacity: 0.85; }
 }

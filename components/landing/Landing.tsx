@@ -6,13 +6,11 @@ const TESTFLIGHT_URL = "https://testflight.apple.com/join/Ad9Py8Xd";
 /**
  * Die Haustür von platzda.app – in drei Kritik-Runden (Design-Direktion,
  * Conversion-Text, System-Audit) geschliffen:
- * - Das Produkt ist SICHTBAR: echter App-Screenshot im Geräterahmen, auf dem
- *   Handy rechts angeschnitten, auf Desktop als zweite Hero-Spalte.
- * - EINE Zeichensprache: Baum und Sonne der Szene sind aus dem Logo
- *   abgeleitet (einfarbige Teal-Silhouette, Strahlen-Sonne) – die Seite
- *   konkurriert nicht mehr mit ihrem eigenen Markenzeichen.
- * - Die Signatur (wandernder Schatten) folgt echter Physik, und das Finale
- *   schließt die Klammer: dieselbe Szene, nur als Abend.
+ * - Das Produkt ist SICHTBAR: echter App-Screenshot im Geräterahmen im Hero,
+ *   darunter die Schatten-Vorhersage der Detailseite als zweiter Screenshot –
+ *   die Seite zeigt die App beim Rechnen, statt eine Grafik zu behaupten.
+ * - EINE Zeichensprache: Baum und Sonne der Abend-Vignette im Finale sind
+ *   aus dem Logo abgeleitet (Teal-Silhouette, Strahlen-Sonne).
  * - `normal-nums`: Die App braucht Tabellenziffern (tickende Werte), eine
  *   Textseite nicht – ohne dies rendert Inter jeden Bindestrich gesperrt
  *   („Test - App" statt „Test-App").
@@ -78,37 +76,28 @@ export function Landing() {
         </div>
       </header>
 
-      {/* ---- Signatur: der Schatten wandert, physikalisch richtig ---- */}
-      <section
-        aria-label="Schatten wandert über den Tag"
-        className="mx-auto w-full max-w-xl px-5 lg:max-w-4xl lg:px-0"
-      >
+      {/* ---- Signatur: die App beim Rechnen zeigen, nicht behaupten ---- */}
+      <section className="mx-auto w-full max-w-xl px-5 lg:max-w-4xl lg:px-0">
         <div className="relative -mt-6 overflow-hidden rounded-card bg-card shadow-card">
-          {/* Die Szene: Himmel, Wiese, ein Baum – randlos bis an die Karte,
-              ab lg als breites Panorama. */}
-          <div className="landing-szene relative h-44 overflow-hidden lg:h-52">
-            <Sonne className="wander-sonne landing-sonne absolute top-4 size-9" />
-            {/* Wiese als flacher Hügel: eine große Ellipse, deren Kuppe die
-                Horizontlinie zeichnet. */}
-            <div
-              aria-hidden
-              className="landing-wiese absolute -bottom-24 left-1/2 h-40 w-[165%] -translate-x-1/2 rounded-[100%]"
+          <div className="grid items-center gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12 lg:p-8">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/app-schatten.png"
+              alt="Die Detailseite eines Spielplatzes in der App: aktuell viel Schatten, geschätzt 75 Prozent, darunter der Stundenverlauf, wie lange der Schatten hält"
+              width={1074}
+              height={1668}
+              className="w-full rounded-xl ring-1 ring-line"
             />
-            {/* Ursprung am Stamm: left 50 %, Origin links – scaleX streckt
-                nach Osten, negativ kippt nach Westen. */}
-            <span
-              aria-hidden
-              className="wander-schatten absolute bottom-8 left-1/2 h-2.5 w-24 rounded-[50%] bg-primary-dark/25"
-            />
-            <Baum className="absolute bottom-8 left-1/2 h-[104px] w-auto -translate-x-1/2" />
+            <p className="text-center text-[15px] leading-relaxed text-balance text-muted lg:text-left lg:text-lg">
+              Schatten wandert mit der Sonne.{" "}
+              <span className="font-semibold text-dark">
+                PlatzDa rechnet ihn voraus
+              </span>{" "}
+              – aus Sonnenstand, Bäumen, Gebäuden und den Bergen am Horizont.
+              Für jeden Platz siehst du, wie es gerade ist und wie lange der
+              Schatten noch hält.
+            </p>
           </div>
-          <p className="px-6 pt-5 pb-6 text-center text-[15px] leading-relaxed text-balance text-muted lg:text-base">
-            Schatten wandert mit der Sonne.{" "}
-            <span className="font-semibold text-dark">
-              PlatzDa rechnet ihn voraus
-            </span>{" "}
-            – aus Sonnenstand, Bäumen, Gebäuden und den Bergen am Horizont.
-          </p>
         </div>
       </section>
 
@@ -163,12 +152,12 @@ export function Landing() {
         <ol className="mt-6 space-y-4 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
           {[
             [
-              "TestFlight laden",
-              "Apples kostenlose Test-App aus dem App Store. Einmalig, dauert eine Minute.",
+              "Link antippen",
+              "Der Knopf oben führt dich zu Apples Testseite. Von dort installiert sich PlatzDa wie eine normale App.",
             ],
             [
-              "Link antippen",
-              "Der Knopf oben führt dich hin. PlatzDa installiert sich wie eine normale App.",
+              "TestFlight laden, wenn es fehlt",
+              "Die Testseite zeigt dir den Weg zu Apples kostenloser Test-App. Einmalig, dauert eine Minute.",
             ],
             [
               "Rausgehen",
