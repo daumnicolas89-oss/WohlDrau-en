@@ -16,7 +16,12 @@ import {
 import { scorePlace } from "@/lib/scoring";
 import { formatAge, statusOption } from "@/lib/status";
 import { computeShade, windowHasSun } from "@/lib/sun";
-import { hasInAppHistory, haversine } from "@/lib/utils";
+import {
+  formatDistance,
+  hasInAppHistory,
+  haversine,
+  walkingMinutes,
+} from "@/lib/utils";
 import { weatherAt } from "@/lib/weather";
 import {
   SCORE_ERKLAERUNG,
@@ -134,10 +139,15 @@ export function PlaceDetail({
   }
 
   // Vorläufige Schnellstart-Orte (ohne Bäume/Gebäude) reichen der
-  // Detailseite nicht – sie würde falschen Schatten behaupten. Sie wartet
-  // auf die volle Antwort; solange gilt die Seite als ladend.
+  // Detailseite nicht für Schatten und Bewertung – sie würde falsche Werte
+  // behaupten. Aber Name, Art und Weg stimmen schon: Die zeigen wir sofort,
+  // statt hinter einem stummen Skelett zu verschwinden (Nicolas draußen:
+  // „kann keine Plätze anklicken" – die Seite wirkte schlicht tot).
   const osmPlace =
     places.places.find((p) => p.id === placeId && !p.preliminary) ?? null;
+  const vorabPlatz = osmPlace
+    ? null
+    : (places.places.find((p) => p.id === placeId && p.preliminary) ?? null);
 
   const place = useMemo(() => {
     if (!osmPlace) return null;
@@ -196,6 +206,7 @@ export function PlaceDetail({
   // ohne Fehlertext, ohne „Erneut versuchen".
   const loading =
     !place &&
+    !vorabPlatz &&
     (places.loading || (places.preliminary && !places.error) || weatherBlocksLoading);
   // Genauso beim Fehler: Steht der Ort schon da, soll ein misslungener
   // Hintergrund-Abruf ihn nicht durch einen Fehlerkasten verdrängen.
@@ -246,7 +257,51 @@ export function PlaceDetail({
         </div>
       )}
 
-      {!loading && !error && !place && (
+      {/* Vorab-Ansicht: Der Platz ist da, nur Schatten und Bewertung rechnen
+          noch. Sobald die volle Antwort eintrifft, füllt sich die Seite von
+          selbst – `place` wird gesetzt und dieser Block verschwindet. */}
+      {!loading && !error && !place && vorabPlatz && (
+        <div className="m-4 space-y-4">
+          <div className="rounded-card bg-card p-6 shadow-card">
+            <h1 className="font-display text-2xl leading-tight font-bold text-dark">
+              {vorabPlatz.name}
+            </h1>
+            <p className="mt-2 flex items-center gap-1.5 text-[15px] text-muted">
+              <PlaceKindTag kind={vorabPlatz.kind} className="font-medium" />
+              <span aria-hidden className="text-dark/30">
+                ·
+              </span>
+              {(() => {
+                const meter = haversine(
+                  viewer.lat,
+                  viewer.lng,
+                  vorabPlatz.lat,
+                  vorabPlatz.lng,
+                );
+                const minuten = walkingMinutes(meter);
+                return `${formatDistance(meter)}, etwa ${
+                  minuten === 1 ? "eine Minute" : `${minuten} Minuten`
+                } zu Fuß`;
+              })()}
+            </p>
+            <a
+              href={routeUrl(vorabPlatz.lat, vorabPlatz.lng)}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex min-h-12 items-center justify-center rounded-2xl bg-primary-dark px-5 font-semibold text-white shadow-card transition hover:bg-primary-darker active:scale-[0.98]"
+            >
+              Route dorthin
+            </a>
+          </div>
+          <Hinweis>
+            Schatten und Bewertung für diese Gegend werden noch berechnet. Die
+            Seite füllt sich gleich von selbst.
+          </Hinweis>
+          <PlacesLoading rows={1} />
+        </div>
+      )}
+
+      {!loading && !error && !place && !vorabPlatz && (
         <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
           <p className="font-display text-lg font-semibold text-dark">
             Diesen Platz finden wir nicht

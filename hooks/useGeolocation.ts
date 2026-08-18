@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { nativerStandort } from "@/lib/native";
+import { nativerStandort, type NativerStandort } from "@/lib/native";
+import { haversine } from "@/lib/utils";
 
 export interface Coords {
   lat: number;
@@ -22,11 +23,29 @@ export const FALLBACK_LABEL = "München (Beispielstadt)";
 
 export type GeoStatus = "locating" | "granted" | "denied" | "unavailable";
 
-const OPTIONS: PositionOptions = {
-  enableHighAccuracy: true,
-  timeout: 12_000,
-  maximumAge: 120_000,
+/**
+ * Zwei Stufen statt einem 12-Sekunden-Alles-oder-nichts (Nicolas' Feldtest:
+ * „Standort wird nicht gut gefunden"):
+ *
+ * Stufe 1 nimmt SOFORT, was das Gerät hat – Mobilfunk/WLAN-Ortung oder einen
+ * Fix der letzten Minuten. Auf ein paar hundert Meter genau, und das reicht
+ * für „Spielplätze im Umkreis" völlig; die Liste startet in 1–2 Sekunden.
+ *
+ * Stufe 2 holt danach in Ruhe den präzisen GPS-Fix und schärft nach, aber
+ * nur bei echter Abweichung – sonst zuckt die Liste ohne Grund.
+ */
+const STUFE_SCHNELL: PositionOptions = {
+  enableHighAccuracy: false,
+  timeout: 6_000,
+  maximumAge: 600_000,
 };
+const STUFE_GENAU: PositionOptions = {
+  enableHighAccuracy: true,
+  timeout: 20_000,
+  maximumAge: 0,
+};
+/** Ab dieser Abweichung ersetzt der präzise Fix den schnellen. */
+const NACHSCHAERFEN_AB_M = 150;
 
 const LAST_KNOWN_KEY = "wohldraussen-last-position";
 
@@ -76,55 +95,81 @@ export function useGeolocation(enabled = true) {
     }
   }, []);
 
-  // Ein Pfad fürs Übernehmen (Web wie nativ): merken() stempelt auch den
-  // Fix-Zeitpunkt – ohne ihn feuerte das Nachführen im Browser bei JEDEM
-  // Tab-Wechsel ungedrosselt, samt erneutem Berechtigungsdialog.
-  const handleSuccess = useCallback(
-    (position: GeolocationPosition) => {
-      merken({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        accuracyM: position.coords.accuracy ?? null,
-        source: "gps",
-      });
-    },
-    [merken],
-  );
-
-  const handleError = useCallback((error: GeolocationPositionError) => {
-    setStatus(error.code === error.PERMISSION_DENIED ? "denied" : "unavailable");
-  }, []);
-
   /** Wann der letzte echte GPS-Fix gelang – Basis für das stille
    *  Nachführen, wenn die App aus dem Hintergrund zurückkommt. */
   const letzterFix = useRef(0);
 
-
   /**
-   * In der App über iOS, im Browser über die Web-Schnittstelle. Der native
-   * Weg spart den zweiten Dialog, den WebKit sonst zusätzlich zeigt.
+   * EIN Fix über den passenden Weg: in der App über iOS (spart den zweiten
+   * WebKit-Dialog), im Browser über die Web-Schnittstelle. Liefert immer ein
+   * Ergebnis statt zu werfen – die Stufenlogik entscheidet, was es bedeutet.
    */
+  const holeEinenFix = useCallback(
+    async (optionen: PositionOptions): Promise<NativerStandort> => {
+      const nativ = await nativerStandort({
+        enableHighAccuracy: optionen.enableHighAccuracy ?? false,
+        timeout: optionen.timeout ?? 12_000,
+        maximumAge: optionen.maximumAge ?? 0,
+      });
+      if (nativ) return nativ;
+      if (!available()) return { ok: false, grund: "unavailable" };
+      return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) =>
+            resolve({
+              ok: true,
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              accuracyM: pos.coords.accuracy ?? null,
+            }),
+          (fehler) =>
+            resolve({
+              ok: false,
+              grund:
+                fehler.code === fehler.PERMISSION_DENIED
+                  ? "denied"
+                  : "unavailable",
+            }),
+          optionen,
+        );
+      });
+    },
+    [],
+  );
+
+  /** Zweistufig: sofort grob anfangen, in Ruhe präzise nachschärfen. */
   const holen = useCallback(async () => {
-    const nativ = await nativerStandort();
-    if (nativ) {
-      if (nativ.ok) {
+    const grob = await holeEinenFix(STUFE_SCHNELL);
+    if (grob.ok) {
+      merken({
+        lat: grob.lat,
+        lng: grob.lng,
+        accuracyM: grob.accuracyM,
+        source: "gps",
+      });
+    } else if (grob.grund === "denied") {
+      // Wer die Freigabe ablehnt, lehnt sie auch für Stufe 2 ab.
+      setStatus("denied");
+      return;
+    }
+
+    const genau = await holeEinenFix(STUFE_GENAU);
+    if (genau.ok) {
+      if (
+        !grob.ok ||
+        haversine(grob.lat, grob.lng, genau.lat, genau.lng) > NACHSCHAERFEN_AB_M
+      ) {
         merken({
-          lat: nativ.lat,
-          lng: nativ.lng,
-          accuracyM: nativ.accuracyM,
+          lat: genau.lat,
+          lng: genau.lng,
+          accuracyM: genau.accuracyM,
           source: "gps",
         });
-      } else {
-        setStatus(nativ.grund);
       }
-      return;
+    } else if (!grob.ok) {
+      setStatus(genau.grund);
     }
-    if (!available()) {
-      setStatus("unavailable");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(handleSuccess, handleError, OPTIONS);
-  }, [merken, handleSuccess, handleError]);
+  }, [merken, holeEinenFix]);
 
   // Die App wird draußen benutzt: Wer sie nach der U-Bahn-Fahrt wieder
   // öffnet, steht woanders. Ohne dieses Nachführen klebte die App am

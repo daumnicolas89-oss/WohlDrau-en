@@ -143,3 +143,31 @@ as $$
 $$;
 
 grant execute on function public.report_place_status(uuid) to anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Dauerhafter Orte-Speicher (2026-08-18): jede einmal bei Overpass geholte
+-- Gegend wird hier abgelegt und ab dann sofort ausgeliefert, für alle Nutzer,
+-- über Deploys hinweg. Einmalig im SQL-Editor ausführen.
+--
+-- WICHTIG: Schreiben kann nur der Server mit dem SUPABASE_SERVICE_ROLE_KEY
+-- (in Vercel als Umgebungsvariable hinterlegen, niemals im Browser). Der
+-- öffentliche anon-Schlüssel darf nur lesen, sonst könnte jeder falsche
+-- Ortsdaten für alle Nutzer hinterlegen.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.places_tiles (
+  key      text primary key,
+  payload  text not null,
+  saved_at timestamptz not null default now()
+);
+
+alter table public.places_tiles enable row level security;
+
+-- Lesen ist unkritisch (öffentliche OpenStreetMap-Daten) …
+drop policy if exists "tiles sind oeffentlich lesbar" on public.places_tiles;
+create policy "tiles sind oeffentlich lesbar"
+  on public.places_tiles for select
+  using (true);
+
+-- … Schreiben bewusst NICHT: keine insert/update/delete-Policy für anon.
+-- Der Service-Role-Schlüssel umgeht RLS und ist der einzige Schreibweg.

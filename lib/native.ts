@@ -43,7 +43,13 @@ export type NativerStandort =
  *
  * Gibt `null` zurück, wenn wir im Web laufen – dort bleibt alles wie bisher.
  */
-export async function nativerStandort(): Promise<NativerStandort | null> {
+export async function nativerStandort(
+  optionen: {
+    enableHighAccuracy: boolean;
+    timeout: number;
+    maximumAge: number;
+  } = { enableHighAccuracy: true, timeout: 12_000, maximumAge: 120_000 },
+): Promise<NativerStandort | null> {
   if (!IS_APP_SHELL) return null;
   try {
     const { Geolocation } = await import("@capacitor/geolocation");
@@ -53,11 +59,7 @@ export async function nativerStandort(): Promise<NativerStandort | null> {
     }
     if (rechte.location !== "granted") return { ok: false, grund: "denied" };
 
-    const pos = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 12_000,
-      maximumAge: 120_000,
-    });
+    const pos = await Geolocation.getCurrentPosition(optionen);
     return {
       ok: true,
       lat: pos.coords.latitude,

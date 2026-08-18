@@ -603,8 +603,10 @@ export function HomeView() {
                     )}
                         {places.preliminary && !places.error && (
                           <Hinweis>
-                            Die Plätze sind da – Schatten und Bewertung rechnen
-                            noch. Die Reihenfolge ist solange die Entfernung.
+                            Die Plätze sind da. Schatten und Bewertung werden
+                            noch berechnet: In einer neuen Gegend dauert das
+                            beim ersten Mal etwa eine Minute. Solange ist die
+                            Liste nach Entfernung geordnet.
                           </Hinweis>
                         )}
                         <div className="flex items-center justify-between gap-2 pt-1">
