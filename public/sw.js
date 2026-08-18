@@ -7,7 +7,7 @@
  */
 // Bei jeder Änderung am Datenschema der API-Antworten mit hochzählen –
 // sonst hält der Offline-Cache alte Objektformen unbegrenzt fest.
-const VERSION = "v10";
+const VERSION = "v11";
 const SHELL_CACHE = `wd-shell-${VERSION}`;
 const TILE_CACHE = `wd-tiles-${VERSION}`;
 const DATA_CACHE = `wd-data-${VERSION}`;
@@ -123,6 +123,8 @@ self.addEventListener("fetch", (event) => {
             // längst von der Seite gelesen und die Kopie leer.
             const copy = response.clone();
             caches.open(DATA_CACHE).then((cache) => cache.put(request, copy));
+            // Alte URL-Varianten (Raster-Zellen, Schema-Versionen) nicht ewig horten.
+            trimCache(DATA_CACHE, 40);
           }
           return response;
         })

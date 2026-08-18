@@ -118,6 +118,12 @@ export async function listStatuses(placeIds?: string[]): Promise<PlaceStatus[]> 
     .from(TABLE)
     .select("id, place_id, status_type, message, created_at, expires_at, anonymous_id")
     .gt("expires_at", nowIso)
+    // Ab zwei Meldungen unsichtbar (Zusage an Apple, Richtlinie 1.2). Das
+    // MUSS hier im Code stehen, nicht nur in der RLS-Policy: Seit der
+    // Service-Role-Schlüssel für den Orte-Speicher gesetzt ist, umgeht der
+    // Server RLS komplett – die Policy allein würde gemeldete Beiträge
+    // wieder für alle sichtbar machen.
+    .lt("reports", 2)
     .order("created_at", { ascending: false })
     .limit(1000);
   if (placeIds?.length) query = query.in("place_id", placeIds);

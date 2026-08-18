@@ -4,8 +4,10 @@ import { TONE_COLORS } from "@/components/ui/ScoreRing";
 /**
  * Ohne Legende bedeutete auf der Karte niemand etwas: Die Zahl war der
  * Listenplatz, die Farbe unerklärt. Diese vier Zeilen sagen, was man sieht.
+ * `zeitLabel` hält die Legende ehrlich zur Zeitvorschau – bei „In 1 Std"
+ * zeigen die Marker eben NICHT, wie es gerade ist.
  */
-export function MapLegende() {
+export function MapLegende({ zeitLabel = "gerade" }: { zeitLabel?: string }) {
   const punkte: { tone: Tone; text: string }[] = [
     { tone: "good", text: "Angenehm" },
     { tone: "medium", text: "Geht so" },
@@ -14,7 +16,7 @@ export function MapLegende() {
   return (
     <div className="pointer-events-none absolute top-3 left-3 z-[905] rounded-2xl bg-card/95 px-3 py-1.5 shadow-card backdrop-blur">
       <p className="text-[11px] leading-snug font-semibold text-dark">
-        Zahl = wie angenehm es dort gerade ist
+        Zahl = wie angenehm es dort {zeitLabel} ist
       </p>
       <ul className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
         {punkte.map((p) => (

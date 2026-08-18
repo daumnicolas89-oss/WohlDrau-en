@@ -20,8 +20,23 @@ const MAX_MEMORY_ENTRIES = 100;
 
 const memory = new Map<string, { at: number; value: FetchPlacesResult }>();
 const inFlight = new Map<string, Promise<FetchPlacesResult>>();
-/** Läuft für diesen Schlüssel schon eine Hintergrund-Auffrischung? */
-const refreshing = new Set<string>();
+/** Wann für diesen Schlüssel zuletzt eine Hintergrund-Auffrischung startete.
+ *  Zeitstempel statt Set: Würgt Vercel die after()-Arbeit am maxDuration-
+ *  Limit ab, liefe das finally nie – ein Set bliebe für immer belegt und
+ *  DIESE Instanz frischte die Gegend nie wieder auf. */
+const refreshing = new Map<string, number>();
+const REFRESH_SPERRE_MS = 3 * 60_000;
+
+/** Alle Schreibstellen teilen sich den Deckel: Seit dem Tile-Speicher ist
+ *  der Treffer-Pfad der Normalfall – nur im Miss-Pfad zu deckeln hieße,
+ *  auf langlebigen Instanzen unbegrenzt zu wachsen (~240 KB je Gegend). */
+function setMemory(key: string, at: number, value: FetchPlacesResult) {
+  if (memory.size >= MAX_MEMORY_ENTRIES && !memory.has(key)) {
+    const oldest = memory.keys().next().value;
+    if (oldest !== undefined) memory.delete(oldest);
+  }
+  memory.set(key, { at, value });
+}
 
 function respond(value: FetchPlacesResult, source: string, maxAgeS = 86_400) {
   return NextResponse.json(value, {
@@ -49,12 +64,13 @@ function hintergrundAuffrischen(
   radius: number,
   fast: boolean,
 ) {
-  if (refreshing.has(key)) return;
-  refreshing.add(key);
+  const seit = refreshing.get(key);
+  if (seit !== undefined && Date.now() - seit < REFRESH_SPERRE_MS) return;
+  refreshing.set(key, Date.now());
   after(async () => {
     try {
       const value = await fetchPlaces(lat, lng, radius, fast);
-      memory.set(key, { at: Date.now(), value });
+      setMemory(key, Date.now(), value);
       await writeCache(key, value);
       await writeTile(key, value);
     } catch (error) {
@@ -80,9 +96,16 @@ export async function GET(request: Request) {
   }
   const lat = Number(latRaw);
   const lng = Number(lngRaw);
+  // Auf die 500er-Stufen der App runden: Die Clients fragen ohnehin nur
+  // Vielfache von 500 an – ohne Rundung könnte jeder mit radius=501,
+  // 502, … beliebig viele eigene Cache-Zeilen (CDN, Disk, Datenbank)
+  // erzeugen lassen.
   const radius = Math.min(
     MAX_RADIUS_M,
-    Math.max(500, Number(params.get("radius")) || 3000),
+    Math.max(
+      500,
+      Math.round((Number(params.get("radius")) || 3000) / 500) * 500,
+    ),
   );
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
@@ -104,7 +127,7 @@ export async function GET(request: Request) {
   // Überlebt den Serverneustart, Overpass kann sehr langsam sein.
   const stored = await readCache(key);
   if (stored && stored.ageMs < FRESH_MS) {
-    memory.set(key, { at: Date.now() - stored.ageMs, value: stored.value });
+    setMemory(key, Date.now() - stored.ageMs, stored.value);
     return respond(stored.value, "disk");
   }
 
@@ -114,13 +137,20 @@ export async function GET(request: Request) {
   // Hintergrund aufgefrischt; gewartet hat darauf niemand.
   const tile = await readTile(key);
   if (tile) {
-    memory.set(key, { at: Date.now() - tile.ageMs, value: tile.value });
+    setMemory(key, Date.now() - tile.ageMs, tile.value);
     if (tile.ageMs >= FRESH_MS) {
       hintergrundAuffrischen(key, lat, lng, radius, fast);
       // Kürzer am CDN halten, damit die Auffrischung bald sichtbar wird.
       return respond(tile.value, "tile-stale", 3_600);
     }
-    return respond(tile.value, "tile");
+    // Nur die RESTLICHE Frische ans CDN geben: Ein 23 h alter Eintrag mit
+    // vollem Tages-s-maxage alterte dort sonst auf bis zu ~47 h, ohne dass
+    // je eine Auffrischung anliefe.
+    return respond(
+      tile.value,
+      "tile",
+      Math.max(60, Math.ceil((FRESH_MS - tile.ageMs) / 1000)),
+    );
   }
 
   try {
@@ -135,12 +165,7 @@ export async function GET(request: Request) {
       pending.finally(() => inFlight.delete(key)).catch(() => {});
     }
     const value = await pending;
-    // Alte Einträge deckeln, sonst wächst der Prozess-Cache unbegrenzt.
-    if (memory.size >= MAX_MEMORY_ENTRIES) {
-      const oldest = memory.keys().next().value;
-      if (oldest !== undefined) memory.delete(oldest);
-    }
-    memory.set(key, { at: Date.now(), value });
+    setMemory(key, Date.now(), value);
     void writeCache(key, value);
     // after(): Auf Vercel darf die Function nach der Antwort einfrieren –
     // so ist garantiert, dass der Speicher-Eintrag noch geschrieben wird.

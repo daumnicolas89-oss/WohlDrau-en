@@ -67,9 +67,13 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
   // Schnellstart aktiv: Die aktuelle Liste ist vorläufig (ohne Schatten).
   const [preliminary, setPreliminary] = useState(false);
   const placesRef = useRef(places);
+  // Für die Guards in loadFast, die synchron laufen, bevor React rendert:
+  // Eine VORLÄUFIGE Liste verdient keinen Verdrängungsschutz – nur die volle.
+  const preliminaryRef = useRef(preliminary);
   useEffect(() => {
     placesRef.current = places;
-  }, [places]);
+    preliminaryRef.current = preliminary;
+  }, [places, preliminary]);
   /** Zu welcher Gegend die aktuelle Liste gehört – der Schnellstart darf
    *  eine Liste derselben Gegend nicht verdrängen, eine fremde schon
    *  (Städtewechsel: alte Orte wären dort ohnehin unbrauchbar). */
@@ -106,6 +110,11 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
       setPlaces(cached.places);
       setToilets(cached.toilets ?? []);
       setTreeDataQuality(cached.treeDataQuality ?? "medium");
+      // Ohne diesen Anker griffen die Schnellstart-Guards unten NIE (anker
+      // null = „fremde Gegend") – die vorläufige Antwort verdrängte die
+      // gerade hydrierte volle Liste, exakt was sie nicht darf.
+      ankerRef.current = cached.anchor;
+      placesRef.current = cached.places;
     }
   }, [lat, lng]);
 
@@ -137,7 +146,14 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
       const anker = ankerRef.current;
       const gleicheGegend =
         anker !== null && haversine(anker.lat, anker.lng, lat, lng) < 3000;
-      if (placesRef.current.length > 0 && gleicheGegend) return;
+      // Nur eine VOLLE Liste derselben Gegend ist schützenswert – eine
+      // vorläufige darf eine frischere vorläufige jederzeit ersetzen.
+      if (
+        placesRef.current.length > 0 &&
+        gleicheGegend &&
+        !preliminaryRef.current
+      )
+        return;
       try {
         const res = await fetch(
           apiUrl(
@@ -150,6 +166,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         if (vollDa) return;
         if (
           placesRef.current.length > 0 &&
+          !preliminaryRef.current &&
           ankerRef.current !== null &&
           haversine(ankerRef.current.lat, ankerRef.current.lng, lat, lng) < 3000
         )

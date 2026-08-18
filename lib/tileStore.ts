@@ -63,10 +63,11 @@ export async function readTile(
       .eq("key", key)
       .maybeSingle();
     if (!data?.payload) return null;
-    return {
-      value: unpackTile(data.payload),
-      ageMs: Math.max(0, Date.now() - new Date(data.saved_at).getTime()),
-    };
+    const ageMs = Date.now() - new Date(data.saved_at).getTime();
+    // Ein kaputter Zeitstempel (NaN) bestünde jeden Vergleich – der Eintrag
+    // gälte für immer als frisch und würde nie aufgefrischt.
+    if (!Number.isFinite(ageMs)) return null;
+    return { value: unpackTile(data.payload), ageMs: Math.max(0, ageMs) };
   } catch {
     // Tabelle fehlt noch, Netzproblem, kaputter Eintrag: alles unkritisch,
     // dann greift wie bisher der Overpass-Weg.
@@ -74,20 +75,78 @@ export async function readTile(
   }
 }
 
+/**
+ * Schreibt einen Eintrag und sagt EHRLICH, ob es geklappt hat. supabase-js
+ * wirft nämlich nicht: RLS-Verbote und fehlende Tabellen kommen als
+ * `{ error }` zurück – wer den ignoriert, betreibt das Feature blind
+ * (und der Vorwärmer holte jede Nacht dieselben Städte umsonst).
+ */
 export async function writeTile(
   key: string,
   value: FetchPlacesResult,
-): Promise<void> {
+): Promise<boolean> {
   const client = supabase();
-  if (!client) return;
+  if (!client) return false;
   try {
-    await client.from(TABLE).upsert({
+    const { error } = await client.from(TABLE).upsert({
       key,
       payload: packTile(value),
       saved_at: new Date().toISOString(),
     });
+    if (error) {
+      console.error(
+        `[wohldraussen] tile-write ${key}: ${error.message} – fehlt der SUPABASE_SERVICE_ROLE_KEY oder die Tabelle ${TABLE}?`,
+      );
+      return false;
+    }
+    return true;
+  } catch (fehler) {
+    console.error(`[wohldraussen] tile-write ${key}:`, fehler);
+    return false;
+  }
+}
+
+/** Alter (ms) je Schlüssel für den Vorwärmer – EIN Abruf statt 39. Fehlende
+ *  Schlüssel fehlen in der Map. */
+export async function readTileAges(
+  keys: string[],
+): Promise<Map<string, number>> {
+  const alter = new Map<string, number>();
+  const client = supabase();
+  if (!client || keys.length === 0) return alter;
+  try {
+    const { data } = await client
+      .from(TABLE)
+      .select("key, saved_at")
+      .in("key", keys);
+    for (const zeile of data ?? []) {
+      const ageMs = Date.now() - new Date(zeile.saved_at).getTime();
+      if (Number.isFinite(ageMs)) alter.set(zeile.key, Math.max(0, ageMs));
+    }
   } catch {
-    // Ohne Schreibrecht (nur anon-Schlüssel) scheitert das leise – die
-    // Antwort an den Nutzer ist da längst raus.
+    // Ohne Antwort gelten alle als „nie geholt" – der Vorwärmer arbeitet
+    // dann einfach die Liste ab.
+  }
+  return alter;
+}
+
+/**
+ * Aufräumen: Zeilen fremder Schema-Versionen (nach einem v-Wechsel toter
+ * Ballast) und sehr alte Einträge löschen. Läuft im nächtlichen Vorwärmer –
+ * so bleibt der Free-Tier-Speicher (~14 000 Zeilen) dauerhaft weit weg.
+ */
+export async function pruneTiles(maxAgeMs: number): Promise<void> {
+  const client = supabase();
+  if (!client) return;
+  const cutoff = new Date(Date.now() - maxAgeMs).toISOString();
+  try {
+    await client
+      .from(TABLE)
+      .delete()
+      .not("key", "like", `v${PLACES_SCHEMA_VERSION}:%`)
+      .not("key", "like", `f:v${PLACES_SCHEMA_VERSION}:%`);
+    await client.from(TABLE).delete().lt("saved_at", cutoff);
+  } catch {
+    // Aufräumen ist Kür – scheitert es, räumt die nächste Nacht auf.
   }
 }

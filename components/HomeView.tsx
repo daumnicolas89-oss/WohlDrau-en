@@ -388,7 +388,10 @@ export function HomeView() {
         manualActive={!!manual}
         besteZeit={besteZeit}
         kompakt={istKarte}
-        regenRadar={regenRadar}
+        // Das Radar spricht über JETZT („in 52 Minuten geht es los") – in der
+        // Zeitvorschau stünden sonst zwei Zeitanker im selben Kopf, während
+        // Werte und Scores längst auf +30/+60 Min zeigen.
+        regenRadar={filters.timeOffsetMin === 0 ? regenRadar : null}
         onOpenLocation={() => setLocationOpen(true)}
       />
 
@@ -456,7 +459,9 @@ export function HomeView() {
               radius={radius}
               style={filters.mapStyle}
             />
-            {visible.length > 0 && !places.preliminary && <MapLegende />}
+            {visible.length > 0 && !places.preliminary && (
+              <MapLegende zeitLabel={zeitLabel} />
+            )}
             <button
               type="button"
               onClick={() =>

@@ -39,6 +39,14 @@ const STUFE_SCHNELL: PositionOptions = {
   timeout: 6_000,
   maximumAge: 600_000,
 };
+/** Beim ausdrücklichen „Aktualisieren" darf Stufe 1 keinen 10 Minuten alten
+ *  Cache-Fix als frisch verkaufen – wer den Knopf drückt, ist oft gerade
+ *  umgestiegen und will genau NICHT die Position von vor der U-Bahn-Fahrt. */
+const STUFE_SCHNELL_FRISCH: PositionOptions = {
+  enableHighAccuracy: false,
+  timeout: 6_000,
+  maximumAge: 30_000,
+};
 const STUFE_GENAU: PositionOptions = {
   enableHighAccuracy: true,
   timeout: 20_000,
@@ -98,6 +106,14 @@ export function useGeolocation(enabled = true) {
   /** Wann der letzte echte GPS-Fix gelang – Basis für das stille
    *  Nachführen, wenn die App aus dem Hintergrund zurückkommt. */
   const letzterFix = useRef(0);
+  /** Auch FEHLversuche drosseln: Ohne diesen Stempel startete jeder
+   *  Tab-Wechsel bei dauerhaft scheiternder Ortung eine neue 26-Sekunden-
+   *  GPS-Suche im Hintergrund (Akku). */
+  const letzterVersuch = useRef(0);
+  /** Nur der jüngste holen()-Lauf darf schreiben. Sonst überschreibt ein
+   *  spät eintreffendes Stufe-2-Ergebnis eines ALTEN Laufs die frischere
+   *  Position eines neuen (z. B. locate() während Stufe 2 läuft). */
+  const laufNummer = useRef(0);
 
   /**
    * EIN Fix über den passenden Weg: in der App über iOS (spart den zweiten
@@ -138,38 +154,50 @@ export function useGeolocation(enabled = true) {
   );
 
   /** Zweistufig: sofort grob anfangen, in Ruhe präzise nachschärfen. */
-  const holen = useCallback(async () => {
-    const grob = await holeEinenFix(STUFE_SCHNELL);
-    if (grob.ok) {
-      merken({
-        lat: grob.lat,
-        lng: grob.lng,
-        accuracyM: grob.accuracyM,
-        source: "gps",
-      });
-    } else if (grob.grund === "denied") {
-      // Wer die Freigabe ablehnt, lehnt sie auch für Stufe 2 ab.
-      setStatus("denied");
-      return;
-    }
+  const holen = useCallback(
+    async (frisch = false) => {
+      const lauf = ++laufNummer.current;
+      const aktuell = () => laufNummer.current === lauf;
+      letzterVersuch.current = Date.now();
 
-    const genau = await holeEinenFix(STUFE_GENAU);
-    if (genau.ok) {
-      if (
-        !grob.ok ||
-        haversine(grob.lat, grob.lng, genau.lat, genau.lng) > NACHSCHAERFEN_AB_M
-      ) {
+      const grob = await holeEinenFix(
+        frisch ? STUFE_SCHNELL_FRISCH : STUFE_SCHNELL,
+      );
+      if (!aktuell()) return;
+      if (grob.ok) {
         merken({
-          lat: genau.lat,
-          lng: genau.lng,
-          accuracyM: genau.accuracyM,
+          lat: grob.lat,
+          lng: grob.lng,
+          accuracyM: grob.accuracyM,
           source: "gps",
         });
+      } else if (grob.grund === "denied") {
+        // Wer die Freigabe ablehnt, lehnt sie auch für Stufe 2 ab.
+        setStatus("denied");
+        return;
       }
-    } else if (!grob.ok) {
-      setStatus(genau.grund);
-    }
-  }, [merken, holeEinenFix]);
+
+      const genau = await holeEinenFix(STUFE_GENAU);
+      if (!aktuell()) return;
+      if (genau.ok) {
+        if (
+          !grob.ok ||
+          haversine(grob.lat, grob.lng, genau.lat, genau.lng) >
+            NACHSCHAERFEN_AB_M
+        ) {
+          merken({
+            lat: genau.lat,
+            lng: genau.lng,
+            accuracyM: genau.accuracyM,
+            source: "gps",
+          });
+        }
+      } else if (!grob.ok) {
+        setStatus(genau.grund);
+      }
+    },
+    [merken, holeEinenFix],
+  );
 
   // Die App wird draußen benutzt: Wer sie nach der U-Bahn-Fahrt wieder
   // öffnet, steht woanders. Ohne dieses Nachführen klebte die App am
@@ -179,7 +207,8 @@ export function useGeolocation(enabled = true) {
     if (!enabled) return;
     const nachfuehren = () => {
       if (document.visibilityState !== "visible") return;
-      if (Date.now() - letzterFix.current < 2 * 60_000) return;
+      const zuletzt = Math.max(letzterFix.current, letzterVersuch.current);
+      if (Date.now() - zuletzt < 2 * 60_000) return;
       void holen();
     };
     document.addEventListener("visibilitychange", nachfuehren);
@@ -196,10 +225,11 @@ export function useGeolocation(enabled = true) {
     void holen();
   }, [enabled, holen]);
 
-  /** Erneuter Versuch, z. B. nachdem die Freigabe erteilt wurde. */
+  /** Erneuter Versuch auf Nutzerwunsch (Aktualisieren-Knopf, nach erteilter
+   *  Freigabe) – mit frischem Fix statt Minuten altem Cache. */
   const locate = useCallback(() => {
     setStatus("locating");
-    void holen();
+    void holen(true);
   }, [holen]);
 
   return { coords, status, locate };

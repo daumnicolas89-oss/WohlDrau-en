@@ -167,14 +167,16 @@ export function PlaceDetail({
   );
 
   /** Wie sieht es in einer Stunde aus? Beantwortet „lohnt es sich später eher?“ */
-  // Tab, Verlauf und „Teilen" zeigen sonst nur den generischen App-Titel.
+  // Tab, Verlauf und „Teilen" zeigen sonst nur den generischen App-Titel –
+  // auch die Vorab-Ansicht kennt den Namen schon.
+  const titelName = place?.name ?? vorabPlatz?.name ?? null;
   useEffect(() => {
-    if (!place) return;
-    document.title = `${place.name} · PlatzDa`;
+    if (!titelName) return;
+    document.title = `${titelName} · PlatzDa`;
     return () => {
       document.title = "PlatzDa, wo es sich jetzt lohnt, rauszugehen";
     };
-  }, [place]);
+  }, [titelName]);
 
   const ausblick = useMemo(() => {
     if (!place) return null;
@@ -208,9 +210,10 @@ export function PlaceDetail({
     !place &&
     !vorabPlatz &&
     (places.loading || (places.preliminary && !places.error) || weatherBlocksLoading);
-  // Genauso beim Fehler: Steht der Ort schon da, soll ein misslungener
-  // Hintergrund-Abruf ihn nicht durch einen Fehlerkasten verdrängen.
-  const error = place ? null : places.error;
+  // Genauso beim Fehler: Steht der Ort schon da (voll ODER vorab), soll ein
+  // misslungener Abruf ihn nicht durch einen Fehlerkasten verdrängen –
+  // draußen im Funkloch ist gerade der Route-Knopf der wertvollste Teil.
+  const error = place || vorabPlatz ? null : places.error;
   const bewertung = place ? scoreWording(place.pleasantScore) : null;
   const heroW = weather ? weatherAt(weather, now) : null;
   const heroMood =
@@ -293,11 +296,31 @@ export function PlaceDetail({
               Route dorthin
             </a>
           </div>
-          <Hinweis>
-            Schatten und Bewertung für diese Gegend werden noch berechnet. Die
-            Seite füllt sich gleich von selbst.
-          </Hinweis>
-          <PlacesLoading rows={1} />
+          {places.error && !places.loading ? (
+            <>
+              <Hinweis>
+                Die Berechnung für diese Gegend klappt gerade nicht. Weg und
+                Route oben stimmen trotzdem.
+              </Hinweis>
+              <Button
+                onClick={() => {
+                  places.reload();
+                  wetter.reload();
+                }}
+                className="mx-auto"
+              >
+                Erneut versuchen
+              </Button>
+            </>
+          ) : (
+            <>
+              <Hinweis>
+                Schatten und Bewertung für diese Gegend werden noch berechnet.
+                Die Seite füllt sich gleich von selbst.
+              </Hinweis>
+              <PlacesLoading rows={1} />
+            </>
+          )}
         </div>
       )}
 
