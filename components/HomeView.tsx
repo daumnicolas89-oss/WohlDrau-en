@@ -346,22 +346,48 @@ export function HomeView() {
   useEffect(() => {
     // Fortlaufend statt beim Verlassen: Beim Seitenwechsel hat der Browser
     // teils schon nach oben gescrollt, bevor ein Unmount-Handler liefe.
+    //
+    // ABER: Genau dieses Auto-Scrollen auf 0 feuert den Scroll-Listener
+    // noch einmal, BEVOR die Liste unmountet – und überschrieb den
+    // gemerkten Wert mit 0 (QA-Fund: Rückkehr landete immer oben).
+    // Deshalb wird beim Antippen eines Links (Capture-Phase, also VOR der
+    // Navigation) der echte Stand gesichert und das Merken eingefroren;
+    // bleibt die Navigation aus (z. B. Link in neuem Tab), taut ein kurzer
+    // Timer wieder auf.
     let ticket = 0;
+    let eingefroren = false;
+    let auftauen = 0;
+    const schreiben = () => {
+      try {
+        sessionStorage.setItem("platzda:liste:scroll", String(window.scrollY));
+      } catch {
+        /* egal */
+      }
+    };
     const merken = () => {
-      if (ticket) return;
+      if (eingefroren || ticket) return;
       ticket = window.requestAnimationFrame(() => {
         ticket = 0;
-        try {
-          sessionStorage.setItem("platzda:liste:scroll", String(window.scrollY));
-        } catch {
-          /* egal */
-        }
+        if (!eingefroren) schreiben();
       });
     };
+    const beiKlick = (event: MouseEvent) => {
+      const ziel = event.target as HTMLElement | null;
+      if (!ziel?.closest?.("a[href]")) return;
+      schreiben();
+      eingefroren = true;
+      window.clearTimeout(auftauen);
+      auftauen = window.setTimeout(() => {
+        eingefroren = false;
+      }, 1_500);
+    };
     window.addEventListener("scroll", merken, { passive: true });
+    document.addEventListener("click", beiKlick, true);
     return () => {
       window.removeEventListener("scroll", merken);
+      document.removeEventListener("click", beiKlick, true);
       if (ticket) window.cancelAnimationFrame(ticket);
+      window.clearTimeout(auftauen);
     };
   }, []);
   const scrollHergestellt = useRef(false);

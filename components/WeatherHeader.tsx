@@ -191,7 +191,7 @@ export function WeatherHeader({
           Logo lebt im App-Icon, im Ladebildschirm und auf der Landing).
           Vorher stapelten sich hier Logo-Zeile, Ortszeile und Temperatur-
           Zeile mit je eigener Logik – Nicolas: „zu durcheinander". */}
-      <div className="relative flex items-center gap-1 pr-14">
+      <div className="relative flex items-center gap-1 pr-12 min-[360px]:pr-14">
         <button
           type="button"
           onClick={onOpenLocation}
@@ -203,7 +203,9 @@ export function WeatherHeader({
             aria-hidden
             className={`shrink-0 text-primary-dark ${geoStatus === "locating" ? "animate-pulse" : ""}`}
           />
-          <span className="truncate font-display text-[21px] leading-tight font-bold text-dark">
+          {/* Auf 320-px-Geräten (SE, Zoom-Modus) eine Stufe kleiner, sonst
+              wird „Orte in deiner Nähe" abgeschnitten. */}
+          <span className="truncate font-display text-base leading-tight font-bold text-dark min-[360px]:text-[21px]">
             {locationLabel}
           </span>
           <ChevronDown
@@ -218,7 +220,7 @@ export function WeatherHeader({
             onClick={onRefresh}
             disabled={refreshing}
             aria-label="Neu laden"
-            className="flex size-9 shrink-0 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50 disabled:opacity-60 disabled:active:scale-100"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50 disabled:opacity-60 disabled:active:scale-100 min-[360px]:size-9"
           >
             <RefreshCw
               size={16}
