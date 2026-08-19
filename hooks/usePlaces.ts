@@ -200,7 +200,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         );
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
-          throw new Error(body.error ?? "Orte konnten nicht geladen werden");
+          throw new Error(body.error ?? "Die Plätze lassen sich gerade nicht laden.");
         }
         const data = (await res.json()) as PlacesResponse;
         vollDa = true;
@@ -220,7 +220,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         // Abbruch, sondern der Fall, den der Nutzer erklärt bekommen muss.
         if (abgelaufen) {
           setError(
-            "Die Orte brauchen gerade zu lange. Das liegt meist an OpenStreetMap " +
+            "Die Plätze brauchen gerade zu lange. Das liegt meist an OpenStreetMap " +
               "oder an schwachem Empfang.",
           );
           setLoading(false);
@@ -232,7 +232,7 @@ export function usePlaces(coords: Coords, radius: number): UsePlacesResult {
         const roh = err instanceof Error ? err.message : "";
         setError(
           /fetch|network|load failed/i.test(roh)
-            ? "Keine Verbindung zum Server. Prüf kurz dein Netz und versuch es erneut."
+            ? "Gerade keine Verbindung. Prüf kurz dein Netz und versuch es noch einmal."
             : roh || "Etwas ist schiefgelaufen",
         );
       } finally {

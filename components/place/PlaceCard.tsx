@@ -11,7 +11,7 @@ import { PlaceKindTag } from "./PlaceKindTag";
 /** „Im Grünen, aber kaum Bäume getaggt": der echte Schatten kann höher sein als
  *  gezeigt. Dieser Ehrlichkeits-Hinweis gehört an jede betroffene Karte. */
 const WENIG_BAEUME_HINT =
-  "Wir kennen hier kaum Bäume – es kann schattiger sein, als wir zeigen.";
+  "Wir kennen hier kaum Bäume. Es kann schattiger sein, als wir zeigen.";
 const ZUGANG_HINT = "Zugang evtl. eingeschränkt, z. B. Schulhof.";
 
 /**

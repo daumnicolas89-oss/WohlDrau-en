@@ -47,7 +47,7 @@ export function ReportStatusModal({
       setDone(true);
       window.setTimeout(onClose, 1600);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Meldung fehlgeschlagen");
+      setError(err instanceof Error ? err.message : "Das Senden hat nicht geklappt. Versuch es gleich noch einmal.");
       setBusy(false);
     }
   }

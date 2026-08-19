@@ -62,7 +62,7 @@ export default function SoFunktioniertsPage() {
       <div className="mt-6 space-y-4">
         <Abschnitt Icon={Sun} titel="Der Wert „Angenehm jetzt“">
           <p>
-            Jeder Ort bekommt einen Wert von 0 bis 100, wie angenehm es dort{" "}
+            Jeder Platz bekommt einen Wert von 0 bis 100, wie angenehm es dort{" "}
             <strong>gerade</strong> ist. Der Ring zeigt ihn auf einen Blick:
             grün = angenehm, gelb = mittel, rot = eher ungünstig.
           </p>
@@ -84,27 +84,27 @@ export default function SoFunktioniertsPage() {
         <Abschnitt Icon={Sparkles} titel="Die Liste und die „Beste Wahl“">
           <p>
             Ganz oben steht der Favorit für <strong>genau jetzt</strong>, darunter
-            eine ruhige Liste weiterer Orte, sortiert danach, wie angenehm es dort gerade ist. Tippe
-            einen Ort an, um alle Details zu sehen.
+            eine ruhige Liste weiterer Plätze, sortiert danach, wie angenehm es dort gerade ist. Tippe
+            einen Platz an, um alle Details zu sehen.
           </p>
         </Abschnitt>
 
         <Abschnitt Icon={Clock} titel="Jetzt, in 30 Minuten oder in 1 Stunde">
           <p>
             Über die Leiste oben wählst du den Zeitpunkt. Die Sonne wandert, ein
-            Ort kann in einer Stunde deutlich schattiger (oder sonniger) sein.
+            Platz kann in einer Stunde deutlich schattiger (oder sonniger) sein.
           </p>
         </Abschnitt>
 
         <Abschnitt Icon={MapPin} titel="Standort und Ortssuche">
           <p>
-            Beim Öffnen fragt die App nach deinem Standort, um Orte in der Nähe zu
+            Beim Öffnen fragt die App nach deinem Standort, um Plätze in der Nähe zu
             zeigen. Über den <strong>Ortsnamen oben</strong> kannst du deinen
             Standort freigeben oder einen <strong>anderen Ort suchen</strong>.
             Praktisch, um vorab zu schauen, wohin man fährt.
           </p>
           <p>
-            Dein Standort wird nur verwendet, um Orte in deiner Nähe zu finden und das Wetter dafür zu laden.
+            Dein Standort wird nur verwendet, um Plätze in deiner Nähe zu finden und das Wetter dafür zu laden.
             Es gibt <strong>kein Konto und keinen Login.</strong>
           </p>
         </Abschnitt>
@@ -127,12 +127,12 @@ export default function SoFunktioniertsPage() {
 
         <Abschnitt Icon={MessageCircle} titel="Meldungen anderer Eltern">
           <p>
-            Bist du an einem Ort, kannst du kurz melden, wie es gerade ist („zu
+            Bist du an einem Platz, kannst du kurz melden, wie es gerade ist („zu
             sonnig“, „sehr voll“, „verschmutzt“ …). Das hilft den nächsten Eltern.
           </p>
           <p>
             Meldungen werden <strong>anonym</strong> gespeichert, sind an den{" "}
-            <strong>Ort</strong> gebunden (nicht an dich) und rund{" "}
+            <strong>Platz</strong> gebunden (nicht an dich) und rund{" "}
             <strong>drei Stunden</strong> sichtbar, danach zählen sie nicht mehr.
             Kein Login nötig.
           </p>

@@ -55,7 +55,7 @@ export const SCORE_ERKLAERUNG =
   "Der Wert fasst vier Dinge zusammen: wie viel Schatten es dort gerade gibt, " +
   "welche Ausstattung bekannt ist, was andere Eltern in den letzten Stunden " +
   "gemeldet haben und wie weit der Weg ist. Wie stark der Schatten zählt, " +
-  "hängt vom Wetter ab – bei Hitze zählt er fast die Hälfte, an milden Tagen " +
+  "hängt vom Wetter ab: Bei Hitze zählt er fast die Hälfte, an milden Tagen " +
   "kaum. Deshalb kann derselbe Platz morgens anders dastehen als mittags.";
 
 /**
@@ -76,7 +76,7 @@ export function gewichtsSatz(weights: {
   if (weights.shade >= weights.amenity) {
     return "Heute zählt vor allem der Schatten.";
   }
-  return "Heute ist es mild – deshalb zählen vor allem Ausstattung und Nähe.";
+  return "Heute ist es mild. Deshalb zählen vor allem Ausstattung und Nähe.";
 }
 
 /**
@@ -403,12 +403,12 @@ export function mainDriver(place: Place): Driver {
     daempfungPunkte > Math.abs(staerkster.delta)
   ) {
     return b.weatherDriver === "rain"
-      ? { text: "Der angesagte Regen drückt gerade jeden Platz.", tone: "bad" }
-      : { text: "Der kräftige Wind drückt gerade jeden Platz.", tone: "bad" };
+      ? { text: "Regen ist angesagt. Das macht es heute draußen überall ungemütlicher, nicht nur hier.", tone: "bad" }
+      : { text: "Draußen weht ein kräftiger Wind. Das macht es heute überall ungemütlicher, nicht nur hier.", tone: "bad" };
   }
 
   if (Math.abs(staerkster.delta) < 4) {
-    return { text: "Alles im Mittelfeld, nichts sticht heraus.", tone: "neutral" };
+    return { text: "Kein besonderer Vorteil, kein Haken. Ein ganz solider Platz.", tone: "neutral" };
   }
 
   // Klartext über den PLATZ, nicht über die Punkte-Mechanik: Sätze wie
@@ -420,14 +420,14 @@ export function mainDriver(place: Place): Driver {
         : { text: "Bei dieser Sonne gibt es hier kaum Schatten.", tone: "bad" };
     case "amenity":
       return positiv
-        ? { text: `Hier gibt es ${vorhandeneAusstattung(place)}.`, tone: "good" }
+        ? { text: `Gut ausgestattet: ${vorhandeneAusstattung(place)}.`, tone: "good" }
         : {
             text: "Über die Ausstattung hier ist wenig bekannt. Vor Ort kann es mehr geben.",
             tone: "bad",
           };
     case "status": {
       const meldung = statusSentence(place.lastStatuses);
-      if (!meldung) return { text: "Alles im Mittelfeld.", tone: "neutral" };
+      if (!meldung) return { text: "Kein besonderer Vorteil, kein Haken. Ein ganz solider Platz.", tone: "neutral" };
       return {
         text: `Andere Eltern haben ${meldung.text}.`,
         tone: positiv ? "good" : "bad",
@@ -435,8 +435,8 @@ export function mainDriver(place: Place): Driver {
     }
     default:
       return positiv
-        ? { text: "Es liegt gleich um die Ecke.", tone: "good" }
-        : { text: "Es liegt ein ganzes Stück entfernt.", tone: "bad" };
+        ? { text: "Der Platz liegt gleich um die Ecke.", tone: "good" }
+        : { text: "Der Platz liegt ein ganzes Stück entfernt.", tone: "bad" };
   }
 }
 

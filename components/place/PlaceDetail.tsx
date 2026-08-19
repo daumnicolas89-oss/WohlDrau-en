@@ -61,7 +61,7 @@ import { ShadeTimeline } from "./ShadeTimeline";
 
 const VERLAESSLICHKEIT = {
   high: "Für diesen Ort sind genug Bäume erfasst, die Einschätzung ist also ziemlich verlässlich.",
-  medium: "Die Einschätzung stützt sich auf teilweise erfasste Bäume.",
+  medium: "Hier ist nur ein Teil der Bäume erfasst. Die Einschätzung ist deshalb ungefähr.",
   low: "Für diesen Ort sind kaum Bäume erfasst. Es kann deutlich schattiger sein, als es hier aussieht, der Wert ist nur eine grobe Schätzung.",
 } as const;
 
@@ -250,12 +250,12 @@ export function PlaceDetail({
       {!loading && error && (
         <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
           <p className="font-display text-lg font-semibold text-dark">
-            {online ? "Der Ort lässt sich gerade nicht laden" : "Keine Verbindung"}
+            {online ? "Der Platz lässt sich gerade nicht laden" : "Keine Verbindung"}
           </p>
           <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
             {online
               ? error
-              : "Ohne Netz kommen wir an die Daten für diesen Ort nicht heran. Sobald du wieder Empfang hast, geht es weiter."}
+              : "Ohne Netz kommen wir an die Daten für diesen Platz nicht heran. Sobald du wieder Empfang hast, geht es weiter."}
           </p>
           <Button
             onClick={() => {
@@ -478,7 +478,7 @@ export function PlaceDetail({
                     Unterschied wie ein Fehler aus. */}
                 {(previewLabel === "in 30 Min" || previewLabel === "in 1 Std") && (
                   <p className="mt-1 text-xs leading-snug text-sky-muted">
-                    Deine Vorschau galt für {previewLabel} – hier siehst du
+                    Deine Vorschau galt für {previewLabel}. Hier siehst du
                     den Wert für jetzt.
                   </p>
                 )}
@@ -486,7 +486,7 @@ export function PlaceDetail({
                   listScore !== null &&
                   Math.abs(place.pleasantScore - listScore) >= 8 && (
                     <p className="mt-1 text-xs leading-snug text-sky-muted">
-                      Frisch gerechnet – das Wetter hat sich seit der Liste
+                      Frisch gerechnet: Das Wetter hat sich seit der Liste
                       aktualisiert.
                     </p>
                   )}
@@ -508,16 +508,16 @@ export function PlaceDetail({
             {weatherMissing && (
               <Hinweis Icon={CloudOff}>
                 Das Wetter ist gerade nicht erreichbar. Schatten und Bewertung
-                beruhen hier auf dem Sonnenstand und einer neutralen Annahme,
-                nicht auf aktuellen Werten.
+                rechnen wir solange nur aus dem Sonnenstand, ohne das aktuelle
+                Wetter.
               </Hinweis>
             )}
 
             {place.tags.restrictedAccess && (
               <Hinweis ton="warnung" Icon={Info}>
                 Der Zugang ist laut Karte eingeschränkt (z. B. ein Schulhof).
-                Solche Plätze sind oft nur außerhalb der Schulzeit offen, schau
-                am besten vorher nach, ob er gerade offen ist.
+                Solche Plätze sind oft nur außerhalb der Schulzeit offen. Schau
+                am besten vorher kurz nach.
               </Hinweis>
             )}
 
@@ -540,7 +540,7 @@ export function PlaceDetail({
                   {place.shade.state !== "no-sun" && !bedeckt(place.shade) && (
                     <p>
                       Aktuelle Schätzung: {Math.round(place.shade.index * 100)} %
-                      Sonnenschutz – aus Bäumen, Gebäuden und Wolken zusammen.
+                      Sonnenschutz, aus Bäumen, Gebäuden und Wolken zusammen.
                     </p>
                   )}
                   <p>

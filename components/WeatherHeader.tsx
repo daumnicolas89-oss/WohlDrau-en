@@ -395,7 +395,7 @@ export function WeatherHeader({
               <div className="flex items-baseline gap-1">
                 <dt className="shrink-0 text-muted">Beste Zeit</dt>
                 <dd className="font-semibold whitespace-nowrap text-dark">
-                  {besteZeitChip} Uhr
+                  {besteZeitChip === "jetzt" ? "jetzt" : `${besteZeitChip} Uhr`}
                 </dd>
               </div>
             )}
@@ -441,9 +441,9 @@ export function WeatherHeader({
           nicht wochenlang hinter einer Dauerfrost-Warnung verschwinden. */}
       {!kompakt && !alert && weatherError && (
         <Hinweis ton="info" aufHimmel Icon={CloudOff} className="relative mt-3">
-          Das Wetter ist gerade nicht erreichbar. Die Orte sind trotzdem da,
+          Das Wetter ist gerade nicht erreichbar. Die Plätze sind trotzdem da,
           nach Schatten und Nähe geordnet, nur ohne aktuelle Grad- und
-          Regenwerte. Meist ist es gleich wieder da.
+          Regenwerte. Meist klappt es gleich wieder.
         </Hinweis>
       )}
 

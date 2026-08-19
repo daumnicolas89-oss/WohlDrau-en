@@ -313,7 +313,7 @@ export function HomeView() {
   const locationLabel = manual
     ? manual.label
     : coords.source === "gps"
-      ? "Orte in deiner Nähe"
+      ? "Plätze in deiner Nähe"
       : coords.source === "last-known"
         ? "Zuletzt bekannter Ort"
         : FALLBACK_LABEL;
@@ -529,7 +529,7 @@ export function HomeView() {
       {!online && (
         <Hinweis Icon={WifiOff} className="mx-4 mt-3">
           <span className="font-semibold">Du bist offline.</span> Wir zeigen die
-          zuletzt geladenen Orte. Schatten und Sonnenstand stimmen weiterhin,
+          zuletzt geladenen Plätze. Schatten und Sonnenstand stimmen weiterhin,
           neue Meldungen anderer Eltern fehlen.
         </Hinweis>
       )}
@@ -538,7 +538,7 @@ export function HomeView() {
         {!loading && error && (
           <div className="m-4 rounded-card bg-card p-6 text-center shadow-card">
             <p className="font-display text-lg font-semibold text-dark">
-              {online ? "Die Orte kommen gerade nicht durch" : "Keine Verbindung"}
+              {online ? "Die Plätze kommen gerade nicht durch" : "Keine Verbindung"}
             </p>
             <p className="mx-auto mt-2 max-w-xs text-[15px] leading-relaxed text-muted">
               {online
@@ -735,7 +735,7 @@ export function HomeView() {
                             <p>{SCORE_ERKLAERUNG}</p>
                             <p>
                               Der Wert steht als Ring auf jeder Karte. Je voller
-                              der Ring, desto besser passt der Ort zu diesem
+                              der Ring, desto besser passt der Platz zu diesem
                               Moment.
                             </p>
                           </InfoButton>
@@ -746,7 +746,7 @@ export function HomeView() {
                           <Hinweis>
                             Bei den meisten Plätzen hier sind kaum Bäume in
                             OpenStreetMap erfasst. Vor Ort kann es also
-                            schattiger sein, als wir zeigen – umgekehrt kaum.
+                            schattiger sein, als wir zeigen. Umgekehrt kaum.
                           </Hinweis>
                         )}
                       </>
@@ -780,8 +780,8 @@ export function HomeView() {
                   text={
                     filteredOut > 0
                       ? filteredOut === 1
-                        ? "In der Nähe liegt 1 Ort, den deine Filter gerade aussortieren. Ein Kriterium weniger bringt ihn zurück."
-                        : `In der Nähe liegen ${filteredOut} Orte, die deine Filter gerade aussortieren. Ein Kriterium weniger bringt sie zurück.`
+                        ? "In der Nähe liegt 1 Platz, den deine Filter gerade aussortieren. Ein Filter weniger bringt ihn zurück."
+                        : `In der Nähe liegen ${filteredOut} Plätze, die deine Filter gerade aussortieren. Ein Filter weniger bringt sie zurück.`
                       : "In diesem Umkreis kennt OpenStreetMap keinen Spielplatz und keine Grünfläche. Mit größerer Entfernung findet sich meist etwas."
                   }
                 >
@@ -820,11 +820,11 @@ export function HomeView() {
             {visible.length > 0 && (
               <div className="flex items-center justify-between gap-2 px-1 pt-2">
                 <p className="text-xs leading-relaxed text-muted">
-                  Orte und Ausstattung von OpenStreetMap, Wetter von Open-Meteo.
+                  Plätze und Ausstattung von OpenStreetMap, Wetter von Open-Meteo.
                 </p>
                 <InfoButton title="Woher kommen die Daten?">
                   <p>
-                    Orte, Toiletten und Ausstattung stammen aus OpenStreetMap,
+                    Plätze, Toiletten und Ausstattung stammen aus OpenStreetMap,
                     einer freien Karte, die Freiwillige pflegen. Sie ist gut,
                     aber lückenhaft: Zäune etwa sind kaum eingetragen.
                   </p>

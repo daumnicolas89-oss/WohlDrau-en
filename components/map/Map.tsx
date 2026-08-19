@@ -106,7 +106,7 @@ export default function Map({
           }}
           title={
             place.preliminary
-              ? `${place.name}, ${formatDistance(place.distance ?? 0)} – Bewertung wird berechnet`
+              ? `${place.name}, ${formatDistance(place.distance ?? 0)} , Bewertung wird noch berechnet`
               : `${place.name}: ${bewertung.label}, ${place.pleasantScore} von 100, ${formatDistance(place.distance ?? 0)}`
           }
         />

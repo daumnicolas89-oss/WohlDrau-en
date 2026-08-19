@@ -74,7 +74,7 @@ export function PlacesLoading({
           aria-hidden
           className="size-3 shrink-0 animate-spin rounded-full border-2 border-line border-t-primary-dark"
         />
-        {slow ? "Das dauert heute länger …" : "Orte werden geladen …"}
+        {slow ? "Das dauert heute länger …" : "Plätze werden geladen …"}
       </p>
       {slow && (
         <p className="text-center text-xs leading-relaxed text-muted">

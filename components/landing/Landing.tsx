@@ -92,8 +92,7 @@ export function Landing() {
               Schatten wandert mit der Sonne.{" "}
               <span className="font-semibold text-dark">
                 PlatzDa rechnet ihn voraus
-              </span>{" "}
-              – aus Sonnenstand, Bäumen, Gebäuden und den Bergen am Horizont.
+              </span>: aus Sonnenstand, Bäumen, Gebäuden und den Bergen am Horizont.
               Für jeden Platz siehst du, wie es gerade ist und wie lange der
               Schatten noch hält.
             </p>
@@ -138,7 +137,7 @@ export function Landing() {
             <p className="mt-2 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
               Toilette, Zaun, Wickeltisch, Wasser zum Planschen, ein Unterstand
               für Regenpausen. Was andere Eltern gemeldet haben, siehst du
-              auch – aus den letzten drei Stunden, nicht vom letzten Sommer.
+              auch: aus den letzten drei Stunden, nicht vom letzten Sommer.
             </p>
           </div>
         </div>
@@ -188,7 +187,7 @@ export function Landing() {
           Wer dahintersteckt
         </h2>
         <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
-          Kein Unternehmen – ein Vater. Ich bin Nicolas und baue PlatzDa
+          Kein Unternehmen, ein Vater. Ich bin Nicolas und baue PlatzDa
           selbst. Wenn der Schatten vor Ort nicht stimmt oder dir etwas fehlt,
           schreib mir:{" "}
           <a
@@ -203,9 +202,9 @@ export function Landing() {
       {/* ---- Ehrlichkeit: die Fußnote zu allem darüber ---- */}
       <section className="mx-auto w-full max-w-xl px-5 pt-6 lg:max-w-4xl lg:px-0">
         <p className="rounded-card bg-primary-soft p-5 text-[15px] leading-relaxed text-primary-dark lg:max-w-2xl lg:text-base">
-          Orte und Ausstattung stammen von OpenStreetMap, das Wetter von
+          Plätze und Ausstattung stammen von OpenStreetMap, das Wetter von
           Open-Meteo. Der Schatten ist{" "}
-          <span className="font-semibold">gerechnet, nicht gemessen</span> – eine
+          <span className="font-semibold">gerechnet, nicht gemessen</span>: eine
           gute Schätzung, keine Garantie. Der Blick vor Ort bleibt deiner.
         </p>
       </section>
@@ -221,7 +220,7 @@ export function Landing() {
               Was ist TestFlight?
             </dt>
             <dd className="mt-1 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
-              Apples eigene App zum Ausprobieren neuer Apps – offiziell und
+              Apples eigene App zum Ausprobieren neuer Apps, offiziell und
               kostenlos im App Store. Darüber kommt PlatzDa auf dein iPhone,
               solange es in der Testphase ist.
             </dd>
@@ -240,7 +239,7 @@ export function Landing() {
             </dt>
             <dd className="mt-1 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
               Dein Standort dient nur der Suche. Er wird nicht bei uns
-              gespeichert – nur dein Gerät merkt sich den letzten Ort. Kein
+              gespeichert. Nur dein Gerät merkt sich den letzten Ort. Kein
               Login, keine Nutzungsprofile.
             </dd>
           </div>
@@ -260,7 +259,7 @@ export function Landing() {
             Jetzt mittesten
           </a>
           <p className="mt-4 text-sm text-balance text-muted">
-            Android? Noch nicht – schreib mir, wenn du dabei sein willst:{" "}
+            Android? Noch nicht. Schreib mir, wenn du dabei sein willst:{" "}
             <a
               href="mailto:kontakt@nicolas-daum.ai"
               className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2 transition-colors hover:text-primary-darker"

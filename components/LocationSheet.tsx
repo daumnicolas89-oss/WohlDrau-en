@@ -52,10 +52,10 @@ export function LocationSheet({
     try {
       const res = await fetch(apiUrl(`/api/geocode?q=${encodeURIComponent(q)}`));
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Suche fehlgeschlagen");
+      if (!res.ok) throw new Error(data.error ?? "Die Suche hat nicht geklappt. Versuch es noch einmal.");
       setResults(data.results ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Suche fehlgeschlagen");
+      setError(err instanceof Error ? err.message : "Die Suche hat nicht geklappt. Versuch es noch einmal.");
       setResults([]);
     } finally {
       setBusy(false);
@@ -173,8 +173,8 @@ export function LocationSheet({
           {/* In der App gibt es keine Adressleiste und kein Schloss-Symbol –
               der Browser-Hinweis führte dort ins Leere. */}
           {IS_APP_SHELL
-            ? "Der Standort ist für PlatzDa nicht freigegeben. Erlaube ihn in den iPhone-Einstellungen unter PlatzDa → Standort – oder such einfach oben deinen Ort."
-            : "Der Standort ist im Browser blockiert. Erlaube ihn über das Schloss-Symbol in der Adressleiste – oder such einfach oben deinen Ort."}
+            ? "Der Standort ist für PlatzDa nicht freigegeben. Erlaube ihn in den iPhone-Einstellungen unter PlatzDa → Standort. Oder such einfach oben deinen Ort."
+            : "Der Standort ist im Browser blockiert. Erlaube ihn über das Schloss-Symbol in der Adressleiste. Oder such einfach oben deinen Ort."}
         </Hinweis>
       )}
 

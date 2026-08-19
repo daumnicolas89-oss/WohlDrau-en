@@ -34,7 +34,7 @@ export function ToiletSheet({
         <EmptyState
           Icon={ToiletIcon}
           titel="Keine Toilette in der Nähe erfasst"
-          text="In OpenStreetMap ist hier gerade keine eingetragen. Vor Ort gibt es oft trotzdem eine – viele sind schlicht nicht erfasst."
+          text="In OpenStreetMap ist hier gerade keine eingetragen. Vor Ort gibt es oft trotzdem eine, viele sind schlicht nicht erfasst."
         />
       ) : (
         <ul className="space-y-2">

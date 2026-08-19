@@ -21,7 +21,7 @@ interface Eintrag {
 
 const EINTRAEGE: Eintrag[] = [
   { key: "toilet", label: "Toilette", Icon: Toilet },
-  { key: "water_play", label: "Wasser zum Planschen", Icon: Waves },
+  { key: "water_play", label: "Planschwasser", Icon: Waves },
   { key: "changing_table", label: "Wickeltisch", Icon: Baby },
   { key: "fenced", label: "Eingezäunt", Icon: Fence },
   { key: "wheelchair", label: "Barrierefrei / Kinderwagen", Icon: Accessibility },
@@ -58,7 +58,7 @@ export function AttributeList({ place }: { place: Place }) {
           key === "toilet" && wert === true && place.toiletDistance !== null
             ? place.toiletDistance > 25
               ? `${formatDistance(place.toiletDistance)} entfernt`
-              : "direkt am Ort"
+              : "direkt am Platz"
             : wert === true
               ? "Vorhanden"
               : wert === false
