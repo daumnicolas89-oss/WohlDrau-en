@@ -261,7 +261,11 @@ export function WeatherHeader({
 
           {/* Eine Zeile statt eines Kastens – jede Zahl behält ihre
               Bezeichnung, „10 %" allein bliebe ein Rätsel. */}
-          <dl className="mt-2.5 flex items-center gap-1.5 overflow-hidden rounded-full border border-white/70 bg-white/55 px-2.5 py-2 text-xs backdrop-blur min-[360px]:gap-2 min-[360px]:px-3">
+          {/* flex-wrap: Mit gefülltem vierten Chip (Hitzetag: „UV 7,0 hoch"
+              + „Beste Zeit 18–20") passte die Zeile auf 390 px nicht mehr
+              und stutzte ausgerechnet die Uhrzeit („Beste Zeit 1…"). Jetzt
+              bricht der letzte Chip als Ganzes um, statt zu verstümmeln. */}
+          <dl className="mt-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-white/70 bg-white/55 px-2.5 py-2 text-xs backdrop-blur min-[360px]:gap-x-2 min-[360px]:px-3">
             {/* „Sonne sehr hoch · UV 9,2" sprengte die Zeile und kürzte
                 ausgerechnet an Hitzetagen das Wort weg. Kurzform: Zahl wie bei
                 Regen und Wind, das einordnende Wort dahinter. */}
@@ -298,15 +302,16 @@ export function WeatherHeader({
               </dd>
             </div>
             {besteZeitChip && (
-              <>
-                <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
-                <div className="flex min-w-0 shrink items-baseline gap-1">
-                  <dt className="shrink-0 text-muted">Beste Zeit</dt>
-                  <dd className="truncate font-semibold text-dark">
-                    {besteZeitChip}
-                  </dd>
-                </div>
-              </>
+              /* Trenner und Chip als EINE Einheit, damit beim Umbruch kein
+                 verwaister Strich am Zeilenende hängen bleibt; die Uhrzeit
+                 selbst wird nie gestutzt. */
+              <div className="flex shrink-0 items-baseline gap-1.5 min-[360px]:gap-2">
+                <span aria-hidden className="h-3.5 w-px self-center bg-dark/12" />
+                <dt className="text-muted">Beste Zeit</dt>
+                <dd className="-ml-0.5 font-semibold whitespace-nowrap text-dark">
+                  {besteZeitChip}
+                </dd>
+              </div>
             )}
           </dl>
 

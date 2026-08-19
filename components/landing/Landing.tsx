@@ -67,7 +67,7 @@ export function Landing() {
                   src="/app-vorschau.png"
                   alt="Die PlatzDa-App zeigt die beste Wahl gerade: Spielplatz mit viel Schatten, bewertet mit 82 von 100"
                   width={780}
-                  height={1472}
+                  height={1360}
                   className="w-full"
                 />
               </div>
@@ -83,9 +83,9 @@ export function Landing() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/app-schatten.png"
-              alt="Die Detailseite eines Spielplatzes in der App: aktuell viel Schatten, geschätzt 75 Prozent, darunter der Stundenverlauf, wie lange der Schatten hält"
-              width={1074}
-              height={1668}
+              alt="Die Detailseite eines Spielplatzes in der App: aktuell viel Schatten, darunter der Stundenverlauf, wie lange der Schatten hält"
+              width={716}
+              height={678}
               className="w-full rounded-xl ring-1 ring-line"
             />
             <p className="text-center text-[15px] leading-relaxed text-balance text-muted lg:text-left lg:text-lg">
