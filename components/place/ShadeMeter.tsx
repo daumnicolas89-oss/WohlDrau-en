@@ -76,6 +76,9 @@ export function ShadeMeter({
           der Grund-Satz darunter, was Sache ist. */}
       {balken && state !== "no-sun" && !bedeckt && (
         <>
+          {/* Die Prozentzahl samt Herkunft steht im Info-Knopf der Karte und
+              im Vorlese-Text hier – als dritter Satz unter Wort und Balken
+              codierte sie dieselbe Aussage nur noch einmal. */}
           <div
             className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-line"
             role="img"
@@ -86,13 +89,6 @@ export function ShadeMeter({
               style={{ width: `${Math.max(3, prozent)}%`, background: TONE_COLORS[tone] }}
             />
           </div>
-
-          {size === "lg" && (
-            <p className="mt-1.5 text-xs text-muted">
-              Sonnenschutz gerade: geschätzt {prozent} % – aus Bäumen, Gebäuden
-              und Wolken zusammen.
-            </p>
-          )}
         </>
       )}
 

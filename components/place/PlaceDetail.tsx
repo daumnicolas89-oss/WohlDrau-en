@@ -46,7 +46,6 @@ import { useStatuses } from "@/hooks/useStatuses";
 import { deriveWeatherState, useWeather } from "@/hooks/useWeather";
 import { ReportStatusModal } from "@/components/status/ReportStatusModal";
 import { Button } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { InfoButton } from "@/components/ui/InfoButton";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { SkyScene, skyMood, SKY_GRADIENT } from "@/components/SkyScene";
@@ -215,6 +214,13 @@ export function PlaceDetail({
   // draußen im Funkloch ist gerade der Route-Knopf der wertvollste Teil.
   const error = place || vorabPlatz ? null : places.error;
   const bewertung = place ? scoreWording(place.pleasantScore) : null;
+  // Entdopplung Kopf ↔ Schattenkarte: Ist der Haupttreiber der Schatten,
+  // zeigt der Kopf gleich den konkreten Grund; die Karte wiederholt ihn
+  // dann nicht noch einmal.
+  const schattenGrund = place ? shadeReason(place, now) : null;
+  const treiberSatz = place ? mainDriver(place).text : "";
+  const kopfSatz =
+    /schatten/i.test(treiberSatz) && schattenGrund ? schattenGrund : treiberSatz;
   const heroW = weather ? weatherAt(weather, now) : null;
   const heroMood =
     weather && heroW
@@ -407,8 +413,12 @@ export function PlaceDetail({
                   <p className="text-[11px] font-semibold tracking-wide text-sky-muted uppercase">
                     Wie angenehm ist es jetzt?
                   </p>
+                  {/* Bewusst ANDERER Titel als der Rechen-Aufklapper unten:
+                      zwei Türen mit gleicher Aufschrift hielt man für
+                      dieselbe – wer eine gelesen hatte, übersprang die
+                      andere. */}
                   <InfoButton
-                    title="Wie kommt dieser Wert zustande?"
+                    title="Was bedeutet dieser Wert?"
                     ariaLabel="Erklärung zum Wert „Angenehm jetzt“"
                   >
                     <p>{SCORE_ERKLAERUNG}</p>
@@ -423,9 +433,10 @@ export function PlaceDetail({
                 >
                   {bewertung.label}
                 </p>
-                <p className="mt-0.5 text-sm text-sky-muted">
-                  {place.pleasantScore} von 100
-                </p>
+                {/* „82 von 100" stand hier als Text direkt neben dem Ring,
+                    der 82 zeigt – dieselbe Zahl, zweimal. Die Skala nennt
+                    der Ring fürs Vorlesen, der Info-Knopf und die
+                    Schlussrechnung im Aufklapper. */}
                 {/* Liste zeigte z. B. 56, hier stehen nach frischem Wetter 40:
                     ohne dieses eine Sätzchen sieht der Sprung wie ein Fehler
                     aus – mit ihm ist er ein Beleg, dass live gerechnet wird. */}
@@ -450,9 +461,12 @@ export function PlaceDetail({
             </div>
 
             {/* Der Grund gehört direkt an den Wert, sonst bleibt „70“ eine
-                Behauptung. */}
+                Behauptung. Ist der Treiber der Schatten, steht hier gleich
+                der KONKRETE Grund („Viele Bäume ringsum …") – vorher sagten
+                Kopf und Schattenkarte 200 px auseinander zweimal fast
+                wörtlich „viel Schatten". */}
             <p className="mt-4 rounded-2xl border border-white/70 bg-white/55 px-4 py-3 text-[15px] leading-relaxed text-dark backdrop-blur">
-              {mainDriver(place).text}
+              {kopfSatz}
             </p>
             </div>
           </header>
@@ -490,6 +504,12 @@ export function PlaceDetail({
                   Wie sonnig ist es dort?
                 </h2>
                 <InfoButton title="Woher weiß die App das?">
+                  {place.shade.state !== "no-sun" && !bedeckt(place.shade) && (
+                    <p>
+                      Aktuelle Schätzung: {Math.round(place.shade.index * 100)} %
+                      Sonnenschutz – aus Bäumen, Gebäuden und Wolken zusammen.
+                    </p>
+                  )}
                   <p>
                     Der Schatten wird aus dem Sonnenstand, den in OpenStreetMap
                     erfassten Bäumen, den Gebäuden ringsum und dem Gelände am
@@ -502,25 +522,35 @@ export function PlaceDetail({
                     lichter, weil Laubbäume dann kahl sind. Ein Blick aufs
                     Luftbild oben hilft im Zweifel.
                   </p>
+                  {place.shade.state !== "no-sun" && (
+                    <p>{VERLAESSLICHKEIT[place.shadeInputs.confidence]}</p>
+                  )}
                 </InfoButton>
               </div>
               <ShadeMeter
                 state={place.shade.state}
                 shadeIndex={place.shade.index}
                 size="lg"
-                reason={shadeReason(place, now)}
+                reason={
+                  schattenGrund && schattenGrund !== kopfSatz
+                    ? schattenGrund
+                    : undefined
+                }
                 bedeckt={bedeckt(place.shade)}
               />
               {ausblick && (
                 <p className="mt-2 text-sm font-medium text-primary-dark">{ausblick}</p>
               )}
-              {/* Die Verlässlichkeit bezieht sich auf die Schatten-Schätzung,
-                  nachts gibt es keine, also weglassen. */}
-              {place.shade.state !== "no-sun" && (
-                <p className="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
-                  {VERLAESSLICHKEIT[place.shadeInputs.confidence]}
-                </p>
-              )}
+              {/* Nur die WARNUNG bleibt im Fließtext – sie ändert die
+                  Entscheidung. Die beruhigenden Stufen (hoch/mittel) sind
+                  Einmal-Wissen und stehen im Info-Knopf; nachts gibt es
+                  keine Schätzung, also auch keine Zeile. */}
+              {place.shade.state !== "no-sun" &&
+                place.shadeInputs.confidence === "low" && (
+                  <p className="mt-3 border-t border-line pt-3 text-xs leading-relaxed text-muted">
+                    {VERLAESSLICHKEIT.low}
+                  </p>
+                )}
             </div>
 
             {sonneImFenster && (
@@ -579,8 +609,12 @@ export function PlaceDetail({
                   {place.shadeInputs.areaM2 && (
                     <div className="flex gap-2">
                       <dt>Größe:</dt>
+                      {/* Ab einem Hektar in ha: „192.680 m²" liest niemand,
+                          „rund 19 ha" schon. */}
                       <dd className="text-dark">
-                        etwa {place.shadeInputs.areaM2.toLocaleString("de-DE")} m²
+                        {place.shadeInputs.areaM2 >= 10_000
+                          ? `rund ${(place.shadeInputs.areaM2 / 10_000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} ha`
+                          : `etwa ${place.shadeInputs.areaM2.toLocaleString("de-DE")} m²`}
                       </dd>
                     </div>
                   )}
@@ -640,20 +674,14 @@ export function PlaceDetail({
                   })}
                 </ul>
               ) : (
-                <EmptyState
-                  className="px-2 py-4"
-                  Icon={Megaphone}
-                  titel={online ? "Noch nichts gemeldet" : "Meldungen gerade nicht ladbar"}
-                  text={
-                    online
-                      ? "Wenn du dort bist, hilft eine kurze Rückmeldung den nächsten Eltern."
-                      : "Ohne Netz wissen wir nicht, ob andere Eltern etwas gemeldet haben."
-                  }
-                >
-                  <Button onClick={() => setReportOpen(true)}>
-                    Jetzt melden
-                  </Button>
-                </EmptyState>
+                /* Zwei Zeilen statt einer 450-px-Karte mit eigenem Knopf:
+                   Die fixe Leiste unten bietet „Melden" ohnehin dauerhaft an –
+                   zwei Melde-Knöpfe auf einem Bildschirm verwirren nur. */
+                <p className="text-sm leading-relaxed text-muted">
+                  {online
+                    ? "Noch nichts gemeldet. Wenn du dort bist, hilft eine kurze Rückmeldung den nächsten Eltern: unten über „Melden“."
+                    : "Ohne Netz wissen wir nicht, ob andere Eltern etwas gemeldet haben."}
+                </p>
               )}
             </div>
 

@@ -53,7 +53,11 @@ export function ScoreBreakdown({
 
       <div className="space-y-4 border-t border-line px-4 pt-4 pb-4">
         {rows.map((row) => (
-          <div key={row.key}>
+          /* Ein Faktor, der gerade 0 % zählt (z. B. Meldungen ohne
+             Meldungen), tritt optisch zurück – vorher wirkte sein satter
+             Balken gleichlaut wie die echten Treiber. Zeile, Zahl und
+             Erklärsatz bleiben vollständig lesbar. */
+          <div key={row.key} className={row.weightPercent === 0 ? "opacity-60" : undefined}>
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-[15px] font-medium text-dark">
                 {row.label}

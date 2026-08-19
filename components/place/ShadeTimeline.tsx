@@ -58,7 +58,10 @@ export function ShadeTimeline({
         ))}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+      {/* EINE Lesehilfe statt zwei: Legende und Erklärsatz beschrieben
+          dieselbe Grafik doppelt (Farbe und Höhe codieren dasselbe). */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+        <span>Höhe = Schutz vor Sonne:</span>
         <span className="flex items-center gap-1.5">
           <span
             className="size-2.5 rounded-full"
@@ -84,10 +87,6 @@ export function ShadeTimeline({
           volle Sonne
         </span>
       </div>
-
-      <p className="mt-2 text-xs leading-relaxed text-muted">
-        Je höher der Balken, desto mehr Schutz vor Sonne zu dieser Stunde.
-      </p>
     </div>
   );
 }
