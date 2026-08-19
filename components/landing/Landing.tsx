@@ -67,7 +67,7 @@ export function Landing() {
                   src="/app-vorschau.png"
                   alt="Die PlatzDa-App zeigt die beste Wahl gerade: Spielplatz mit viel Schatten, bewertet mit 82 von 100"
                   width={780}
-                  height={1360}
+                  height={1372}
                   className="w-full"
                 />
               </div>
