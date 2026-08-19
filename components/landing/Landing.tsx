@@ -65,7 +65,7 @@ export function Landing() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/app-geraet-start.png"
-              alt="Die PlatzDa-App auf dem iPhone: Startbildschirm mit Wetter, Werteleiste und der besten Wahl gerade, einem Park mit 85 von 100"
+              alt="Die PlatzDa-App auf dem iPhone: Startbildschirm mit Wetter, Werteleiste und der besten Wahl gerade an einem Regentag"
               width={683}
               height={1405}
               className="w-full drop-shadow-[0_18px_40px_rgba(28,53,64,0.35)]"
@@ -81,7 +81,7 @@ export function Landing() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/app-geraet-detail.png"
-              alt="Die Detailseite eines Parks in der PlatzDa-App auf dem iPhone: 85 von 100, besonders angenehm, mit Luftbild und der Karte, wie sonnig es dort ist"
+              alt="Die Detailseite eines Parks in der PlatzDa-App auf dem iPhone: Bewertung, ehrlicher Regen-Hinweis, Luftbild und die Karte, wie sonnig es dort ist"
               width={683}
               height={1407}
               className="mx-auto w-52 drop-shadow-[0_14px_32px_rgba(28,53,64,0.3)] lg:w-60"
