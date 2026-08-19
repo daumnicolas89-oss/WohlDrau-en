@@ -112,11 +112,10 @@ export function Landing() {
           </div>
 
           {/* Das Produkt selbst: Nicolas' echtes Bildschirmfoto im
-              CSS-Geräterahmen. Mobil rechts angeschnitten (Scroll-Sog);
-              die sm-Formel bindet den Anschnitt an den VIEWPORT statt an
-              den Container, damit das Telefon auch zwischen 640 und
-              1023 px an der Kante bleibt. */}
-          <div className="mt-8 -mr-14 ml-auto w-64 sm:mr-[calc((36rem-100vw)/2-2rem)] lg:mt-0 lg:mr-0 lg:ml-0 lg:w-72">
+              CSS-Geräterahmen. Mobil VOLL sichtbar und mittig; der frühere
+              Anschnitt an der rechten Kante las sich auf dem Handy als
+              Fehler, nicht als Geste. */}
+          <div className="mx-auto mt-10 w-60 lg:mx-0 lg:mt-0 lg:w-72">
             <GeraeteRahmen
               quelle="/app-bildschirm-start.webp"
               alt="Die PlatzDa-App auf dem iPhone: Startbildschirm mit Wetter, Werteleiste und der besten Wahl gerade an einem Regentag"
@@ -158,46 +157,59 @@ export function Landing() {
       {/* Die Mitte spricht die Karten-Sprache der App selbst: weiße Karten
           mit weichem Schatten auf dem warmen Papier, App-Symbole als
           Absender. */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
+      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Was du vor dem Losgehen weißt
         </h2>
-        <div className="mt-6 grid gap-4 lg:grid-cols-3 lg:gap-6">
-          <div className="rounded-card bg-card p-6 shadow-card">
-            <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
-              <TreeDeciduous className="size-6" strokeWidth={1.8} aria-hidden />
-            </span>
-            <h3 className="mt-4 font-display text-lg font-semibold">
-              Schatten, der stimmt
-            </h3>
-            <p className="mt-2 text-base leading-relaxed text-muted">
+        {/* Mobil EINE Karte mit Trennlinien und dem Symbol neben der
+            Überschrift; ab lg drei eigenständige Karten mit dem Symbol
+            darüber. */}
+        <div className="mt-6 rounded-card bg-card p-6 shadow-card max-lg:divide-y max-lg:divide-line lg:grid lg:grid-cols-3 lg:gap-6 lg:bg-transparent lg:p-0 lg:shadow-none">
+          <div className="max-lg:py-5 max-lg:first:pt-0 max-lg:last:pb-0 lg:rounded-card lg:bg-card lg:p-6 lg:shadow-card">
+            <div className="flex items-center gap-3 lg:block">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
+                <TreeDeciduous
+                  className="size-6"
+                  strokeWidth={1.8}
+                  aria-hidden
+                />
+              </span>
+              <h3 className="font-display text-lg font-semibold lg:mt-4">
+                Schatten, der stimmt
+              </h3>
+            </div>
+            <p className="mt-3 text-base leading-relaxed text-muted lg:mt-2">
               Für jeden Platz berechnet PlatzDa, wie viel Schatten dort gerade
               liegt. Im Winter rechnet sie Laubbäume lichter, weil sie kahl
               sind. Und sie sagt ehrlich dazu, wie verlässlich die Schätzung
               ist.
             </p>
           </div>
-          <div className="rounded-card bg-card p-6 shadow-card">
-            <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
-              <CloudSun className="size-6" strokeWidth={1.8} aria-hidden />
-            </span>
-            <h3 className="mt-4 font-display text-lg font-semibold">
-              Das Wetter dieser Stunde
-            </h3>
-            <p className="mt-2 text-base leading-relaxed text-muted">
+          <div className="max-lg:py-5 max-lg:first:pt-0 max-lg:last:pb-0 lg:rounded-card lg:bg-card lg:p-6 lg:shadow-card">
+            <div className="flex items-center gap-3 lg:block">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
+                <CloudSun className="size-6" strokeWidth={1.8} aria-hidden />
+              </span>
+              <h3 className="font-display text-lg font-semibold lg:mt-4">
+                Das Wetter dieser Stunde
+              </h3>
+            </div>
+            <p className="mt-3 text-base leading-relaxed text-muted lg:mt-2">
               Gefühlte Temperatur, UV, Wind und der Blick nach vorn: „Regen
               zieht auf: In rund 20 Minuten geht es los.“ Dazu ein Anzieh-Tipp,
               abgestimmt auf das Alter deines Kindes.
             </p>
           </div>
-          <div className="rounded-card bg-card p-6 shadow-card">
-            <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
-              <Baby className="size-6" strokeWidth={1.8} aria-hidden />
-            </span>
-            <h3 className="mt-4 font-display text-lg font-semibold">
-              Was den Ausflug entscheidet
-            </h3>
-            <p className="mt-2 text-base leading-relaxed text-muted">
+          <div className="max-lg:py-5 max-lg:first:pt-0 max-lg:last:pb-0 lg:rounded-card lg:bg-card lg:p-6 lg:shadow-card">
+            <div className="flex items-center gap-3 lg:block">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
+                <Baby className="size-6" strokeWidth={1.8} aria-hidden />
+              </span>
+              <h3 className="font-display text-lg font-semibold lg:mt-4">
+                Was den Ausflug entscheidet
+              </h3>
+            </div>
+            <p className="mt-3 text-base leading-relaxed text-muted lg:mt-2">
               Toilette, Zaun, Wickeltisch, Wasser zum Planschen, ein Unterstand
               für Regenpausen. Was andere Eltern gemeldet haben, siehst du
               auch: aus den letzten drei Stunden, nicht vom letzten Sommer.
@@ -207,7 +219,7 @@ export function Landing() {
       </section>
 
       {/* ---- Echte Sequenz, darum nummeriert ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
+      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           So testest du PlatzDa
         </h2>
@@ -248,7 +260,7 @@ export function Landing() {
       {/* Absender und Ehrlichkeit sind EIN Gedanke: ein Vater, der ehrlich
           rechnet. Darum hängt die Fußnote direkt am Absatz, statt als
           eigene Sektion zu schweben. */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
+      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Wer dahintersteckt
         </h2>
@@ -275,12 +287,14 @@ export function Landing() {
       </section>
 
       {/* ---- Kurz gefragt ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
+      <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Kurz gefragt
         </h2>
-        <dl className="mt-6 grid gap-4 lg:grid-cols-3 lg:gap-6">
-          <div className="rounded-card bg-card p-6 shadow-card">
+        {/* Mobil EINE Karte mit Trennlinien (weniger Karten-Wand), ab lg
+            drei eigenständige Karten. */}
+        <dl className="mt-6 rounded-card bg-card p-6 shadow-card max-lg:divide-y max-lg:divide-line lg:grid lg:grid-cols-3 lg:gap-6 lg:bg-transparent lg:p-0 lg:shadow-none">
+          <div className="max-lg:py-5 max-lg:first:pt-0 max-lg:last:pb-0 lg:rounded-card lg:bg-card lg:p-6 lg:shadow-card">
             <dt className="font-display text-lg font-semibold">
               Was ist TestFlight?
             </dt>
@@ -290,7 +304,7 @@ export function Landing() {
               solange es in der Testphase ist.
             </dd>
           </div>
-          <div className="rounded-card bg-card p-6 shadow-card">
+          <div className="max-lg:py-5 max-lg:first:pt-0 max-lg:last:pb-0 lg:rounded-card lg:bg-card lg:p-6 lg:shadow-card">
             <dt className="font-display text-lg font-semibold">
               Kostet das etwas?
             </dt>
@@ -298,7 +312,7 @@ export function Landing() {
               Nein, nichts. Kein Konto, keine Werbung, keine Käufe.
             </dd>
           </div>
-          <div className="rounded-card bg-card p-6 shadow-card">
+          <div className="max-lg:py-5 max-lg:first:pt-0 max-lg:last:pb-0 lg:rounded-card lg:bg-card lg:p-6 lg:shadow-card">
             <dt className="font-display text-lg font-semibold">
               Was passiert mit meinen Daten?
             </dt>
@@ -315,7 +329,7 @@ export function Landing() {
       {/* ---- Finale: der Tagesbogen schließt sich. Wie der Hero mit dem
           Morgenhimmel beginnt, endet die Seite voll-breit im Abendhimmel;
           der Footer läuft still darauf aus. ---- */}
-      <section className="landing-finale mt-16 w-full px-5 pt-16 text-center lg:mt-24 lg:pt-24">
+      <section className="landing-finale mt-12 w-full px-5 pt-14 text-center lg:mt-24 lg:pt-24">
         <p className="mx-auto max-w-4xl font-display text-2xl leading-snug font-bold text-balance text-dark sm:text-3xl">
           Der nächste schöne Nachmittag kommt bestimmt.
         </p>
