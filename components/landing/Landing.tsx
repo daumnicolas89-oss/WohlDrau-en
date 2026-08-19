@@ -77,7 +77,7 @@ export function Landing() {
       <StandaloneRedirect />
 
       {/* ---- Kopf: derselbe Himmel wie in der App, plus das Produkt ---- */}
-      <header className="landing-hero relative overflow-hidden px-5 pt-[max(2.25rem,calc(env(safe-area-inset-top)+1.5rem))] pb-12 lg:pb-16">
+      <header className="landing-hero relative overflow-hidden px-5 pt-[max(2.25rem,calc(env(safe-area-inset-top)+1.5rem))] pb-16 lg:pb-24">
         <div className="mx-auto w-full max-w-xl lg:grid lg:max-w-4xl lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12">
           <div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -93,7 +93,7 @@ export function Landing() {
               Wo ist es mit Kind jetzt schön draußen?
             </h1>
 
-            <p className="mt-5 max-w-md text-[17px] leading-relaxed lg:text-lg">
+            <p className="mt-5 max-w-md text-lg leading-relaxed">
               PlatzDa findet Spielplätze, Parks und Wäldchen in deiner Nähe und
               rechnet aus, wie viel Schatten dort in dieser Stunde wirklich
               liegt.
@@ -101,11 +101,11 @@ export function Landing() {
 
             <a
               href={TESTFLIGHT_URL}
-              className="mt-7 inline-flex min-h-14 items-center justify-center rounded-full bg-primary-dark px-9 text-lg font-semibold text-white shadow-[0_10px_24px_rgba(15,76,58,0.3)] transition-[background-color,transform] hover:bg-primary-darker active:scale-[0.98]"
+              className="mt-7 inline-flex min-h-14 items-center justify-center rounded-full bg-primary-dark px-9 text-lg font-semibold text-white transition-[background-color,transform] hover:bg-primary-darker active:scale-[0.98]"
             >
               Kostenlos testen
             </a>
-            <p className="mt-3 max-w-md text-sm text-sky-muted">
+            <p className="mt-3 max-w-md text-sm text-dark/60">
               Für iPhone, über Apples TestFlight. Kein Konto, keine Werbung.
             </p>
           </div>
@@ -115,13 +115,13 @@ export function Landing() {
               die sm-Formel bindet den Anschnitt an den VIEWPORT statt an
               den Container, damit das Telefon auch zwischen 640 und
               1023 px an der Kante bleibt. */}
-          <div className="mt-8 -mr-14 ml-auto w-64 rotate-2 sm:mr-[calc((36rem-100vw)/2-2rem)] lg:mt-0 lg:mr-0 lg:ml-0 lg:w-72 lg:rotate-0">
+          <div className="mt-8 -mr-14 ml-auto w-64 sm:mr-[calc((36rem-100vw)/2-2rem)] lg:mt-0 lg:mr-0 lg:ml-0 lg:w-72">
             <GeraeteRahmen
               quelle="/app-bildschirm-start.webp"
               alt="Die PlatzDa-App auf dem iPhone: Startbildschirm mit Wetter, Werteleiste und der besten Wahl gerade an einem Regentag"
               breite={623}
               hoehe={1352}
-              klasse="drop-shadow-[0_18px_40px_rgba(28,53,64,0.33)]"
+              klasse="drop-shadow-[0_18px_40px_rgba(28,53,64,0.18)]"
             />
           </div>
         </div>
@@ -130,23 +130,15 @@ export function Landing() {
       {/* ---- Signatur: die App beim Rechnen zeigen, nicht behaupten ---- */}
       <section className="mx-auto w-full max-w-xl px-5 lg:max-w-4xl lg:px-0">
         <div className="relative -mt-6 overflow-hidden rounded-card bg-card shadow-card">
-          <div className="grid items-center gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12 lg:p-8">
-            {/* Ein weicher Lichthof hinter dem Telefon bindet es an die
-                Karte, statt es frei im Weiß stehen zu lassen. */}
-            <div className="relative">
-              <div
-                aria-hidden
-                className="absolute top-1/2 left-1/2 size-60 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-soft blur-2xl lg:size-72"
-              />
-              <GeraeteRahmen
-                quelle="/app-bildschirm-detail.webp"
-                alt="Die Detailseite eines Parks in der PlatzDa-App auf dem iPhone: Bewertung, ehrlicher Regen-Hinweis, Luftbild und die Karte, wie sonnig es dort ist"
-                breite={623}
-                hoehe={1354}
-                klasse="mx-auto w-52 drop-shadow-[0_18px_40px_rgba(28,53,64,0.33)] lg:w-60"
-              />
-            </div>
-            <p className="text-center text-base leading-relaxed text-balance text-dark/75 lg:text-left lg:text-lg">
+          <div className="grid items-center gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12 lg:p-10">
+            <GeraeteRahmen
+              quelle="/app-bildschirm-detail.webp"
+              alt="Die Detailseite eines Parks in der PlatzDa-App auf dem iPhone: Bewertung, ehrlicher Regen-Hinweis, Luftbild und die Karte, wie sonnig es dort ist"
+              breite={623}
+              hoehe={1354}
+              klasse="mx-auto w-52 drop-shadow-[0_18px_40px_rgba(28,53,64,0.18)] lg:w-60"
+            />
+            <p className="text-left text-lg leading-relaxed text-balance text-dark/75 lg:text-xl">
               Schatten wandert mit der Sonne.{" "}
               <span className="font-semibold text-dark">
                 PlatzDa rechnet ihn voraus
@@ -162,37 +154,37 @@ export function Landing() {
       {/* Ab lg liegen alle Sektionen im selben max-w-4xl-Container wie der
           Hero (lg:px-0, weil dort das Padding außen am Header sitzt) –
           H1 und H2s fluchten auf einer Achse statt zu springen. */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-11 lg:max-w-4xl lg:px-0 lg:pt-14">
+      <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Was du weißt, bevor ihr losgeht
         </h2>
-        <div className="mt-5 space-y-6 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
-          <div className="border-l-2 border-primary/40 pl-4">
+        <div className="mt-6 space-y-8 lg:grid lg:grid-cols-3 lg:gap-10 lg:space-y-0">
+          <div>
             <h3 className="font-display text-lg font-semibold">
               Schatten, der stimmt
             </h3>
-            <p className="mt-2 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
+            <p className="mt-2 max-w-[52ch] text-base leading-relaxed text-muted">
               Für jeden Platz berechnet PlatzDa, wie viel Schatten dort gerade
               liegt. Im Winter rechnet sie Laubbäume lichter, weil sie kahl
               sind. Und sie sagt ehrlich dazu, wie verlässlich die Schätzung
               ist.
             </p>
           </div>
-          <div className="border-l-2 border-primary/40 pl-4">
+          <div>
             <h3 className="font-display text-lg font-semibold">
               Das Wetter dieser Stunde
             </h3>
-            <p className="mt-2 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
+            <p className="mt-2 max-w-[52ch] text-base leading-relaxed text-muted">
               Gefühlte Temperatur, UV, Wind und der Blick nach vorn: „Regen
               zieht auf: In rund 20 Minuten geht es los.“ Dazu ein Anzieh-Tipp,
               abgestimmt auf das Alter deines Kindes.
             </p>
           </div>
-          <div className="border-l-2 border-primary/40 pl-4">
+          <div>
             <h3 className="font-display text-lg font-semibold">
               Was den Ausflug entscheidet
             </h3>
-            <p className="mt-2 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
+            <p className="mt-2 max-w-[52ch] text-base leading-relaxed text-muted">
               Toilette, Zaun, Wickeltisch, Wasser zum Planschen, ein Unterstand
               für Regenpausen. Was andere Eltern gemeldet haben, siehst du
               auch: aus den letzten drei Stunden, nicht vom letzten Sommer.
@@ -202,11 +194,11 @@ export function Landing() {
       </section>
 
       {/* ---- Echte Sequenz, darum nummeriert ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-10 lg:max-w-4xl lg:px-0 lg:pt-12">
+      <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           So testest du PlatzDa
         </h2>
-        <ol className="mt-5 space-y-4 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
+        <ol className="mt-6 space-y-5 lg:grid lg:grid-cols-3 lg:gap-10 lg:space-y-0">
           {[
             [
               "Link antippen",
@@ -230,7 +222,7 @@ export function Landing() {
               </span>
               <div>
                 <h3 className="font-display text-lg font-semibold">{titel}</h3>
-                <p className="mt-0.5 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
+                <p className="mt-0.5 max-w-[52ch] text-base leading-relaxed text-muted">
                   {text}
                 </p>
               </div>
@@ -240,11 +232,14 @@ export function Landing() {
       </section>
 
       {/* ---- Der Absender: ein Ich mit Namen ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-10 lg:max-w-4xl lg:px-0 lg:pt-12">
+      {/* Absender und Ehrlichkeit sind EIN Gedanke: ein Vater, der ehrlich
+          rechnet. Darum hängt die Fußnote direkt am Absatz, statt als
+          eigene Sektion zu schweben. */}
+      <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Wer dahintersteckt
         </h2>
-        <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
+        <p className="mt-3 max-w-[52ch] text-base leading-relaxed text-muted">
           Kein Unternehmen, ein Vater. Ich bin Nicolas und baue PlatzDa
           selbst. Wenn der Schatten vor Ort nicht stimmt oder dir etwas fehlt,
           schreib mir:{" "}
@@ -255,11 +250,7 @@ export function Landing() {
             kontakt@nicolas-daum.ai
           </a>
         </p>
-      </section>
-
-      {/* ---- Ehrlichkeit: die Fußnote zu allem darüber ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-5 lg:max-w-4xl lg:px-0">
-        <p className="rounded-card bg-primary-soft p-5 text-[15px] leading-relaxed text-primary-dark ring-1 ring-primary/20 lg:max-w-2xl lg:text-base">
+        <p className="mt-6 max-w-[52ch] rounded-card bg-primary-soft p-5 text-base leading-relaxed text-primary-dark">
           Plätze und Ausstattung stammen von OpenStreetMap, das Wetter von
           Open-Meteo. Der Schatten ist{" "}
           <span className="font-semibold">gerechnet, nicht gemessen</span>: eine
@@ -268,36 +259,34 @@ export function Landing() {
       </section>
 
       {/* ---- Kurz gefragt ---- */}
-      {/* Dieselbe Zeichensprache wie „Was du weißt": grüne Linie links,
-          damit die Frage-Antwort-Paare als Einheiten lesbar sind. */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-10 lg:max-w-4xl lg:px-0 lg:pt-12">
+      <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Kurz gefragt
         </h2>
-        <dl className="mt-5 space-y-5 lg:grid lg:grid-cols-3 lg:gap-8 lg:space-y-0">
-          <div className="border-l-2 border-primary/40 pl-4">
+        <dl className="mt-6 space-y-8 lg:grid lg:grid-cols-3 lg:gap-10 lg:space-y-0">
+          <div>
             <dt className="font-display text-lg font-semibold">
               Was ist TestFlight?
             </dt>
-            <dd className="mt-1 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
+            <dd className="mt-1 max-w-[52ch] text-base leading-relaxed text-muted">
               Apples eigene App zum Ausprobieren neuer Apps, offiziell und
               kostenlos im App Store. Darüber kommt PlatzDa auf dein iPhone,
               solange es in der Testphase ist.
             </dd>
           </div>
-          <div className="border-l-2 border-primary/40 pl-4">
+          <div>
             <dt className="font-display text-lg font-semibold">
               Kostet das etwas?
             </dt>
-            <dd className="mt-1 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
+            <dd className="mt-1 max-w-[52ch] text-base leading-relaxed text-muted">
               Nein, nichts. Kein Konto, keine Werbung, keine Käufe.
             </dd>
           </div>
-          <div className="border-l-2 border-primary/40 pl-4">
+          <div>
             <dt className="font-display text-lg font-semibold">
               Was passiert mit meinen Daten?
             </dt>
-            <dd className="mt-1 max-w-[52ch] text-[15px] leading-relaxed text-muted lg:text-base">
+            <dd className="mt-1 max-w-[52ch] text-base leading-relaxed text-muted">
               Dein Standort dient nur der Suche. Er wird nicht bei uns
               gespeichert. Nur dein Gerät merkt sich den letzten Ort. Kein
               Login, keine Nutzungsprofile.
@@ -307,55 +296,47 @@ export function Landing() {
       </section>
 
       {/* ---- Finale: dieselbe Szene, nur als Abend ---- */}
-      <section className="mx-auto w-full max-w-xl px-5 pt-10 pb-6 lg:max-w-4xl lg:px-0 lg:pt-12">
-        <div className="landing-finale rounded-card px-6 py-10 text-center lg:py-12">
-          <p className="font-display text-2xl leading-snug font-bold text-balance text-dark sm:text-3xl">
-            Der nächste schöne Nachmittag kommt bestimmt.
-          </p>
-          <p className="mt-2 text-base text-balance text-dark/70">
-            Mit PlatzDa weißt du vorher, wo er am schönsten wird.
-          </p>
-          <a
-            href={TESTFLIGHT_URL}
-            className="mt-6 inline-flex min-h-16 items-center justify-center rounded-full bg-primary-dark px-11 text-lg font-semibold text-white shadow-[0_10px_24px_rgba(15,76,58,0.3)] transition-[background-color,transform] hover:bg-primary-darker active:scale-[0.98]"
-          >
-            Jetzt mittesten
-          </a>
-        </div>
-      </section>
-
-      <footer className="mx-auto w-full max-w-xl px-5 pb-[max(2rem,env(safe-area-inset-bottom))] lg:max-w-4xl lg:px-0">
-        <p className="pb-3 text-center text-xs text-balance text-muted">
-          PlatzDa gibt es bisher für iPhone. Android? Schreib mir, wenn du
-          dabei sein willst:{" "}
-          <a
-            href="mailto:kontakt@nicolas-daum.ai"
-            className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2 transition-colors hover:text-primary-darker"
-          >
-            kontakt@nicolas-daum.ai
-          </a>
+      {/* ---- Finale: der Tagesbogen schließt sich. Wie der Hero mit dem
+          Morgenhimmel beginnt, endet die Seite voll-breit im Abendhimmel;
+          der Footer läuft still darauf aus. ---- */}
+      <section className="landing-finale mt-16 w-full px-5 pt-16 text-center lg:mt-24 lg:pt-24">
+        <p className="mx-auto max-w-4xl font-display text-2xl leading-snug font-bold text-balance text-dark sm:text-3xl">
+          Der nächste schöne Nachmittag kommt bestimmt.
         </p>
-        <div className="flex flex-wrap justify-center gap-x-4 border-t border-line pt-4 text-xs text-muted">
-          <Link
-            href="/impressum"
-            className="py-2 underline underline-offset-2 transition-colors hover:text-dark"
-          >
-            Impressum
-          </Link>
-          <Link
-            href="/datenschutz"
-            className="py-2 underline underline-offset-2 transition-colors hover:text-dark"
-          >
-            Datenschutz
-          </Link>
-          <Link
-            href="/so-funktionierts"
-            className="py-2 underline underline-offset-2 transition-colors hover:text-dark"
-          >
-            So funktioniert&apos;s
-          </Link>
-        </div>
-      </footer>
+        <p className="mt-2 text-base text-balance text-dark/70">
+          Mit PlatzDa weißt du vorher, wo er am schönsten wird.
+        </p>
+        <a
+          href={TESTFLIGHT_URL}
+          className="mt-7 inline-flex min-h-14 items-center justify-center rounded-full bg-primary-dark px-9 text-lg font-semibold text-white transition-[background-color,transform] hover:bg-primary-darker active:scale-[0.98]"
+        >
+          Jetzt mittesten
+        </a>
+
+        <footer className="mx-auto mt-14 w-full max-w-xl pb-[max(2rem,env(safe-area-inset-bottom))] lg:mt-20 lg:max-w-4xl">
+          <p className="pb-3 text-xs text-balance text-dark/60">
+            PlatzDa gibt es bisher für iPhone. Android? Schreib mir, wenn du
+            dabei sein willst:{" "}
+            <a
+              href="mailto:kontakt@nicolas-daum.ai"
+              className="font-medium whitespace-nowrap text-primary-dark transition-colors hover:underline"
+            >
+              kontakt@nicolas-daum.ai
+            </a>
+          </p>
+          <div className="flex flex-wrap justify-center gap-x-4 border-t border-dark/10 pt-4 text-xs text-dark/60">
+            <Link href="/impressum" className="py-2 hover:underline">
+              Impressum
+            </Link>
+            <Link href="/datenschutz" className="py-2 hover:underline">
+              Datenschutz
+            </Link>
+            <Link href="/so-funktionierts" className="py-2 hover:underline">
+              So funktioniert&apos;s
+            </Link>
+          </div>
+        </footer>
+      </section>
     </div>
   );
 }
