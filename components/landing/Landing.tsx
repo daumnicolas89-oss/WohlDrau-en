@@ -55,23 +55,21 @@ export function Landing() {
             </p>
           </div>
 
-          {/* Das Produkt selbst: echte App-Oberfläche, echter Sonnentag.
-              Mobil rechts angeschnitten (Scroll-Sog); die sm-Formel bindet
-              den Anschnitt an den VIEWPORT statt an den Container, damit das
-              Telefon auch zwischen 640 und 1023 px an der Kante bleibt. */}
-          <div className="mt-10 -mr-14 ml-auto w-60 rotate-2 sm:mr-[calc((36rem-100vw)/2-2rem)] lg:mt-0 lg:mr-0 lg:ml-0 lg:w-64 lg:rotate-0">
-            <div className="rounded-[2.7rem] border-[9px] border-dark/90 bg-dark/90 shadow-float">
-              <div className="overflow-hidden rounded-[2.1rem]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/app-vorschau.png"
-                  alt="Die PlatzDa-App zeigt die beste Wahl gerade: Spielplatz mit viel Schatten, bewertet mit 82 von 100"
-                  width={780}
-                  height={1372}
-                  className="w-full"
-                />
-              </div>
-            </div>
+          {/* Das Produkt selbst: echtes iPhone-Foto der App (Nicolas'
+              Geräterahmen-Screenshot, weißer Rand automatisch beschnitten),
+              statt eines CSS-Nachbaus. Mobil rechts angeschnitten
+              (Scroll-Sog); die sm-Formel bindet den Anschnitt an den
+              VIEWPORT statt an den Container, damit das Telefon auch
+              zwischen 640 und 1023 px an der Kante bleibt. */}
+          <div className="mt-10 -mr-14 ml-auto w-64 rotate-2 sm:mr-[calc((36rem-100vw)/2-2rem)] lg:mt-0 lg:mr-0 lg:ml-0 lg:w-72 lg:rotate-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/app-geraet-start.png"
+              alt="Die PlatzDa-App auf dem iPhone: Startbildschirm mit Wetter, Werteleiste und der besten Wahl gerade, einem Park mit 85 von 100"
+              width={683}
+              height={1405}
+              className="w-full drop-shadow-[0_18px_40px_rgba(28,53,64,0.35)]"
+            />
           </div>
         </div>
       </header>
@@ -79,14 +77,14 @@ export function Landing() {
       {/* ---- Signatur: die App beim Rechnen zeigen, nicht behaupten ---- */}
       <section className="mx-auto w-full max-w-xl px-5 lg:max-w-4xl lg:px-0">
         <div className="relative -mt-6 overflow-hidden rounded-card bg-card shadow-card">
-          <div className="grid items-center gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12 lg:p-8">
+          <div className="grid items-center gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12 lg:p-8">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/app-schatten.png"
-              alt="Die Detailseite eines Spielplatzes in der App: aktuell viel Schatten, darunter der Stundenverlauf, wie lange der Schatten hält"
-              width={716}
-              height={678}
-              className="w-full rounded-xl ring-1 ring-line"
+              src="/app-geraet-detail.png"
+              alt="Die Detailseite eines Parks in der PlatzDa-App auf dem iPhone: 85 von 100, besonders angenehm, mit Luftbild und der Karte, wie sonnig es dort ist"
+              width={683}
+              height={1407}
+              className="mx-auto w-52 drop-shadow-[0_14px_32px_rgba(28,53,64,0.3)] lg:w-60"
             />
             <p className="text-center text-[15px] leading-relaxed text-balance text-muted lg:text-left lg:text-lg">
               Schatten wandert mit der Sonne.{" "}
