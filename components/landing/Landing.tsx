@@ -144,9 +144,9 @@ export function Landing() {
               der prallen Sonne.{" "}
               <span className="font-semibold text-dark">
                 PlatzDa rechnet das voraus
-              </span>: aus Sonnenstand, Bäumen, Gebäuden und dem Gelände. Für
-              jeden Platz siehst du, wie es jetzt ist, in 30 Minuten und in
-              einer Stunde.
+              </span>: aus Sonnenstand, Bäumen, Gebäuden und den Bergen am
+              Horizont. Für jeden Platz siehst du, wie es jetzt ist, in 30
+              Minuten und in einer Stunde.
             </p>
           </div>
         </div>
