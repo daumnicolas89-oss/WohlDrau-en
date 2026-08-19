@@ -106,7 +106,7 @@ export function Landing() {
             >
               Kostenlos testen
             </a>
-            <p className="mt-3 max-w-md text-sm text-dark/60">
+            <p className="mt-3 max-w-md text-sm text-pretty text-dark/60">
               Für iPhone, über Apples TestFlight. Kein Konto, keine Werbung.
             </p>
           </div>
@@ -178,7 +178,7 @@ export function Landing() {
                 Schatten, der stimmt
               </h3>
             </div>
-            <p className="mt-3 text-base leading-relaxed text-muted lg:mt-2">
+            <p className="mt-2 text-base leading-relaxed text-muted">
               Für jeden Platz berechnet PlatzDa, wie viel Schatten dort gerade
               liegt. Im Winter rechnet sie Laubbäume lichter, weil sie kahl
               sind. Und sie sagt ehrlich dazu, wie verlässlich die Schätzung
@@ -194,7 +194,7 @@ export function Landing() {
                 Das Wetter dieser Stunde
               </h3>
             </div>
-            <p className="mt-3 text-base leading-relaxed text-muted lg:mt-2">
+            <p className="mt-2 text-base leading-relaxed text-muted">
               Gefühlte Temperatur, UV, Wind und der Blick nach vorn: „Regen
               zieht auf: In rund 20 Minuten geht es los.“ Dazu ein Anzieh-Tipp,
               abgestimmt auf das Alter deines Kindes.
@@ -209,7 +209,7 @@ export function Landing() {
                 Was den Ausflug entscheidet
               </h3>
             </div>
-            <p className="mt-3 text-base leading-relaxed text-muted lg:mt-2">
+            <p className="mt-2 text-base leading-relaxed text-muted">
               Toilette, Zaun, Wickeltisch, Wasser zum Planschen, ein Unterstand
               für Regenpausen. Was andere Eltern gemeldet haben, siehst du
               auch: aus den letzten drei Stunden, nicht vom letzten Sommer.
