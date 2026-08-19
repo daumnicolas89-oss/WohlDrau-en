@@ -2,7 +2,7 @@ import Link from "next/link";
 import { placeHref } from "@/lib/appMode";
 import { AlertTriangle, ChevronRight, Star, Sun } from "lucide-react";
 import { formatDistance, haversine } from "@/lib/utils";
-import { factChips, mainDriver, scoreWording, shadeWording, statusSentence, bedeckt } from "@/lib/wording";
+import { factChips, scoreWording, shadeWording, statusSentence, bedeckt } from "@/lib/wording";
 import type { Place } from "@/types";
 import { ScoreRing, TONE_TEXT } from "@/components/ui/ScoreRing";
 import { ShadeMeter } from "./ShadeMeter";
@@ -72,7 +72,6 @@ export function PlaceCard({
   );
 
   const bewertung = scoreWording(place.pleasantScore);
-  const grund = mainDriver(place);
   const meldung = statusSentence(place.lastStatuses, now);
   const chips = factChips(place);
   const beste = rank === 0;
@@ -175,16 +174,19 @@ export function PlaceCard({
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-card bg-gradient-to-b from-[#fff6e4] to-card shadow-card ring-1 ring-[#eec97a]/60 transition duration-200 active:scale-[0.98]"
+      // Getönte Fläche ODER Rahmen, nicht beides: Der goldene Ring kam zur
+      // Tönung dazu und machte aus einer Hervorhebung drei Flächensignale.
+      className="group block overflow-hidden rounded-card bg-gradient-to-b from-[#fff6e4] to-card shadow-card transition duration-200 active:scale-[0.98]"
     >
-      {beste && (
-        <p className="flex items-center gap-1.5 bg-accent-soft px-4 py-2 text-[11px] font-semibold tracking-[0.14em] text-accent-ink uppercase">
-          <Sun size={14} aria-hidden />
-          Beste Wahl {zeitLabel ?? "gerade"}
-        </p>
-      )}
-
       <div className="p-4">
+        {/* „Beste Wahl" als Textzeile IN der Karte statt als eigene gelbe
+            Bande darüber – die Tönung der Karte hebt schon hervor. */}
+        {beste && (
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.14em] text-accent-ink uppercase">
+            <Sun size={14} aria-hidden />
+            Beste Wahl {zeitLabel ?? "gerade"}
+          </p>
+        )}
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <h3 className="font-display text-lg leading-snug font-semibold text-dark [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
@@ -210,16 +212,23 @@ export function PlaceCard({
         </div>
 
         <div className="mt-4">
+          {/* Ohne Balken: Ring, Wort und Schatten-Zeile sagten dasselbe
+              Urteil dreifach. Balken und Begründungs-Satz stehen auf der
+              Detailseite, wo sie als Erklärung gebraucht werden – hier
+              genügt ein Urteil pro Träger. */}
           <ShadeMeter
             state={place.shade.state}
             shadeIndex={place.shade.index}
             estimateHint
+            balken={false}
             spaeter={spaeter}
             bedeckt={bedeckt(place.shade)}
           />
           {/* Nicht doppelt: Trägt die Karte unten schon die Warnung
-              „Schattenlage hier unbekannt …", erübrigt sich der Hinweis. */}
+              „Schattenlage hier unbekannt …" oder die Liste den Sammel-
+              Hinweis fürs ganze Gebiet, erübrigt sich der Hinweis. */}
           {wenigBaumdaten &&
+            !areaTreeHint &&
             !place.warnings.some((w) => w.startsWith("Schattenlage")) && (
               <p className="mt-1.5 text-xs leading-relaxed text-muted">
                 {WENIG_BAEUME_HINT}
@@ -231,8 +240,6 @@ export function PlaceCard({
             </p>
           )}
         </div>
-
-        <p className="mt-3.5 text-[15px] leading-relaxed text-dark">{grund.text}</p>
 
         <ul className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
           {chips.map((chip, index) => (

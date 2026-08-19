@@ -1,22 +1,17 @@
 "use client";
 
-import { List, MapPin, RefreshCw } from "lucide-react";
+import { List, MapPin } from "lucide-react";
 import { TIME_CHOICES, useFilters } from "@/store/useFilters";
 import { tick } from "@/lib/native";
 
 /**
  * Die zwei Entscheidungen, die im Alltag ständig fallen: „wann?“ und
  * „Liste oder Karte?“, deshalb dauerhaft sichtbar statt im Filter versteckt.
- * Dazu der Neu-laden-Knopf: frische Orte und frisches Wetter mit einem Tipp,
- * ohne den Browser bemühen zu müssen.
+ * Neu laden wohnt jetzt in der Ortszeile des Kopfes – vorher standen hier
+ * drei gleich laute weiße Kacheln nebeneinander und der Zeit-Umschalter
+ * ging zwischen seinen Werkzeugen unter.
  */
-export function MapControls({
-  onRefresh,
-  refreshing = false,
-}: {
-  onRefresh?: () => void;
-  refreshing?: boolean;
-}) {
+export function MapControls() {
   const filters = useFilters();
 
   return (
@@ -46,25 +41,16 @@ export function MapControls({
           );
         })}
       </div>
+      {/* Still statt Kachel: Der Umschalter ist das eine Steuerelement der
+          Zeile, das Werkzeug daneben ordnet sich unter. */}
       <button
         type="button"
         onClick={() => filters.setViewMode(filters.viewMode === "list" ? "map" : "list")}
         aria-label={filters.viewMode === "list" ? "Karte anzeigen" : "Liste anzeigen"}
-        className="flex size-11 items-center justify-center rounded-2xl bg-card text-dark shadow-card transition duration-200 active:scale-95"
+        className="flex size-11 items-center justify-center rounded-2xl text-dark/70 transition duration-200 active:scale-95 active:bg-card/70"
       >
         {filters.viewMode === "list" ? <MapPin size={20} /> : <List size={20} />}
       </button>
-      {onRefresh && (
-        <button
-          type="button"
-          onClick={onRefresh}
-          disabled={refreshing}
-          aria-label="Neu laden"
-          className="flex size-11 items-center justify-center rounded-2xl bg-card text-dark shadow-card transition duration-200 active:scale-95 disabled:opacity-60 disabled:active:scale-100"
-        >
-          <RefreshCw size={20} className={refreshing ? "animate-spin" : undefined} />
-        </button>
-      )}
     </div>
   );
 }

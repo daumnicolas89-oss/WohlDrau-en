@@ -6,6 +6,7 @@ import {
   ChevronDown,
   CloudOff,
   MapPin,
+  RefreshCw,
   Shirt,
   Snowflake,
   Sun,
@@ -47,6 +48,8 @@ export function WeatherHeader({
   regenRadar = null,
   kompakt = false,
   onOpenLocation,
+  onRefresh,
+  refreshing = false,
 }: {
   weather: Weather | null;
   /** Wetter gerade nicht erreichbar, die Orte werden ohne aktuelle Werte geordnet. */
@@ -68,6 +71,11 @@ export function WeatherHeader({
    */
   kompakt?: boolean;
   onOpenLocation: () => void;
+  /** Neu laden gehört semantisch zum Ort („wo bin ich, was gibt es hier") –
+   *  darum als stilles Icon in der Ortszeile statt als dritter lauter
+   *  Rundknopf neben dem Zeit-Umschalter. */
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const [outfitOpen, setOutfitOpen] = useState(false);
   const values = weather ? weatherAt(weather, at) : null;
@@ -127,6 +135,16 @@ export function WeatherHeader({
   const alert = winter ?? heat;
   const alertMeta = alert ? ALERT_ICON[alert.tone] : null;
 
+  // „Heute draußen am angenehmsten: 17–19 Uhr." reiht sich als vierter Chip
+  // in die Werte-Leiste ein, statt als frei schwebende Textzeile eine eigene
+  // Kopf-Etage zu belegen – auch Regen und Wind sind Planungsinfo. Der volle
+  // Satz bleibt als Fallback, falls das Format mal nicht passt.
+  const besteZeitChip = besteZeit
+    ? besteZeit.startsWith("Jetzt")
+      ? "jetzt"
+      : (besteZeit.match(/(\d{1,2}–\d{1,2})\s*Uhr/)?.[1] ?? null)
+    : null;
+
   return (
     <header
       className={`sky-hero relative overflow-hidden px-4 pt-[max(1.15rem,calc(env(safe-area-inset-top)+0.75rem))] ${kompakt ? "pb-3" : "pb-4"}`}
@@ -136,21 +154,38 @@ export function WeatherHeader({
 
       <div className="relative pr-20">
         <Logo />
-        {/* Die Ortszeile ist der Knopf zum Standort-Fenster, der Pfeil zeigt es an. */}
-        <button
-          type="button"
-          onClick={onOpenLocation}
-          aria-label="Standort ändern oder einen Ort suchen"
-          className="mt-1.5 flex max-w-full items-center gap-1.5 text-[15px] font-medium text-sky-muted transition active:opacity-70"
-        >
-          <MapPin
-            size={14}
-            aria-hidden
-            className={`shrink-0 text-primary-dark ${geoStatus === "locating" ? "animate-pulse" : ""}`}
-          />
-          <span className="truncate">{locationLabel}</span>
-          <ChevronDown size={16} aria-hidden className="shrink-0 text-sky-muted" />
-        </button>
+        {/* Die Ortszeile ist der Knopf zum Standort-Fenster, der Pfeil zeigt
+            es an. Daneben, still: Neu laden – ein Werkzeug, kein Held. */}
+        <div className="mt-1.5 flex max-w-full items-center gap-1">
+          <button
+            type="button"
+            onClick={onOpenLocation}
+            aria-label="Standort ändern oder einen Ort suchen"
+            className="flex min-w-0 items-center gap-1.5 text-[15px] font-medium text-sky-muted transition active:opacity-70"
+          >
+            <MapPin
+              size={14}
+              aria-hidden
+              className={`shrink-0 text-primary-dark ${geoStatus === "locating" ? "animate-pulse" : ""}`}
+            />
+            <span className="truncate">{locationLabel}</span>
+            <ChevronDown size={16} aria-hidden className="shrink-0 text-sky-muted" />
+          </button>
+          {onRefresh && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              disabled={refreshing}
+              aria-label="Neu laden"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50 disabled:opacity-60 disabled:active:scale-100"
+            >
+              <RefreshCw
+                size={16}
+                className={refreshing ? "animate-spin" : undefined}
+              />
+            </button>
+          )}
+        </div>
       </div>
 
       {kompakt && values && (
@@ -191,15 +226,18 @@ export function WeatherHeader({
             <button
               type="button"
               onClick={() => setOutfitOpen(true)}
-              className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 text-sm font-semibold text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
+              className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 text-[15px] font-semibold text-dark backdrop-blur transition hover:bg-white/80 active:scale-95"
             >
               <Shirt size={15} aria-hidden className="text-primary-dark" />
               Was anziehen?
             </button>
           </div>
 
-          {/* Der eine Satz, der sagt, worauf es jetzt ankommt. */}
-          <p className="mt-2.5 font-display text-xl leading-snug font-semibold text-balance text-dark">
+          {/* Der eine Satz, der sagt, worauf es jetzt ankommt – als ruhige
+              Unterzeile der Temperatur. Vorher stand er mit 20 px/fett fast
+              auf Augenhöhe mit der 44-px-Zahl und konkurrierte zusätzlich
+              mit den Ortsnamen der Karten: zwei Schlagzeilen, keine Führung. */}
+          <p className="mt-1.5 text-[15px] leading-snug font-medium text-balance text-sky-muted">
             {weatherAdvice(
               values.apparentTemperature,
               values.uvIndex,
@@ -259,6 +297,17 @@ export function WeatherHeader({
                 {regime === "cold" && <span className="font-normal"> (kalt)</span>}
               </dd>
             </div>
+            {besteZeitChip && (
+              <>
+                <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
+                <div className="flex min-w-0 shrink items-baseline gap-1">
+                  <dt className="shrink-0 text-muted">Beste Zeit</dt>
+                  <dd className="truncate font-semibold text-dark">
+                    {besteZeitChip}
+                  </dd>
+                </div>
+              </>
+            )}
           </dl>
 
           {/* Aufziehender Regen ist dringend und bleibt eigenständig. Beste
@@ -268,10 +317,12 @@ export function WeatherHeader({
               {regenRadar}
             </p>
           )}
-          {(besteZeit || tageslicht) && (
+          {((besteZeit && !besteZeitChip) || tageslicht) && (
             <p className="mt-1.5 text-[13px] leading-snug text-sky-muted">
-              {besteZeit && <span className="font-medium text-dark">{besteZeit}</span>}
-              {besteZeit && tageslicht && " · "}
+              {besteZeit && !besteZeitChip && (
+                <span className="font-medium text-dark">{besteZeit}</span>
+              )}
+              {besteZeit && !besteZeitChip && tageslicht && " · "}
               {tageslicht}
             </p>
           )}

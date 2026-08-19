@@ -54,13 +54,13 @@ export function SkyScene({ mood }: { mood: SkyMood }) {
     <svg
       aria-hidden
       viewBox="0 0 120 120"
-      /* Früher hing die Figur an der Kopfkante (-top-12) und ragte über den
-         rechten Rand. Auf einem iPhone mit Dynamic Island lag sie damit halb
-         außerhalb des Bildschirms, der Rest hinter der Uhr. Jetzt hängt sie
-         am sicheren Bereich, bleibt vollständig sichtbar und ist deutlich
-         kleiner: Sie soll den Himmel andeuten, nicht wie ein Aufkleber
-         obendrauf liegen. */
-      className="pointer-events-none absolute top-[calc(env(safe-area-inset-top)+0.1rem)] right-3 h-[4.75rem] w-[4.75rem]"
+      /* Zweimal geschrumpft, mit Grund: Erst hing die Figur riesig an der
+         Kopfkante (halb hinter der Dynamic Island), dann war sie mit 4,75rem
+         immer noch das größte, satteste Farbobjekt der Seite – die Blickpfad-
+         Analyse zeigte: Das Auge sprang ZUERST zur Deko-Sonne, die null
+         Information trägt. Jetzt ist sie ein leises Wetter-Glyph; die
+         Stimmung transportiert der Verlauf dahinter. */
+      className="pointer-events-none absolute top-[calc(env(safe-area-inset-top)+0.35rem)] right-3 h-12 w-12 opacity-80"
     >
       {/* Lichtschein in der Farbe des Wetters – er verbindet die Figur mit
           dem Verlauf des Kopfes, statt sie davor zu setzen. */}

@@ -393,12 +393,11 @@ export function HomeView() {
         // Werte und Scores längst auf +30/+60 Min zeigen.
         regenRadar={filters.timeOffsetMin === 0 ? regenRadar : null}
         onOpenLocation={() => setLocationOpen(true)}
-      />
-
-      <MapControls
         onRefresh={reload}
         refreshing={places.loading || wetter.loading}
       />
+
+      <MapControls />
 
       {/* Es gibt schon etwas zu sehen, frisch kommt gleich – leise sagen.
           Offline übernimmt der Offline-Banner allein, sonst widersprechen
@@ -702,6 +701,19 @@ export function HomeView() {
               <ToiletButton onClick={() => setToiletOpen(true)} className="w-full" />
             )}
 
+            {/* Melden am Listenende statt als Dauer-Schwebeknopf: erreichbar,
+                aber nicht dauerpräsent über dem Inhalt. */}
+            {!loading && !error && visible.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setReportPickerOpen(true)}
+                className="mx-auto flex min-h-11 items-center gap-1.5 text-sm font-medium text-muted transition active:opacity-70"
+              >
+                <Megaphone size={16} aria-hidden />
+                Etwas vor Ort melden
+              </button>
+            )}
+
             {visible.length > 0 && (
               <div className="flex items-center justify-between gap-2 px-1 pt-2">
                 <p className="text-xs leading-relaxed text-muted">
@@ -741,15 +753,11 @@ export function HomeView() {
         )}
       </main>
 
-      <div className="safe-bottom pointer-events-none fixed inset-x-0 bottom-0 z-[901] mx-auto flex max-w-lg justify-between gap-3 px-4">
-        <button
-          type="button"
-          onClick={() => setReportPickerOpen(true)}
-          className="pointer-events-auto flex min-h-13 items-center gap-2 rounded-full bg-card px-5 font-semibold text-dark shadow-float transition duration-200 active:scale-95"
-        >
-          <Megaphone size={20} aria-hidden />
-          Melden
-        </button>
+      {/* Nur noch EIN schwebendes Element: der Filter. „Melden" ist eine
+          Selten-Aktion und schwebte trotzdem dauerhaft über der Liste – auf
+          jedem Screenshot verdeckte es Karteninhalt. Es wohnt jetzt auf der
+          Detailseite und am Listenende. */}
+      <div className="safe-bottom pointer-events-none fixed inset-x-0 bottom-0 z-[901] mx-auto flex max-w-lg justify-end gap-3 px-4">
         <button
           type="button"
           onClick={() => setFilterOpen(true)}

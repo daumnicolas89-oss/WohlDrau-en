@@ -21,6 +21,7 @@ export function ShadeMeter({
   size = "sm",
   reason,
   estimateHint = false,
+  balken = true,
   spaeter = false,
   bedeckt = false,
 }: {
@@ -31,6 +32,10 @@ export function ShadeMeter({
   reason?: string;
   /** Kennzeichnet den Wert als Schätzung, auf der Karte, wo der Platz fehlt. */
   estimateHint?: boolean;
+  /** Auf der Beste-Wahl-Karte nur die Wort-Zeile: Ring und Wort tragen das
+   *  Urteil schon, der Balken wäre die dritte Codierung derselben Aussage.
+   *  Auf der Detailseite bleibt er – dort erklärt er. */
+  balken?: boolean;
   /** Zeitvorschau: Beschriftung in Zukunftsform. */
   spaeter?: boolean;
   /**
@@ -69,7 +74,7 @@ export function ShadeMeter({
       {/* Ohne Sonne ist ein Schatten-Prozentwert sinnlos (rechnerisch 100 %,
           würde aber wie „dicht beschattet durch Bäume" wirken). Dann sagt nur
           der Grund-Satz darunter, was Sache ist. */}
-      {state !== "no-sun" && !bedeckt && (
+      {balken && state !== "no-sun" && !bedeckt && (
         <>
           <div
             className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-line"
