@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   AlertTriangle,
   ChevronDown,
+  ChevronUp,
   CloudOff,
   MapPin,
   RefreshCw,
@@ -78,6 +79,31 @@ export function WeatherHeader({
   refreshing?: boolean;
 }) {
   const [outfitOpen, setOutfitOpen] = useState(false);
+  /**
+   * Stammnutzer-Modus: Wer die App zum zwanzigsten Mal öffnet, kennt die
+   * Wetterlage nach einem Blick auf Temperatur und Rat-Satz – die Details
+   * (gefühlt, Chips) klappen auf Wunsch weg und bleiben einen Tipp entfernt.
+   * Die Wahl merkt sich das Gerät. Sicherheits-Banner und Regen-Radar
+   * bleiben IMMER sichtbar – Warnungen klappen nie weg.
+   */
+  const [wetterZu, setWetterZu] = useState(() => {
+    try {
+      return localStorage.getItem("platzda:wetterZu") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const wetterKlappen = () => {
+    setWetterZu((offen) => {
+      const neu = !offen;
+      try {
+        localStorage.setItem("platzda:wetterZu", neu ? "1" : "0");
+      } catch {
+        // Privater Modus: Zustand gilt dann nur für diese Sitzung.
+      }
+      return neu;
+    });
+  };
   const values = weather ? weatherAt(weather, at) : null;
   const uv = values ? uvWording(values.uvIndex) : null;
   // `weather.isDay` gilt nur für JETZT. Bei „+30 Min/+1 Std" um den
@@ -89,6 +115,15 @@ export function WeatherHeader({
       ? isDaylight(origin.lat, origin.lng, at)
       : weather.isDay
     : false;
+  /** Der eine Rat-Satz – gebraucht in Kartenzeile, Kompakt- und Vollansicht. */
+  const rat = values
+    ? weatherAdvice(
+        values.apparentTemperature,
+        values.uvIndex,
+        values.precipitationProbability,
+        dayAt,
+      )
+    : null;
   const mood =
     weather && values
       ? skyMood(
@@ -193,18 +228,58 @@ export function WeatherHeader({
           <span className="font-display text-xl font-bold tabular-nums">
             {Math.round(values.temperature)}°
           </span>
-          <span className="truncate text-sky-muted">
-            {weatherAdvice(
-              values.apparentTemperature,
-              values.uvIndex,
-              values.precipitationProbability,
-              dayAt,
-            )}
-          </span>
+          <span className="truncate text-sky-muted">{rat}</span>
         </p>
       )}
 
-      {!kompakt && values && weather && uv && (
+      {/* Eingeklappt: eine Zeile Wetter, Anziehen und Aufklappen daneben.
+          Warnungen (Sicherheits-Banner, Regen-Radar) bleiben trotzdem da. */}
+      {!kompakt && values && weather && uv && wetterZu && (
+        <div className="relative mt-3">
+          <div className="flex items-center gap-2">
+            <span className="font-display text-xl leading-none font-bold tabular-nums text-dark">
+              {Math.round(values.temperature)}°
+            </span>
+            <span className="min-w-0 flex-1 truncate text-sm text-sky-muted">
+              {rat}
+            </span>
+            <button
+              type="button"
+              onClick={() => setOutfitOpen(true)}
+              aria-label="Was anziehen?"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/70 bg-white/60 text-primary-dark backdrop-blur transition hover:bg-white/80 active:scale-95"
+            >
+              <Shirt size={16} aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={wetterKlappen}
+              aria-expanded={false}
+              aria-label="Wetter-Details anzeigen"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50"
+            >
+              <ChevronDown size={18} aria-hidden />
+            </button>
+          </div>
+          {alert && alertMeta && (
+            <div className="mt-2.5 flex items-start gap-2 rounded-2xl border border-white/70 bg-white/70 px-3 py-2.5 text-sm leading-snug text-dark backdrop-blur">
+              <alertMeta.Icon
+                size={16}
+                aria-hidden
+                className={`mt-0.5 shrink-0 ${alertMeta.className}`}
+              />
+              <span>{alert.text}</span>
+            </div>
+          )}
+          {regenRadar && (
+            <p className="mt-2 inline-flex items-start gap-1.5 rounded-2xl border border-white/80 bg-white/85 px-3 py-2 text-[13px] leading-snug font-semibold text-accent-ink backdrop-blur">
+              {regenRadar}
+            </p>
+          )}
+        </div>
+      )}
+
+      {!kompakt && values && weather && uv && !wetterZu && (
         <div className="relative mt-4">
           {/* Grad, Gefühlt und der Anzieh-Knopf teilen sich eine Zeile. Vorher
               standen sie untereinander – zusammen mit dem Werte-Kasten begann
@@ -223,14 +298,25 @@ export function WeatherHeader({
               </span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setOutfitOpen(true)}
-              className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 text-[15px] font-semibold text-dark backdrop-blur transition hover:bg-white/80 active:scale-95"
-            >
-              <Shirt size={15} aria-hidden className="text-primary-dark" />
-              Was anziehen?
-            </button>
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setOutfitOpen(true)}
+                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 text-[15px] font-semibold text-dark backdrop-blur transition hover:bg-white/80 active:scale-95"
+              >
+                <Shirt size={15} aria-hidden className="text-primary-dark" />
+                Was anziehen?
+              </button>
+              <button
+                type="button"
+                onClick={wetterKlappen}
+                aria-expanded={true}
+                aria-label="Wetter-Details einklappen"
+                className="flex size-10 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50"
+              >
+                <ChevronUp size={18} aria-hidden />
+              </button>
+            </div>
           </div>
 
           {/* Der eine Satz, der sagt, worauf es jetzt ankommt – als ruhige
@@ -238,12 +324,7 @@ export function WeatherHeader({
               auf Augenhöhe mit der 44-px-Zahl und konkurrierte zusätzlich
               mit den Ortsnamen der Karten: zwei Schlagzeilen, keine Führung. */}
           <p className="mt-1.5 text-[15px] leading-snug font-medium text-balance text-sky-muted">
-            {weatherAdvice(
-              values.apparentTemperature,
-              values.uvIndex,
-              values.precipitationProbability,
-              dayAt,
-            )}
+            {rat}
           </p>
 
           {/* Sicherheits-Banner: Glätte, Schnee, Kälte – oder Hitze/UV im

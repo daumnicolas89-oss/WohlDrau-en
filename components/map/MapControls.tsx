@@ -11,7 +11,15 @@ import { tick } from "@/lib/native";
  * drei gleich laute weiße Kacheln nebeneinander und der Zeit-Umschalter
  * ging zwischen seinen Werkzeugen unter.
  */
-export function MapControls() {
+export function MapControls({
+  kontext = null,
+}: {
+  /** „Orte in deiner Nähe · 26°" – erscheint, sobald der Wetterkopf aus dem
+   *  Bild gescrollt ist (Apple-Muster: großer Kopf → kompakte Leiste).
+   *  Als hängende Pille UNTER der Leiste, damit die Leistenhöhe konstant
+   *  bleibt und beim Ein-/Ausblenden nichts springt. */
+  kontext?: string | null;
+}) {
   const filters = useFilters();
 
   return (
@@ -51,6 +59,17 @@ export function MapControls() {
       >
         {filters.viewMode === "list" ? <MapPin size={20} /> : <List size={20} />}
       </button>
+
+      <div
+        aria-hidden={kontext === null}
+        className={`pointer-events-none absolute inset-x-0 top-full flex justify-center transition-opacity duration-200 ${
+          kontext ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <span className="max-w-[85%] truncate rounded-b-xl bg-background/85 px-3.5 py-1 text-xs font-medium text-muted shadow-card backdrop-blur">
+          {kontext ?? " "}
+        </span>
+      </div>
     </div>
   );
 }

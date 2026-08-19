@@ -11,6 +11,7 @@ import {
   Megaphone,
   Navigation,
   Flag,
+  Share,
   Star,
 } from "lucide-react";
 import { scorePlace } from "@/lib/scoring";
@@ -37,7 +38,7 @@ import type { PlaceStatusType } from "@/types";
 import { useFavorites } from "@/store/useFavorites";
 import { useModeration } from "@/store/useModeration";
 import { apiUrl } from "@/lib/appMode";
-import { routeUrl, tick } from "@/lib/native";
+import { routeUrl, teilen, tick } from "@/lib/native";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useNow } from "@/hooks/useNow";
 import { useOnline } from "@/hooks/useOnline";
@@ -124,6 +125,8 @@ export function PlaceDetail({
   const favorites = useFavorites();
   const gemerkt = favorites.ids.includes(placeId);
   const [reportOpen, setReportOpen] = useState(false);
+  // Rückmeldung des Zwischenablage-Rückfalls beim Teilen (Web ohne Teilen-Blatt).
+  const [linkKopiert, setLinkKopiert] = useState(false);
   const moderation = useModeration();
 
   /** Melden: sofort ausblenden, Verfasser blockieren, Server informieren. */
@@ -364,6 +367,36 @@ export function PlaceDetail({
             >
               <ArrowLeft size={20} />
             </Link>
+
+            {/* Teilen: „schau, hier gehen wir hin" ist DIE Sozialfunktion
+                einer Familien-App. Geteilt wird die Web-Adresse des Platzes –
+                sie funktioniert auch für Eltern ohne App. */}
+            <button
+              type="button"
+              onClick={async () => {
+                tick();
+                const ergebnis = await teilen(
+                  `${place.name} · PlatzDa`,
+                  `https://www.platzda.app/ort/${place.id}?plat=${place.lat.toFixed(5)}&plng=${place.lng.toFixed(5)}`,
+                );
+                if (ergebnis === "kopiert") {
+                  setLinkKopiert(true);
+                  window.setTimeout(() => setLinkKopiert(false), 2500);
+                }
+              }}
+              aria-label="Platz teilen"
+              className="absolute right-[4.25rem] top-[max(1rem,calc(env(safe-area-inset-top)+0.5rem))] z-10 flex size-11 items-center justify-center rounded-full border border-white/70 bg-white/60 text-dark shadow-card backdrop-blur transition hover:bg-white/80 active:scale-95"
+            >
+              <Share size={19} />
+            </button>
+            {linkKopiert && (
+              <p
+                role="status"
+                className="absolute top-[max(4rem,calc(env(safe-area-inset-top)+3.5rem))] left-1/2 z-10 -translate-x-1/2 rounded-full bg-dark/85 px-4 py-1.5 text-sm font-medium whitespace-nowrap text-white"
+              >
+                Link kopiert
+              </p>
+            )}
 
             {/* Merken: macht diesen Ort zu einem „Meine Plätze"-Stammplatz,
                 der auf der Startseite oben angepinnt wird. */}

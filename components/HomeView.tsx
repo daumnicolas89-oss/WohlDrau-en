@@ -26,6 +26,7 @@ import { deriveWeatherState, useWeather } from "@/hooks/useWeather";
 import { SCORE_ERKLAERUNG } from "@/lib/wording";
 import { bestTimeHint, bestTimeToday } from "@/lib/bestTime";
 import { rainNowcast } from "@/lib/rainNowcast";
+import { weatherAt } from "@/lib/weather";
 import { placeHref } from "@/lib/appMode";
 import { activeFilterChips, useFilters } from "@/store/useFilters";
 import { useFavorites } from "@/store/useFavorites";
@@ -171,6 +172,25 @@ export function HomeView() {
     () => new Date(now.getTime() + filters.timeOffsetMin * 60_000),
     [now, filters.timeOffsetMin],
   );
+
+  // Scroll-Verdichtung (Apple-Muster „Large Title"): Sobald der Wetterkopf
+  // aus dem Bild gescrollt ist, hängt sich eine kleine Kontext-Pille an die
+  // klebende Zeitleiste – Ort und Temperatur bleiben so immer greifbar,
+  // ohne dass der große Kopf mitscrollen müsste.
+  const kopfEndeRef = useRef<HTMLDivElement | null>(null);
+  const [kopfWeg, setKopfWeg] = useState(false);
+  useEffect(() => {
+    const el = kopfEndeRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const beobachter = new IntersectionObserver(
+      ([eintrag]) => setKopfWeg(!eintrag.isIntersecting),
+      // Der Fühler gilt schon als „weg", wenn er unter die klebende Leiste
+      // rutscht – nicht erst am oberen Bildschirmrand.
+      { rootMargin: "-90px 0px 0px 0px" },
+    );
+    beobachter.observe(el);
+    return () => beobachter.disconnect();
+  }, []);
 
   const { visible, filteredOut } = useMemo(
     () =>
@@ -367,6 +387,54 @@ export function HomeView() {
 
   const istKarte = !loading && !error && filters.viewMode === "map";
 
+  // Pull-to-Refresh: Am Listenanfang nach unten ziehen lädt neu – die
+  // iOS-Geste; der stille Knopf in der Ortszeile bleibt als zweiter Weg.
+  // Bewusst NICHT auf der Karte (dort ist Ziehen Verschieben) und nicht
+  // während schon geladen wird. Die Rückmeldung übernimmt die vorhandene
+  // „Wird gerade aktualisiert …"-Zeile.
+  const pull = useRef({ startY: 0, aktiv: false });
+  const pullUmfeld = useRef({ reload: () => {}, gesperrt: false });
+  // Nach jedem Render aktualisieren (nie WÄHREND des Renderns in eine Ref
+  // schreiben): Die Touch-Handler unten leben in einem einmaligen Effekt
+  // und lesen hierüber immer den frischen Stand.
+  useEffect(() => {
+    pullUmfeld.current = {
+      reload,
+      gesperrt: istKarte || places.loading || wetter.loading,
+    };
+  });
+  useEffect(() => {
+    const anfang = (e: TouchEvent) => {
+      pull.current =
+        window.scrollY <= 0 && !pullUmfeld.current.gesperrt
+          ? { startY: e.touches[0].clientY, aktiv: true }
+          : { startY: 0, aktiv: false };
+    };
+    const ziehen = (e: TouchEvent) => {
+      const p = pull.current;
+      if (!p.aktiv) return;
+      if (window.scrollY > 0) {
+        p.aktiv = false;
+        return;
+      }
+      if (e.touches[0].clientY - p.startY > 90) {
+        p.aktiv = false;
+        pullUmfeld.current.reload();
+      }
+    };
+    const ende = () => {
+      pull.current.aktiv = false;
+    };
+    window.addEventListener("touchstart", anfang, { passive: true });
+    window.addEventListener("touchmove", ziehen, { passive: true });
+    window.addEventListener("touchend", ende, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", anfang);
+      window.removeEventListener("touchmove", ziehen);
+      window.removeEventListener("touchend", ende);
+    };
+  }, []);
+
   if (!welcomed) return <Welcome onStart={startApp} />;
 
   return (
@@ -397,7 +465,16 @@ export function HomeView() {
         refreshing={places.loading || wetter.loading}
       />
 
-      <MapControls />
+      <div ref={kopfEndeRef} aria-hidden />
+      <MapControls
+        kontext={
+          kopfWeg && !istKarte
+            ? weather
+              ? `${locationLabel} · ${Math.round(weatherAt(weather, at).temperature)}°`
+              : locationLabel
+            : null
+        }
+      />
 
       {/* Es gibt schon etwas zu sehen, frisch kommt gleich – leise sagen.
           Offline übernimmt der Offline-Banner allein, sonst widersprechen
