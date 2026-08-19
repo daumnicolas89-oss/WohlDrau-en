@@ -67,6 +67,23 @@
     linear-gradient(176deg, #fde7c6 0%, #f4ecdd 45%, #eaf1ec 75%, var(--color-background) 100%);
 }
 
+/* Landing-Auftakt: Textspalte und Telefon blenden beim Laden sanft auf,
+   das Telefon einen Tick später. Nur wenn Bewegung erwünscht ist. */
+@media (prefers-reduced-motion: no-preference) {
+  .landing-auftakt {
+    animation: landing-auftakt 0.7s ease-out both;
+  }
+  .landing-auftakt-spaeter {
+    animation: landing-auftakt 0.7s ease-out 0.15s both;
+  }
+  @keyframes landing-auftakt {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+}
+
 @utility sky-hero {
   background:
     radial-gradient(125% 85% at 84% -18%, rgb(249 197 82 / 0.45), rgb(249 197 82 / 0) 54%),
