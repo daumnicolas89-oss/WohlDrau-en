@@ -4,6 +4,62 @@ import { StandaloneRedirect } from "./StandaloneRedirect";
 const TESTFLIGHT_URL = "https://testflight.apple.com/join/Ad9Py8Xd";
 
 /**
+ * iPhone-Rahmen als CSS um Nicolas' echte Bildschirmfotos. Vorher wurden die
+ * Fotos in ein Rahmen-FOTO hineinmontiert; dabei saßen Insel und Ecken nie
+ * hundertprozentig. Hier zeichnet die Seite den Rahmen selbst, alle Maße in
+ * `cqw` (Prozent der Rahmenbreite), dadurch stimmt die Geometrie in jeder
+ * Größe. Die Eckenrundung des Bildschirms (8cqw) entspricht exakt der
+ * Rundung, mit der der Inhalt in den webp-Dateien maskiert ist.
+ */
+function GeraeteRahmen({
+  quelle,
+  alt,
+  breite,
+  hoehe,
+  klasse,
+}: {
+  quelle: string;
+  alt: string;
+  breite: number;
+  hoehe: number;
+  klasse?: string;
+}) {
+  return (
+    <div className={`relative @container ${klasse ?? ""}`}>
+      {/* Tasten links (Aktion, Lauter, Leiser) und rechts (Seitentaste) */}
+      <span
+        aria-hidden
+        className="absolute top-[17.5%] -left-[0.8cqw] h-[3.2%] w-[1.6cqw] rounded-l-[0.8cqw] bg-[#3a3d42]"
+      />
+      <span
+        aria-hidden
+        className="absolute top-[24%] -left-[0.8cqw] h-[5.4%] w-[1.6cqw] rounded-l-[0.8cqw] bg-[#3a3d42]"
+      />
+      <span
+        aria-hidden
+        className="absolute top-[31.5%] -left-[0.8cqw] h-[5.4%] w-[1.6cqw] rounded-l-[0.8cqw] bg-[#3a3d42]"
+      />
+      <span
+        aria-hidden
+        className="absolute top-[26.5%] -right-[0.8cqw] h-[8.5%] w-[1.6cqw] rounded-r-[0.8cqw] bg-[#3a3d42]"
+      />
+      <div className="relative rounded-[11.2cqw] bg-[#17191d] p-[3.2cqw] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_0_0.6cqw_1px_rgba(0,0,0,0.9)]">
+        <div className="overflow-hidden rounded-[8cqw] bg-[#17191d]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={quelle}
+            alt={alt}
+            width={breite}
+            height={hoehe}
+            className="block w-full"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * Die Haustür von platzda.app – in drei Kritik-Runden (Design-Direktion,
  * Conversion-Text, System-Audit) geschliffen:
  * - Das Produkt ist SICHTBAR: echter App-Screenshot im Geräterahmen im Hero,
@@ -55,20 +111,18 @@ export function Landing() {
             </p>
           </div>
 
-          {/* Das Produkt selbst: echtes iPhone-Foto der App (Nicolas'
-              Geräterahmen-Screenshot, weißer Rand automatisch beschnitten),
-              statt eines CSS-Nachbaus. Mobil rechts angeschnitten
-              (Scroll-Sog); die sm-Formel bindet den Anschnitt an den
-              VIEWPORT statt an den Container, damit das Telefon auch
-              zwischen 640 und 1023 px an der Kante bleibt. */}
+          {/* Das Produkt selbst: Nicolas' echtes Bildschirmfoto im
+              CSS-Geräterahmen. Mobil rechts angeschnitten (Scroll-Sog);
+              die sm-Formel bindet den Anschnitt an den VIEWPORT statt an
+              den Container, damit das Telefon auch zwischen 640 und
+              1023 px an der Kante bleibt. */}
           <div className="mt-10 -mr-14 ml-auto w-64 rotate-2 sm:mr-[calc((36rem-100vw)/2-2rem)] lg:mt-0 lg:mr-0 lg:ml-0 lg:w-72 lg:rotate-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/app-geraet-start.png"
+            <GeraeteRahmen
+              quelle="/app-bildschirm-start.webp"
               alt="Die PlatzDa-App auf dem iPhone: Startbildschirm mit Wetter, Werteleiste und der besten Wahl gerade an einem Regentag"
-              width={683}
-              height={1405}
-              className="w-full drop-shadow-[0_18px_40px_rgba(28,53,64,0.35)]"
+              breite={623}
+              hoehe={1352}
+              klasse="drop-shadow-[0_18px_40px_rgba(28,53,64,0.35)]"
             />
           </div>
         </div>
@@ -78,13 +132,12 @@ export function Landing() {
       <section className="mx-auto w-full max-w-xl px-5 lg:max-w-4xl lg:px-0">
         <div className="relative -mt-6 overflow-hidden rounded-card bg-card shadow-card">
           <div className="grid items-center gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12 lg:p-8">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/app-geraet-detail.png"
+            <GeraeteRahmen
+              quelle="/app-bildschirm-detail.webp"
               alt="Die Detailseite eines Parks in der PlatzDa-App auf dem iPhone: Bewertung, ehrlicher Regen-Hinweis, Luftbild und die Karte, wie sonnig es dort ist"
-              width={683}
-              height={1407}
-              className="mx-auto w-52 drop-shadow-[0_14px_32px_rgba(28,53,64,0.3)] lg:w-60"
+              breite={623}
+              hoehe={1354}
+              klasse="mx-auto w-52 drop-shadow-[0_14px_32px_rgba(28,53,64,0.3)] lg:w-60"
             />
             <p className="text-center text-[15px] leading-relaxed text-balance text-muted lg:text-left lg:text-lg">
               Schatten wandert mit der Sonne.{" "}
