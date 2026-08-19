@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   AlertTriangle,
   ChevronDown,
+  ChevronRight,
   ChevronUp,
   CloudOff,
   MapPin,
@@ -32,7 +33,6 @@ import { weatherAt } from "@/lib/weather";
 import type { Weather } from "@/types";
 import type { GeoStatus } from "@/hooks/useGeolocation";
 import { TONE_TEXT } from "@/components/ui/ScoreRing";
-import { Logo } from "./Logo";
 import { OutfitSheet } from "./OutfitSheet";
 import { SkyScene, skyMood, SKY_GRADIENT } from "./SkyScene";
 import { Hinweis } from "./ui/Hinweis";
@@ -187,40 +187,45 @@ export function WeatherHeader({
     >
       {mood && <SkyScene mood={mood} />}
 
-      <div className="relative pr-20">
-        <Logo />
-        {/* Die Ortszeile ist der Knopf zum Standort-Fenster, der Pfeil zeigt
-            es an. Daneben, still: Neu laden – ein Werkzeug, kein Held. */}
-        <div className="mt-1.5 flex max-w-full items-center gap-1">
+      {/* Der Ort IST der Titel (natives Muster: Kontext statt Marke – das
+          Logo lebt im App-Icon, im Ladebildschirm und auf der Landing).
+          Vorher stapelten sich hier Logo-Zeile, Ortszeile und Temperatur-
+          Zeile mit je eigener Logik – Nicolas: „zu durcheinander". */}
+      <div className="relative flex items-center gap-1 pr-14">
+        <button
+          type="button"
+          onClick={onOpenLocation}
+          aria-label="Standort ändern oder einen Ort suchen"
+          className="flex min-w-0 items-center gap-1.5 text-left transition active:opacity-70"
+        >
+          <MapPin
+            size={17}
+            aria-hidden
+            className={`shrink-0 text-primary-dark ${geoStatus === "locating" ? "animate-pulse" : ""}`}
+          />
+          <span className="truncate font-display text-[21px] leading-tight font-bold text-dark">
+            {locationLabel}
+          </span>
+          <ChevronDown
+            size={18}
+            aria-hidden
+            className="mt-0.5 shrink-0 text-sky-muted"
+          />
+        </button>
+        {onRefresh && (
           <button
             type="button"
-            onClick={onOpenLocation}
-            aria-label="Standort ändern oder einen Ort suchen"
-            className="flex min-w-0 items-center gap-1.5 text-[15px] font-medium text-sky-muted transition active:opacity-70"
+            onClick={onRefresh}
+            disabled={refreshing}
+            aria-label="Neu laden"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50 disabled:opacity-60 disabled:active:scale-100"
           >
-            <MapPin
-              size={14}
-              aria-hidden
-              className={`shrink-0 text-primary-dark ${geoStatus === "locating" ? "animate-pulse" : ""}`}
+            <RefreshCw
+              size={16}
+              className={refreshing ? "animate-spin" : undefined}
             />
-            <span className="truncate">{locationLabel}</span>
-            <ChevronDown size={16} aria-hidden className="shrink-0 text-sky-muted" />
           </button>
-          {onRefresh && (
-            <button
-              type="button"
-              onClick={onRefresh}
-              disabled={refreshing}
-              aria-label="Neu laden"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50 disabled:opacity-60 disabled:active:scale-100"
-            >
-              <RefreshCw
-                size={16}
-                className={refreshing ? "animate-spin" : undefined}
-              />
-            </button>
-          )}
-        </div>
+        )}
       </div>
 
       {kompakt && values && (
@@ -285,6 +290,11 @@ export function WeatherHeader({
               standen sie untereinander – zusammen mit dem Werte-Kasten begann
               der erste Platz erst nach einer halben Bildschirmhöhe. Die App
               stellte damit ihre Begründung vor ihre Antwort. */}
+          {/* Nur Zahl, Gefühlt und der Klapp-Pfeil – der Anzieh-Knopf wohnt
+              jetzt UNTER dem Werte-Raster. Als weiße Pille neben der
+              44-px-Zahl war er der Haupt-Störer des Kopfes: zwei laute
+              Elemente auf einer Zeile, und auf schmalen Geräten drückte er
+              alles ins Gequetschte. */}
           <div className="flex items-end justify-between gap-3">
             <div className="flex items-end gap-1.5">
               <span className="font-display text-[44px] leading-[0.85] font-bold tracking-tight text-dark tabular-nums">
@@ -293,38 +303,24 @@ export function WeatherHeader({
               <span className="font-display text-xl leading-none font-semibold text-dark/70">
                 °C
               </span>
+              <span className="pb-0.5 pl-1 text-[13px] leading-none whitespace-nowrap text-sky-muted">
+                gefühlt {Math.round(values.apparentTemperature)}°
+              </span>
             </div>
-
-            <div className="flex shrink-0 items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setOutfitOpen(true)}
-                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-white/70 bg-white/60 px-3.5 text-[15px] font-semibold text-dark backdrop-blur transition hover:bg-white/80 active:scale-95"
-              >
-                <Shirt size={15} aria-hidden className="text-primary-dark" />
-                Was anziehen?
-              </button>
-              <button
-                type="button"
-                onClick={wetterKlappen}
-                aria-expanded={true}
-                aria-label="Wetter-Details einklappen"
-                className="flex size-10 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50"
-              >
-                <ChevronUp size={18} aria-hidden />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={wetterKlappen}
+              aria-expanded={true}
+              aria-label="Wetter-Details einklappen"
+              className="flex size-10 shrink-0 items-center justify-center rounded-full text-sky-muted transition active:scale-95 active:bg-white/50"
+            >
+              <ChevronUp size={18} aria-hidden />
+            </button>
           </div>
 
-          {/* Der eine Satz, der sagt, worauf es jetzt ankommt – als ruhige
-              Unterzeile der Temperatur, zusammen mit „Gefühlt". Auf schmalen
-              Geräten brach „gefühlt 17°" sonst NEBEN der großen Zahl um und
-              quetschte die Zeile (Nicolas' iPhone-Screenshot). */}
+          {/* Der eine Satz, der sagt, worauf es jetzt ankommt – allein in
+              seiner Zeile, ruhig. */}
           <p className="mt-1.5 text-[15px] leading-snug font-medium text-balance text-sky-muted">
-            <span className="whitespace-nowrap">
-              Gefühlt {Math.round(values.apparentTemperature)}°
-            </span>
-            {" · "}
             {rat}
           </p>
 
@@ -419,6 +415,21 @@ export function WeatherHeader({
               {tageslicht}
             </p>
           )}
+
+          {/* Das eine Feature, das PlatzDa besonders macht – als ruhige,
+              volle Zeile am Fuß des Wetterblocks statt als weißer Fleck
+              neben der Temperatur. */}
+          <button
+            type="button"
+            onClick={() => setOutfitOpen(true)}
+            className="mt-2.5 flex min-h-11 w-full items-center justify-between rounded-2xl border border-white/70 bg-white/60 px-3.5 text-[15px] font-semibold text-dark backdrop-blur transition hover:bg-white/80 active:scale-[0.99]"
+          >
+            <span className="flex items-center gap-2">
+              <Shirt size={16} aria-hidden className="text-primary-dark" />
+              Was anziehen?
+            </span>
+            <ChevronRight size={16} aria-hidden className="text-sky-muted" />
+          </button>
         </div>
       )}
 
