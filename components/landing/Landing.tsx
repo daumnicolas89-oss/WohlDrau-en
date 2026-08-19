@@ -266,9 +266,9 @@ export function Landing() {
       </section>
 
       {/* ---- Der Absender: ein Ich mit Namen ---- */}
-      {/* Absender und Ehrlichkeit sind EIN Gedanke: ein Vater, der ehrlich
-          rechnet. Darum hängt die Fußnote direkt am Absatz, statt als
-          eigene Sektion zu schweben. */}
+      {/* Absender und Ehrlichkeit sind EIN Gedanke. Bewusst OHNE persönliche
+          Angaben zum Entwickler (Nicolas' Wunsch 2026-08-19): nur die
+          Tatsache „eine Person, kein Unternehmen" plus Kontaktadresse. */}
       <section className="mx-auto w-full max-w-xl px-5 pt-12 lg:max-w-4xl lg:px-0 lg:pt-24">
         <Erscheint>
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
@@ -276,11 +276,9 @@ export function Landing() {
         </h2>
         <div className="mt-6 rounded-card bg-card p-6 shadow-card lg:p-8">
           <p className="max-w-[60ch] text-base leading-relaxed text-muted">
-            Ich bin Nicolas, Vater aus Hamburg. PlatzDa habe ich gebaut, weil
-            ich selbst ständig wissen wollte, auf welchem Platz nachmittags
-            noch Schatten ist. Ich arbeite allein daran und teste jede Version
-            mit meiner Familie. Wenn etwas nicht stimmt oder dir etwas fehlt,
-            schreib mir:{" "}
+            PlatzDa wird von einer einzelnen Person entwickelt und laufend
+            verbessert, nicht von einem Unternehmen. Wenn etwas nicht stimmt
+            oder dir etwas fehlt, schreib mir:{" "}
             <a
               href="mailto:kontakt@nicolas-daum.ai"
               className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2 transition-colors hover:text-primary-darker"
