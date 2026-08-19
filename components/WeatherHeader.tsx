@@ -293,9 +293,6 @@ export function WeatherHeader({
               <span className="font-display text-xl leading-none font-semibold text-dark/70">
                 °C
               </span>
-              <span className="pb-0.5 pl-1 text-[13px] leading-none text-sky-muted">
-                gefühlt {Math.round(values.apparentTemperature)}°
-              </span>
             </div>
 
             <div className="flex shrink-0 items-center gap-1">
@@ -320,10 +317,14 @@ export function WeatherHeader({
           </div>
 
           {/* Der eine Satz, der sagt, worauf es jetzt ankommt – als ruhige
-              Unterzeile der Temperatur. Vorher stand er mit 20 px/fett fast
-              auf Augenhöhe mit der 44-px-Zahl und konkurrierte zusätzlich
-              mit den Ortsnamen der Karten: zwei Schlagzeilen, keine Führung. */}
+              Unterzeile der Temperatur, zusammen mit „Gefühlt". Auf schmalen
+              Geräten brach „gefühlt 17°" sonst NEBEN der großen Zahl um und
+              quetschte die Zeile (Nicolas' iPhone-Screenshot). */}
           <p className="mt-1.5 text-[15px] leading-snug font-medium text-balance text-sky-muted">
+            <span className="whitespace-nowrap">
+              Gefühlt {Math.round(values.apparentTemperature)}°
+            </span>
+            {" · "}
             {rat}
           </p>
 
@@ -342,11 +343,17 @@ export function WeatherHeader({
 
           {/* Eine Zeile statt eines Kastens – jede Zahl behält ihre
               Bezeichnung, „10 %" allein bliebe ein Rätsel. */}
-          {/* flex-wrap: Mit gefülltem vierten Chip (Hitzetag: „UV 7,0 hoch"
-              + „Beste Zeit 18–20") passte die Zeile auf 390 px nicht mehr
-              und stutzte ausgerechnet die Uhrzeit („Beste Zeit 1…"). Jetzt
-              bricht der letzte Chip als Ganzes um, statt zu verstümmeln. */}
-          <dl className="mt-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-white/70 bg-white/55 px-2.5 py-2 text-xs backdrop-blur min-[360px]:gap-x-2 min-[360px]:px-3">
+          {/* Drei Werte: eine Zeile, wie gewohnt. VIER Werte: ein ordentliches
+              2-Spalten-Raster statt eines zufälligen Umbruchs – der erste
+              Wurf ließ „Beste Zeit" einfach in die zweite Zeile fallen, was
+              auf Nicolas' iPhone gequetscht und unordentlich aussah. */}
+          <dl
+            className={
+              besteZeitChip
+                ? "mt-2.5 grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-2xl border border-white/70 bg-white/55 px-3.5 py-2.5 text-xs backdrop-blur"
+                : "mt-2.5 flex items-center gap-1.5 overflow-hidden rounded-full border border-white/70 bg-white/55 px-2.5 py-2 text-xs backdrop-blur min-[360px]:gap-2 min-[360px]:px-3"
+            }
+          >
             {/* „Sonne sehr hoch · UV 9,2" sprengte die Zeile und kürzte
                 ausgerechnet an Hitzetagen das Wort weg. Kurzform: Zahl wie bei
                 Regen und Wind, das einordnende Wort dahinter. */}
@@ -363,14 +370,18 @@ export function WeatherHeader({
                 )}
               </dd>
             </div>
-            <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
+            {!besteZeitChip && (
+              <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
+            )}
             <div className="flex shrink-0 items-baseline gap-1">
               <dt className="text-muted">Regen</dt>
               <dd className="font-semibold text-dark">
                 {Math.round(values.precipitationProbability)} %
               </dd>
             </div>
-            <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
+            {!besteZeitChip && (
+              <span aria-hidden className="h-3.5 w-px shrink-0 bg-dark/12" />
+            )}
             <div className="flex shrink-0 items-baseline gap-1">
               <dt className="text-muted">Wind</dt>
               {/* Dass der Wind bei Kälte zusätzlich zählt, stand vorher nur in
@@ -383,14 +394,10 @@ export function WeatherHeader({
               </dd>
             </div>
             {besteZeitChip && (
-              /* Trenner und Chip als EINE Einheit, damit beim Umbruch kein
-                 verwaister Strich am Zeilenende hängen bleibt; die Uhrzeit
-                 selbst wird nie gestutzt. */
-              <div className="flex shrink-0 items-baseline gap-1.5 min-[360px]:gap-2">
-                <span aria-hidden className="h-3.5 w-px self-center bg-dark/12" />
-                <dt className="text-muted">Beste Zeit</dt>
-                <dd className="-ml-0.5 font-semibold whitespace-nowrap text-dark">
-                  {besteZeitChip}
+              <div className="flex items-baseline gap-1">
+                <dt className="shrink-0 text-muted">Beste Zeit</dt>
+                <dd className="font-semibold whitespace-nowrap text-dark">
+                  {besteZeitChip} Uhr
                 </dd>
               </div>
             )}
