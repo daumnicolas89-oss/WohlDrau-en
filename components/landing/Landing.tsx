@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Baby, CloudSun, TreeDeciduous } from "lucide-react";
 import { StandaloneRedirect } from "./StandaloneRedirect";
 
 const TESTFLIGHT_URL = "https://testflight.apple.com/join/Ad9Py8Xd";
@@ -154,37 +155,49 @@ export function Landing() {
       {/* Ab lg liegen alle Sektionen im selben max-w-4xl-Container wie der
           Hero (lg:px-0, weil dort das Padding außen am Header sitzt) –
           H1 und H2s fluchten auf einer Achse statt zu springen. */}
+      {/* Die Mitte spricht die Karten-Sprache der App selbst: weiße Karten
+          mit weichem Schatten auf dem warmen Papier, App-Symbole als
+          Absender. */}
       <section className="mx-auto w-full max-w-xl px-5 pt-16 lg:max-w-4xl lg:px-0 lg:pt-24">
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
-          Was du weißt, bevor ihr losgeht
+          Was du vor dem Losgehen weißt
         </h2>
-        <div className="mt-6 space-y-8 lg:grid lg:grid-cols-3 lg:gap-10 lg:space-y-0">
-          <div>
-            <h3 className="font-display text-lg font-semibold">
+        <div className="mt-6 grid gap-4 lg:grid-cols-3 lg:gap-6">
+          <div className="rounded-card bg-card p-6 shadow-card">
+            <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
+              <TreeDeciduous className="size-6" strokeWidth={1.8} aria-hidden />
+            </span>
+            <h3 className="mt-4 font-display text-lg font-semibold">
               Schatten, der stimmt
             </h3>
-            <p className="mt-2 max-w-[52ch] text-base leading-relaxed text-muted">
+            <p className="mt-2 text-base leading-relaxed text-muted">
               Für jeden Platz berechnet PlatzDa, wie viel Schatten dort gerade
               liegt. Im Winter rechnet sie Laubbäume lichter, weil sie kahl
               sind. Und sie sagt ehrlich dazu, wie verlässlich die Schätzung
               ist.
             </p>
           </div>
-          <div>
-            <h3 className="font-display text-lg font-semibold">
+          <div className="rounded-card bg-card p-6 shadow-card">
+            <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
+              <CloudSun className="size-6" strokeWidth={1.8} aria-hidden />
+            </span>
+            <h3 className="mt-4 font-display text-lg font-semibold">
               Das Wetter dieser Stunde
             </h3>
-            <p className="mt-2 max-w-[52ch] text-base leading-relaxed text-muted">
+            <p className="mt-2 text-base leading-relaxed text-muted">
               Gefühlte Temperatur, UV, Wind und der Blick nach vorn: „Regen
               zieht auf: In rund 20 Minuten geht es los.“ Dazu ein Anzieh-Tipp,
               abgestimmt auf das Alter deines Kindes.
             </p>
           </div>
-          <div>
-            <h3 className="font-display text-lg font-semibold">
+          <div className="rounded-card bg-card p-6 shadow-card">
+            <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary-dark">
+              <Baby className="size-6" strokeWidth={1.8} aria-hidden />
+            </span>
+            <h3 className="mt-4 font-display text-lg font-semibold">
               Was den Ausflug entscheidet
             </h3>
-            <p className="mt-2 max-w-[52ch] text-base leading-relaxed text-muted">
+            <p className="mt-2 text-base leading-relaxed text-muted">
               Toilette, Zaun, Wickeltisch, Wasser zum Planschen, ein Unterstand
               für Regenpausen. Was andere Eltern gemeldet haben, siehst du
               auch: aus den letzten drei Stunden, nicht vom letzten Sommer.
@@ -198,7 +211,7 @@ export function Landing() {
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           So testest du PlatzDa
         </h2>
-        <ol className="mt-6 space-y-5 lg:grid lg:grid-cols-3 lg:gap-10 lg:space-y-0">
+        <ol className="mt-6 space-y-6 rounded-card bg-card p-6 shadow-card lg:grid lg:grid-cols-3 lg:gap-10 lg:space-y-0 lg:p-8">
           {[
             [
               "Link antippen",
@@ -239,23 +252,26 @@ export function Landing() {
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Wer dahintersteckt
         </h2>
-        <p className="mt-3 max-w-[52ch] text-base leading-relaxed text-muted">
-          Kein Unternehmen, ein Vater. Ich bin Nicolas und baue PlatzDa
-          selbst. Wenn der Schatten vor Ort nicht stimmt oder dir etwas fehlt,
-          schreib mir:{" "}
-          <a
-            href="mailto:kontakt@nicolas-daum.ai"
-            className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2 transition-colors hover:text-primary-darker"
-          >
-            kontakt@nicolas-daum.ai
-          </a>
-        </p>
-        <p className="mt-6 max-w-[52ch] rounded-card bg-primary-soft p-5 text-base leading-relaxed text-primary-dark">
-          Plätze und Ausstattung stammen von OpenStreetMap, das Wetter von
-          Open-Meteo. Der Schatten ist{" "}
-          <span className="font-semibold">gerechnet, nicht gemessen</span>: eine
-          gute Schätzung, keine Garantie. Der Blick vor Ort bleibt deiner.
-        </p>
+        <div className="mt-6 rounded-card bg-card p-6 shadow-card lg:p-8">
+          <p className="max-w-[60ch] text-base leading-relaxed text-muted">
+            Kein Unternehmen, ein Vater. Ich bin Nicolas und baue PlatzDa
+            selbst. Wenn der Schatten vor Ort nicht stimmt oder dir etwas
+            fehlt, schreib mir:{" "}
+            <a
+              href="mailto:kontakt@nicolas-daum.ai"
+              className="font-medium whitespace-nowrap text-primary-dark underline underline-offset-2 transition-colors hover:text-primary-darker"
+            >
+              kontakt@nicolas-daum.ai
+            </a>
+          </p>
+          <p className="mt-5 max-w-[60ch] rounded-2xl bg-primary-soft p-5 text-base leading-relaxed text-primary-dark">
+            Plätze und Ausstattung stammen von OpenStreetMap, das Wetter von
+            Open-Meteo. Der Schatten ist{" "}
+            <span className="font-semibold">gerechnet, nicht gemessen</span>:
+            eine gute Schätzung, keine Garantie. Der Blick vor Ort bleibt
+            deiner.
+          </p>
+        </div>
       </section>
 
       {/* ---- Kurz gefragt ---- */}
@@ -263,30 +279,30 @@ export function Landing() {
         <h2 className="font-display text-2xl leading-snug font-bold text-balance sm:text-3xl">
           Kurz gefragt
         </h2>
-        <dl className="mt-6 space-y-8 lg:grid lg:grid-cols-3 lg:gap-10 lg:space-y-0">
-          <div>
+        <dl className="mt-6 grid gap-4 lg:grid-cols-3 lg:gap-6">
+          <div className="rounded-card bg-card p-6 shadow-card">
             <dt className="font-display text-lg font-semibold">
               Was ist TestFlight?
             </dt>
-            <dd className="mt-1 max-w-[52ch] text-base leading-relaxed text-muted">
+            <dd className="mt-2 text-base leading-relaxed text-muted">
               Apples eigene App zum Ausprobieren neuer Apps, offiziell und
               kostenlos im App Store. Darüber kommt PlatzDa auf dein iPhone,
               solange es in der Testphase ist.
             </dd>
           </div>
-          <div>
+          <div className="rounded-card bg-card p-6 shadow-card">
             <dt className="font-display text-lg font-semibold">
               Kostet das etwas?
             </dt>
-            <dd className="mt-1 max-w-[52ch] text-base leading-relaxed text-muted">
+            <dd className="mt-2 text-base leading-relaxed text-muted">
               Nein, nichts. Kein Konto, keine Werbung, keine Käufe.
             </dd>
           </div>
-          <div>
+          <div className="rounded-card bg-card p-6 shadow-card">
             <dt className="font-display text-lg font-semibold">
               Was passiert mit meinen Daten?
             </dt>
-            <dd className="mt-1 max-w-[52ch] text-base leading-relaxed text-muted">
+            <dd className="mt-2 text-base leading-relaxed text-muted">
               Dein Standort dient nur der Suche. Er wird nicht bei uns
               gespeichert. Nur dein Gerät merkt sich den letzten Ort. Kein
               Login, keine Nutzungsprofile.
